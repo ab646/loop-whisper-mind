@@ -120,34 +120,23 @@ export default function OnboardingPage() {
             className="space-y-6"
           >
             {current.type === "video" && (
-              <div className="space-y-5">
-                <div className="space-y-2">
-                  <h1 className="font-display text-2xl text-on-surface leading-tight">
-                    {current.title}
-                  </h1>
-                  <p className="text-on-surface-variant text-sm">{current.subtitle}</p>
-                </div>
-                <div className="relative rounded-2xl overflow-hidden surface-low aspect-[9/16] max-h-[55vh] mx-auto">
-                  <video
-                    ref={videoRef}
-                    src="/videos/onboarding-explainer.mp4"
-                    playsInline
-                    muted
-                    onEnded={() => setVideoPlaying(false)}
-                    className="w-full h-full object-cover"
-                  />
-                  {!videoPlaying && (
-                    <motion.button
-                      whileTap={{ scale: 0.9 }}
-                      onClick={handlePlayVideo}
-                      className="absolute inset-0 flex items-center justify-center bg-background/30"
-                    >
-                      <div className="w-16 h-16 rounded-full orb-gradient flex items-center justify-center orb-shadow">
-                        <Play size={28} className="text-primary-foreground ml-1" />
-                      </div>
-                    </motion.button>
-                  )}
-                </div>
+              <div className="fixed inset-0 z-10 flex flex-col mesh-gradient-bg">
+                <video
+                  ref={videoRef}
+                  src="/videos/onboarding-explainer.mp4"
+                  playsInline
+                  muted
+                  autoPlay
+                  onEnded={() => handleNext()}
+                  className="w-full h-full object-cover"
+                />
+                {/* Skip button */}
+                <button
+                  onClick={handleNext}
+                  className="absolute bottom-10 right-6 text-on-surface-variant text-sm font-body hover:text-mint z-20"
+                >
+                  Skip →
+                </button>
               </div>
             )}
 

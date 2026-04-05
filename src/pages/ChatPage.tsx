@@ -1,8 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Play, Loader2 } from "lucide-react";
-import { AppHeader } from "@/components/AppHeader";
+import { Play, Loader2, ArrowLeft } from "lucide-react";
 import { ChatInput } from "@/components/ChatInput";
 import { ReflectionCard } from "@/components/ReflectionCard";
 import { Waveform } from "@/components/Waveform";

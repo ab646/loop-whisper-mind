@@ -3,6 +3,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { BottomNav } from "@/components/BottomNav";
+import HomePage from "./pages/HomePage";
 import ChatPage from "./pages/ChatPage";
 import RecordingPage from "./pages/RecordingPage";
 import InsightsPage from "./pages/InsightsPage";
@@ -19,7 +20,8 @@ const App = () => (
       <BrowserRouter>
         <div className="max-w-md mx-auto relative min-h-screen">
           <Routes>
-            <Route path="/" element={<ChatPage />} />
+            <Route path="/" element={<HomePage />} />
+            <Route path="/chat/:id" element={<ChatPage />} />
             <Route path="/recording" element={<RecordingPage />} />
             <Route path="/insights" element={<InsightsPage />} />
             <Route path="/theme/:id" element={<ThemeExplorationPage />} />

@@ -142,7 +142,7 @@ export default function ProfilePage() {
 function ToggleSwitch({ checked, onChange }: { checked: boolean; onChange: () => void }) {
   return (
     <button
-      onClick={() => onChange(!checked)}
+      onClick={onChange}
       className={`w-12 h-6 rounded-full relative transition-colors ${
         checked ? "bg-mint" : "bg-surface-high"
       }`}

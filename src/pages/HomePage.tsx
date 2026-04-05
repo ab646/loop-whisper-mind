@@ -121,6 +121,15 @@ export default function HomePage() {
           ))}
         </div>
       </div>
+
+      {/* Floating input */}
+      <div className="shrink-0 pb-20">
+        <ChatInput
+          onSend={(text) => navigate("/chat/new", { state: { initialText: text } })}
+          onVoice={() => navigate("/recording")}
+          placeholder="Type your thoughts..."
+        />
+      </div>
     </div>
   );
 }

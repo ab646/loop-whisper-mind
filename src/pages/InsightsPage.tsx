@@ -24,7 +24,7 @@ export default function InsightsPage() {
           <Menu size={20} className="text-on-surface-variant" />
           <h1 className="font-display text-xl text-on-surface font-semibold">Loop</h1>
         </div>
-        <span className="text-mint font-body font-semibold text-sm">Insights</span>
+        <span className="text-mint font-body font-semibold text-sm">Patterns</span>
       </header>
 
       <div className="px-5 space-y-8">

@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 
 const tabs = [
   { path: "/", label: "CHAT", icon: Mic },
-  { path: "/insights", label: "INSIGHTS", icon: BarChart3 },
+  { path: "/insights", label: "PATTERNS", icon: BarChart3 },
   { path: "/profile", label: "PROFILE", icon: User },
   { path: "/settings", label: "SETTINGS", icon: Settings },
 ];

@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
-import { Menu, MessageSquare, Moon, Mail, VolumeX } from "lucide-react";
+import { MessageSquare, Mail, VolumeX } from "lucide-react";
+import { AppHeader } from "@/components/AppHeader";
 import { ThemeCard } from "@/components/ThemeCard";
 
 const themes = [

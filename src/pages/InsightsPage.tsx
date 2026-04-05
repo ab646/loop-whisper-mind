@@ -57,7 +57,7 @@ export default function InsightsPage() {
 
   if (!insights || insights.isEmpty) {
     return (
-      <div className="min-h-screen mesh-gradient-bg pb-24">
+      <div className="min-h-screen mesh-gradient-bg pb-24 pt-6">
         <div className="px-5 flex flex-col items-center justify-center min-h-[60vh] gap-4">
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="text-center space-y-3">
             <h2 className="font-display text-2xl text-on-surface leading-tight">

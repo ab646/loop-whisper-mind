@@ -55,7 +55,7 @@ export default function HomePage() {
   const navigate = useNavigate();
 
   return (
-    <div className="flex flex-col min-h-screen mesh-gradient-bg pb-24">
+    <div className="flex flex-col h-screen mesh-gradient-bg">
       {/* Header */}
       <header className="flex items-center justify-center px-5 py-4">
         <h1 className="font-display text-xl text-on-surface font-semibold">Loop</h1>

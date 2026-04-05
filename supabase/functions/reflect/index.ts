@@ -1,5 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
+import { createClient } from "npm:@supabase/supabase-js@2.101.1";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -8,54 +8,57 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
-  if (req.method === "OPTIONS")
+  if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
+  }
 
   try {
     const authHeader = req.headers.get("Authorization");
-    if (!authHeader)
+    if (!authHeader?.startsWith("Bearer ")) {
       return new Response(JSON.stringify({ error: "No auth" }), {
         status: 401,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
+    }
 
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+    const token = authHeader.replace("Bearer ", "").trim();
+    const supabaseUrl = Deno.env.get("SUPABASE_URL");
+    const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+    const anonKey = Deno.env.get("SUPABASE_ANON_KEY");
 
-    // User client for auth validation
-    const userClient = createClient(supabaseUrl, anonKey, {
+    if (!supabaseUrl || !serviceRoleKey || !anonKey) {
+      throw new Error("Supabase environment is not configured correctly");
+    }
+
+    const authClient = createClient(supabaseUrl, anonKey, {
       global: { headers: { Authorization: authHeader } },
     });
 
-    const {
-      data: { user },
-      error: userError,
-    } = await userClient.auth.getUser();
+    const { data: claimsData, error: claimsError } = await authClient.auth.getClaims(token);
+    const userId = claimsData?.claims?.sub;
 
-    if (userError || !user) {
-      console.error("Auth error:", userError?.message);
+    if (claimsError || !userId) {
+      console.error("Auth claims error:", claimsError?.message ?? "Missing sub claim");
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    // Admin client for DB operations (bypasses RLS)
     const adminClient = createClient(supabaseUrl, serviceRoleKey);
 
     const { content, entryType, previousMessages } = await req.json();
-    if (!content?.trim())
+    if (!content?.trim()) {
       return new Response(JSON.stringify({ error: "Content required" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
+    }
 
-    // Fetch recent entries for context
     const { data: recentEntries } = await adminClient
       .from("entries")
       .select("content, reflection, tags, created_at")
-      .eq("user_id", user.id)
+      .eq("user_id", userId)
       .order("created_at", { ascending: false })
       .limit(10);
 
@@ -75,8 +78,9 @@ serve(async (req) => {
       : "";
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY)
+    if (!LOVABLE_API_KEY) {
       throw new Error("LOVABLE_API_KEY not configured");
+    }
 
     const systemPrompt = `You are Loop, a reflective voice journal companion for overthinkers and people with anxious or ADHD-style rumination. You are NOT a therapist. You are a calm, psychologically literate mirror.
 
@@ -100,26 +104,23 @@ When a user shares a thought, return a structured reflection as a JSON object wi
 
 Return ONLY valid JSON. No markdown, no explanation.${historyContext}${conversationContext}`;
 
-    const aiResponse = await fetch(
-      "https://ai.gateway.lovable.dev/v1/chat/completions",
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${LOVABLE_API_KEY}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          model: "google/gemini-3-flash-preview",
-          messages: [
-            { role: "system", content: systemPrompt },
-            { role: "user", content },
-          ],
-        }),
-      }
-    );
+    const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "google/gemini-3-flash-preview",
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content },
+        ],
+      }),
+    });
 
     if (!aiResponse.ok) {
-      if (aiResponse.status === 429)
+      if (aiResponse.status === 429) {
         return new Response(
           JSON.stringify({ error: "Rate limited, please try again shortly." }),
           {
@@ -127,22 +128,21 @@ Return ONLY valid JSON. No markdown, no explanation.${historyContext}${conversat
             headers: { ...corsHeaders, "Content-Type": "application/json" },
           }
         );
-      if (aiResponse.status === 402)
-        return new Response(
-          JSON.stringify({ error: "AI credits exhausted." }),
-          {
-            status: 402,
-            headers: { ...corsHeaders, "Content-Type": "application/json" },
-          }
-        );
+      }
+
+      if (aiResponse.status === 402) {
+        return new Response(JSON.stringify({ error: "AI credits exhausted." }), {
+          status: 402,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
       throw new Error(`AI gateway error: ${aiResponse.status}`);
     }
 
     const aiData = await aiResponse.json();
-    const rawContent =
-      aiData.choices?.[0]?.message?.content || "";
+    const rawContent = aiData.choices?.[0]?.message?.content || "";
 
-    // Parse JSON from response (strip markdown fences if present)
     let reflection;
     try {
       const cleaned = rawContent
@@ -162,11 +162,10 @@ Return ONLY valid JSON. No markdown, no explanation.${historyContext}${conversat
       };
     }
 
-    // Save entry to database using admin client
     const { data: entry, error: insertError } = await adminClient
       .from("entries")
       .insert({
-        user_id: user.id,
+        user_id: userId,
         entry_type: entryType || "text",
         content,
         reflection,
@@ -179,12 +178,9 @@ Return ONLY valid JSON. No markdown, no explanation.${historyContext}${conversat
       console.error("Insert error:", insertError);
     }
 
-    return new Response(
-      JSON.stringify({ reflection, entryId: entry?.id }),
-      {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      }
-    );
+    return new Response(JSON.stringify({ reflection, entryId: entry?.id }), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   } catch (e) {
     console.error("reflect error:", e);
     return new Response(

@@ -245,9 +245,11 @@ export default function ChatPage() {
         </div>
       </div>
 
-      <div className="shrink-0 pb-20">
-        <ChatInput onSend={handleSend} onVoice={() => navigate("/recording")} placeholder="Type your thoughts..." />
-      </div>
+      {isNew && (
+        <div className="shrink-0 pb-20">
+          <ChatInput onSend={handleSend} onVoice={() => navigate("/recording")} placeholder="Type your thoughts..." />
+        </div>
+      )}
     </div>
   );
 }

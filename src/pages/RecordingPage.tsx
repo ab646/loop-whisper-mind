@@ -55,7 +55,7 @@ export default function RecordingPage() {
 
   return (
     <div className="flex flex-col min-h-screen mesh-gradient-bg">
-      <AppHeader showBack />
+      
 
       <div className="flex-1 flex flex-col items-center justify-center gap-8 px-8">
         <div className="text-center space-y-2">

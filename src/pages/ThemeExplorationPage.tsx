@@ -1,80 +1,152 @@
-import { useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Heart, Briefcase, Calendar, Settings, Mic, ArrowUp } from "lucide-react";
+import { Heart, Briefcase, Calendar, Loader2, ArrowUp } from "lucide-react";
 import { AppHeader } from "@/components/AppHeader";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
 
-const followUpQuestions = [
-  "What changes when this person is involved?",
-  "How does my body feel right before?",
-  "Where did I first learn this rule?",
-];
+const triggerIcons: Record<string, any> = {
+  heart: Heart,
+  briefcase: Briefcase,
+  calendar: Calendar,
+};
+const triggerColors: Record<string, string> = {
+  heart: "text-pink-300",
+  briefcase: "text-amber-300",
+  calendar: "text-on-surface-variant",
+};
 
 export default function ThemeExplorationPage() {
-  const navigate = useNavigate();
+  const { id: theme } = useParams();
+  const { session } = useAuth();
+  const [analysis, setAnalysis] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
   const [input, setInput] = useState("");
+  const [askingQuestion, setAskingQuestion] = useState(false);
+  const [answer, setAnswer] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!session || !theme) return;
+    (async () => {
+      try {
+        const { data, error } = await supabase.functions.invoke("explore-theme", {
+          body: { theme },
+        });
+        if (error) throw error;
+        if (data?.error) {
+          toast.error(data.error);
+          setLoading(false);
+          return;
+        }
+        setAnalysis(data);
+      } catch (e) {
+        console.error(e);
+        toast.error("Failed to explore theme");
+      }
+      setLoading(false);
+    })();
+  }, [session, theme]);
+
+  const askQuestion = async (question: string) => {
+    if (!question.trim()) return;
+    setAskingQuestion(true);
+    setAnswer(null);
+    try {
+      const { data, error } = await supabase.functions.invoke("explore-theme", {
+        body: { theme, question },
+      });
+      if (error) throw error;
+      if (data?.answer) {
+        setAnswer(data.answer);
+      } else if (data?.connectedBelief) {
+        setAnswer(data.connectedBelief);
+      }
+    } catch (e) {
+      toast.error("Failed to get answer");
+    }
+    setAskingQuestion(false);
+    setInput("");
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen mesh-gradient-bg flex items-center justify-center">
+        <div className="flex items-center gap-3">
+          <Loader2 className="animate-spin text-mint" size={20} />
+          <span className="text-on-surface-variant text-sm italic font-display">Exploring {theme}...</span>
+        </div>
+      </div>
+    );
+  }
+
+  const themeName = theme ? theme.charAt(0).toUpperCase() + theme.slice(1) : "Theme";
 
   return (
     <div className="min-h-screen mesh-gradient-bg pb-24">
-      <AppHeader title="Ambiguity" showBack />
+      <AppHeader title={themeName} showBack />
 
       <div className="px-5 space-y-6">
-        {/* Hero question */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="space-y-3"
-        >
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-3">
           <h1 className="font-display text-2xl text-on-surface leading-tight">
             Why does this keep coming up?
           </h1>
           <div className="w-16 h-1 rounded-full bg-mint" />
         </motion.div>
 
-        {/* Connected beliefs */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="rounded-2xl surface-low p-5 space-y-4 relative"
-        >
-          <span className="label-uppercase">CONNECTED BELIEFS</span>
-          <p className="font-display text-lg text-on-surface italic leading-relaxed">
-            "If I don't have an immediate answer, <strong className="not-italic">I am unsafe.</strong>"
-          </p>
-          <div className="flex gap-2">
-            <span className="px-3 py-1 rounded-full surface-high text-[10px] text-mint tracking-wider uppercase font-semibold">Safety-seeking</span>
-            <span className="px-3 py-1 rounded-full surface-high text-[10px] text-mint tracking-wider uppercase font-semibold">Control</span>
-          </div>
-          <div className="absolute top-4 right-4">
-            <Settings size={20} className="text-on-surface-variant/30" />
-          </div>
-        </motion.div>
-
-        {/* Frequent triggers */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="rounded-2xl surface-low p-5 space-y-4"
-        >
-          <span className="label-uppercase">FREQUENT TRIGGERS</span>
-          <div className="space-y-3">
-            {[
-              { icon: Heart, label: "Dating apps", color: "text-pink-300" },
-              { icon: Briefcase, label: "Meeting with manager", color: "text-amber-300" },
-              { icon: Calendar, label: "Unplanned weekends", color: "text-on-surface-variant" },
-            ].map((t) => (
-              <div key={t.label} className="flex items-center gap-3">
-                <t.icon size={18} className={t.color} />
-                <span className="text-on-surface text-sm">{t.label}</span>
+        {analysis?.connectedBelief && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="rounded-2xl surface-low p-5 space-y-4"
+          >
+            <span className="label-uppercase">CONNECTED BELIEFS</span>
+            <p className="font-display text-lg text-on-surface italic leading-relaxed">
+              "{analysis.connectedBelief}"
+            </p>
+            {analysis.beliefTags?.length > 0 && (
+              <div className="flex gap-2 flex-wrap">
+                {analysis.beliefTags.map((tag: string) => (
+                  <span key={tag} className="px-3 py-1 rounded-full surface-high text-[10px] text-mint tracking-wider uppercase font-semibold">
+                    {tag}
+                  </span>
+                ))}
               </div>
-            ))}
-          </div>
-          <p className="text-mint text-[10px] tracking-wider uppercase font-semibold">3 NEW ENTRIES THIS WEEK</p>
-        </motion.div>
+            )}
+          </motion.div>
+        )}
 
-        {/* Deepen exploration */}
+        {analysis?.triggers?.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="rounded-2xl surface-low p-5 space-y-4"
+          >
+            <span className="label-uppercase">FREQUENT TRIGGERS</span>
+            <div className="space-y-3">
+              {analysis.triggers.map((t: any) => {
+                const Icon = triggerIcons[t.iconType] || Calendar;
+                const color = triggerColors[t.iconType] || "text-on-surface-variant";
+                return (
+                  <div key={t.label} className="flex items-center gap-3">
+                    <Icon size={18} className={color} />
+                    <span className="text-on-surface text-sm">{t.label}</span>
+                  </div>
+                );
+              })}
+            </div>
+            {analysis.entriesThisWeek != null && (
+              <p className="text-mint text-[10px] tracking-wider uppercase font-semibold">
+                {analysis.entriesThisWeek} ENTRIES THIS WEEK
+              </p>
+            )}
+          </motion.div>
+        )}
+
+        {/* Follow-up questions */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -87,15 +159,17 @@ export default function ThemeExplorationPage() {
             </div>
             <div>
               <h3 className="text-on-surface font-body font-semibold text-base">Deepen the exploration</h3>
-              <p className="text-on-surface-variant text-sm">Ask a follow-up about how Ambiguity manifests.</p>
+              <p className="text-on-surface-variant text-sm">Ask a follow-up about how {themeName} manifests.</p>
             </div>
           </div>
 
           <div className="rounded-2xl surface-low p-4 space-y-3">
-            {followUpQuestions.map((q) => (
+            {(analysis?.followUpQuestions || []).map((q: string) => (
               <button
                 key={q}
-                className="w-full text-left rounded-xl surface-high px-4 py-3 text-on-surface-variant text-sm font-body hover:text-mint transition-colors border border-border/20"
+                onClick={() => askQuestion(q)}
+                disabled={askingQuestion}
+                className="w-full text-left rounded-xl surface-high px-4 py-3 text-on-surface-variant text-sm font-body hover:text-mint transition-colors border border-border/20 disabled:opacity-50"
               >
                 {q}
               </button>
@@ -104,36 +178,53 @@ export default function ThemeExplorationPage() {
               <input
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && askQuestion(input)}
                 placeholder="Type your own reflection..."
                 className="flex-1 bg-transparent text-on-surface placeholder:text-on-surface-variant text-sm outline-none"
               />
-              <button className="w-7 h-7 rounded-full orb-gradient flex items-center justify-center">
-                <ArrowUp size={14} className="text-primary-foreground" />
+              <button
+                onClick={() => askQuestion(input)}
+                disabled={!input.trim() || askingQuestion}
+                className="w-7 h-7 rounded-full orb-gradient flex items-center justify-center disabled:opacity-50"
+              >
+                {askingQuestion ? (
+                  <Loader2 size={12} className="animate-spin text-primary-foreground" />
+                ) : (
+                  <ArrowUp size={14} className="text-primary-foreground" />
+                )}
               </button>
             </div>
           </div>
+
+          {/* AI Answer */}
+          {answer && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="rounded-2xl surface-low p-5 space-y-2 border-l-4 border-mint/30"
+            >
+              <span className="label-uppercase text-mint">REFLECTION</span>
+              <p className="text-on-surface text-sm leading-relaxed font-body">{answer}</p>
+            </motion.div>
+          )}
         </motion.div>
 
-        {/* Pattern insight banner */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          className="rounded-2xl overflow-hidden relative"
-        >
-          <div className="absolute inset-0 bg-gradient-to-br from-surface-container to-surface-low" />
-          <div className="relative p-5 space-y-2">
-            <span className="label-uppercase text-mint">PATTERN INSIGHT</span>
-            <p className="font-display text-lg text-on-surface leading-relaxed">
-              This theme is 40% more active during work hours.
-            </p>
-          </div>
-          <div className="absolute bottom-4 right-4">
-            <div className="w-12 h-12 rounded-full orb-gradient flex items-center justify-center orb-shadow">
-              <Mic size={18} className="text-primary-foreground" />
+        {analysis?.patternInsight && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="rounded-2xl overflow-hidden relative"
+          >
+            <div className="absolute inset-0 bg-gradient-to-br from-surface-container to-surface-low" />
+            <div className="relative p-5 space-y-2">
+              <span className="label-uppercase text-mint">PATTERN INSIGHT</span>
+              <p className="font-display text-lg text-on-surface leading-relaxed">
+                {analysis.patternInsight}
+              </p>
             </div>
-          </div>
-        </motion.div>
+          </motion.div>
+        )}
       </div>
     </div>
   );

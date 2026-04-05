@@ -1,117 +1,165 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, Play } from "lucide-react";
+import { Play, Loader2 } from "lucide-react";
 import { AppHeader } from "@/components/AppHeader";
 import { ChatInput } from "@/components/ChatInput";
 import { ReflectionCard } from "@/components/ReflectionCard";
 import { Waveform } from "@/components/Waveform";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
 
-interface VoiceMessage { id: string; type: "voice"; duration: string; }
-interface TextMessage { id: string; type: "text"; content: string; }
+interface TextMessage { id: string; type: "text"; content: string }
+interface VoiceMessage { id: string; type: "voice"; duration: string }
 interface ReflectionMessage {
   id: string;
   type: "reflection";
-  data: { mainLoop: string; knownVsAssumed: { known: string[]; assumed: string[] }; oneQuestion: string; tags: string[] };
+  data: {
+    mainLoop: string;
+    feelings?: string[];
+    knownVsAssumed: { known: string[]; assumed: string[] };
+    repeatingPattern?: string | null;
+    oneQuestion: string;
+    nextStep?: string;
+    tags: string[];
+  };
 }
-type Message = VoiceMessage | TextMessage | ReflectionMessage;
-
-const entryData: Record<string, { date: string; messages: Message[] }> = {
-  "3": {
-    date: "Today • 10:42 AM",
-    messages: [
-      { id: "v1", type: "voice", duration: "0:42" },
-      { id: "r1", type: "reflection", data: { mainLoop: "You seem stuck between wanting clarity and fearing what clarity might reveal.", knownVsAssumed: { known: ["You know they have not replied."], assumed: ["You may be assuming that means rejection."] }, oneQuestion: "What are you hoping this situation will finally give you?", tags: ["SAFETY", "VALIDATION", "PEACE"] } },
-    ],
-  },
-  "2": {
-    date: "Yesterday • 11:30 PM",
-    messages: [
-      { id: "t1", type: "text", content: "I keep checking my phone. It's been 6 hours and nothing. I know I shouldn't read into it but my brain won't stop." },
-      { id: "r2", type: "reflection", data: { mainLoop: "The waiting has become the loop itself. You're not just waiting for a reply — you're waiting for permission to stop worrying.", knownVsAssumed: { known: ["They haven't replied in 6 hours."], assumed: ["You may be assuming silence means something is wrong between you."] }, oneQuestion: "What would you be doing right now if the reply had already come?", tags: ["AMBIGUITY", "CONTROL"] } },
-    ],
-  },
-  "1": {
-    date: "Monday • 9:15 AM",
-    messages: [
-      { id: "v2", type: "voice", duration: "1:12" },
-      { id: "r3", type: "reflection", data: { mainLoop: "You're replaying a conversation looking for proof you said something wrong, but the evidence keeps shifting.", knownVsAssumed: { known: ["They said 'let's talk later.'"], assumed: ["You may be reading that as a permanent withdrawal."] }, oneQuestion: "What would you need to hear to feel safe right now?", tags: ["REASSURANCE", "REJECTION"] } },
-    ],
-  },
-  "0": {
-    date: "Last Friday • 3:20 PM",
-    messages: [
-      { id: "t2", type: "text", content: "Should I send a follow-up message or just let it go? I've been going back and forth for an hour." },
-      { id: "r4", type: "reflection", data: { mainLoop: "You're looking for the 'right' action to eliminate discomfort, but the discomfort isn't about the message — it's about the uncertainty.", knownVsAssumed: { known: ["You haven't heard back yet."], assumed: ["You may be assuming sending a follow-up will either fix or ruin things."] }, oneQuestion: "What if neither option is wrong?", tags: ["DECISION PARALYSIS"] } },
-    ],
-  },
-};
+type Message = TextMessage | VoiceMessage | ReflectionMessage;
 
 export default function ChatPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
   const scrollRef = useRef<HTMLDivElement>(null);
+  const { session } = useAuth();
   const isNew = id === "new";
-  const entry = id && id !== "new" ? entryData[id] : null;
   const initialText = (location.state as any)?.initialText as string | undefined;
 
-  const [messages, setMessages] = useState<Message[]>(() => {
-    const base = entry?.messages ?? [];
-    if (initialText) {
-      return [
-        ...base,
-        { id: crypto.randomUUID(), type: "text" as const, content: initialText },
-        {
-          id: crypto.randomUUID(),
-          type: "reflection" as const,
-          data: {
-            mainLoop: "You seem to be circling around a need for certainty in a situation that can't provide it yet.",
-            knownVsAssumed: { known: ["You expressed what you're feeling."], assumed: ["You may be assuming the worst outcome is the most likely one."] },
-            oneQuestion: "If this resolved exactly how you wanted — what would actually change?",
-            tags: ["UNCERTAINTY", "HOPE"],
-          },
-        },
-      ];
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [loadingEntry, setLoadingEntry] = useState(!isNew);
+  const [entryDate, setEntryDate] = useState<string | null>(null);
+
+  // Load existing entry
+  useEffect(() => {
+    if (isNew || !id) {
+      setLoadingEntry(false);
+      return;
     }
-    return base;
-  });
+    (async () => {
+      const { data } = await supabase
+        .from("entries")
+        .select("*")
+        .eq("id", id)
+        .single();
+      if (data) {
+        const msgs: Message[] = [
+          { id: "t-" + data.id, type: "text", content: data.content },
+        ];
+        if (data.reflection) {
+          msgs.push({
+            id: "r-" + data.id,
+            type: "reflection",
+            data: data.reflection as any,
+          });
+        }
+        setMessages(msgs);
+        setEntryDate(
+          new Date(data.created_at).toLocaleDateString("en-US", {
+            weekday: "long",
+            hour: "numeric",
+            minute: "2-digit",
+          })
+        );
+      }
+      setLoadingEntry(false);
+    })();
+  }, [id, isNew]);
+
+  // Process initial text from home page
+  useEffect(() => {
+    if (initialText && isNew) {
+      handleSend(initialText);
+    }
+  }, []);
 
   useEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
   }, [messages]);
 
-  const handleSend = (text: string) => {
-    setMessages((prev) => [
-      ...prev,
-      { id: crypto.randomUUID(), type: "text", content: text },
-      {
-        id: crypto.randomUUID(),
-        type: "reflection",
-        data: {
-          mainLoop: "You seem to be circling around a need for certainty in a situation that can't provide it yet.",
-          knownVsAssumed: { known: ["You expressed what you're feeling."], assumed: ["You may be assuming the worst outcome is the most likely one."] },
-          oneQuestion: "If this resolved exactly how you wanted — what would actually change?",
-          tags: ["UNCERTAINTY", "HOPE"],
+  const handleSend = async (text: string) => {
+    const userMsg: TextMessage = { id: crypto.randomUUID(), type: "text", content: text };
+    setMessages((prev) => [...prev, userMsg]);
+    setLoading(true);
+
+    try {
+      const { data, error } = await supabase.functions.invoke("reflect", {
+        body: {
+          content: text,
+          entryType: "text",
+          previousMessages: messages
+            .filter((m) => m.type === "text")
+            .map((m) => ({ role: "user", content: (m as TextMessage).content })),
         },
-      },
-    ]);
+      });
+
+      if (error) throw error;
+      if (data?.error) {
+        toast.error(data.error);
+        setLoading(false);
+        return;
+      }
+
+      const reflection = data.reflection;
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: crypto.randomUUID(),
+          type: "reflection",
+          data: {
+            mainLoop: reflection.mainLoop || "",
+            feelings: reflection.feelings || [],
+            knownVsAssumed: reflection.knownVsAssumed || { known: [], assumed: [] },
+            repeatingPattern: reflection.repeatingPattern,
+            oneQuestion: reflection.oneQuestion || "",
+            nextStep: reflection.nextStep,
+            tags: reflection.tags || [],
+          },
+        },
+      ]);
+
+      // If new chat, update URL
+      if (isNew && data.entryId) {
+        window.history.replaceState(null, "", `/chat/${data.entryId}`);
+      }
+    } catch (e: any) {
+      console.error(e);
+      toast.error("Failed to process reflection");
+    }
+    setLoading(false);
   };
+
+  if (loadingEntry) {
+    return (
+      <div className="flex flex-col h-screen mesh-gradient-bg items-center justify-center">
+        <Loader2 className="animate-spin text-mint" size={24} />
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col h-screen mesh-gradient-bg">
       <AppHeader showBack />
 
-      {/* Date */}
-      {entry && (
+      {entryDate && (
         <div className="flex justify-center pb-2">
           <span className="px-3 py-1 rounded-full surface-container text-on-surface-variant text-[10px] tracking-[0.15em] uppercase font-semibold">
-            {entry.date}
+            {entryDate}
           </span>
         </div>
       )}
 
-      {/* Messages */}
       <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 pb-2">
         {messages.length === 0 && isNew && (
           <div className="flex flex-col items-center justify-center min-h-[40vh] gap-4">
@@ -147,10 +195,19 @@ export default function ChatPage() {
               )}
             </div>
           ))}
+          {loading && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="flex items-center gap-3 py-4"
+            >
+              <Loader2 className="animate-spin text-mint" size={18} />
+              <span className="text-on-surface-variant text-sm italic font-display">Reflecting...</span>
+            </motion.div>
+          )}
         </div>
       </div>
 
-      {/* Input */}
       <div className="shrink-0 pb-20">
         <ChatInput onSend={handleSend} onVoice={() => navigate("/recording")} placeholder="Type your thoughts..." />
       </div>

@@ -1,38 +1,37 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+import { Play } from "lucide-react";
 
-const steps = [
+type StepDef =
+  | { type: "text"; title: string; subtitle: string; field: string; placeholder: string }
+  | { type: "choice"; title: string; subtitle: string; field: string; options: { label: string; value: any; desc: string }[] }
+  | { type: "video"; title: string; subtitle: string };
+
+const steps: StepDef[] = [
+  {
+    type: "video",
+    title: "How Loop works",
+    subtitle: "A quick look at what happens when you reflect.",
+  },
   {
     title: "What should we call you?",
     subtitle: "Just a first name is perfect.",
-    type: "text" as const,
+    type: "text",
     field: "display_name",
     placeholder: "Your name",
   },
   {
     title: "How do you prefer to reflect?",
     subtitle: "You can always change this later.",
-    type: "choice" as const,
+    type: "choice",
     field: "voice_first_mode",
     options: [
       { label: "🎙 Voice first", value: true, desc: "Talk it out. I'll capture the essence." },
       { label: "⌨️ Text first", value: false, desc: "Type your thoughts. No pressure." },
-    ],
-  },
-  {
-    title: "One last thing.",
-    subtitle: "Pick a grounding phrase that resonates.",
-    type: "choice" as const,
-    field: "mantra",
-    options: [
-      { label: "Stay Grounded", value: "Stay Grounded", desc: "" },
-      { label: "Let it pass", value: "Let it pass", desc: "" },
-      { label: "I am enough", value: "I am enough", desc: "" },
-      { label: "This too shall pass", value: "This too shall pass", desc: "" },
     ],
   },
 ];
@@ -42,16 +41,17 @@ export default function OnboardingPage() {
   const [answers, setAnswers] = useState<Record<string, any>>({
     display_name: "",
     voice_first_mode: false,
-    mantra: "Stay Grounded",
   });
   const [loading, setLoading] = useState(false);
+  const [videoPlaying, setVideoPlaying] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
   const navigate = useNavigate();
   const { user, refreshProfile } = useAuth();
 
   const current = steps[step];
 
   const canProceed = () => {
-    if (current.type === "text") return answers[current.field]?.trim();
+    if (current.type === "text") return (answers as any)[(current as any).field]?.trim();
     return true;
   };
 
@@ -75,7 +75,6 @@ export default function OnboardingPage() {
       .update({
         display_name: answers.display_name,
         voice_first_mode: answers.voice_first_mode,
-        mantra: answers.mantra,
         onboarding_complete: true,
       })
       .eq("user_id", user.id);
@@ -86,6 +85,13 @@ export default function OnboardingPage() {
     } else {
       await refreshProfile();
       navigate("/");
+    }
+  };
+
+  const handlePlayVideo = () => {
+    if (videoRef.current) {
+      videoRef.current.play();
+      setVideoPlaying(true);
     }
   };
 
@@ -111,54 +117,95 @@ export default function OnboardingPage() {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -30 }}
             transition={{ duration: 0.3 }}
-            className="space-y-8"
+            className="space-y-6"
           >
-            <div className="space-y-2">
-              <h1 className="font-display text-2xl text-on-surface leading-tight">
-                {current.title}
-              </h1>
-              <p className="text-on-surface-variant text-sm">{current.subtitle}</p>
-            </div>
+            {current.type === "video" && (
+              <div className="space-y-5">
+                <div className="space-y-2">
+                  <h1 className="font-display text-2xl text-on-surface leading-tight">
+                    {current.title}
+                  </h1>
+                  <p className="text-on-surface-variant text-sm">{current.subtitle}</p>
+                </div>
+                <div className="relative rounded-2xl overflow-hidden surface-low aspect-[9/16] max-h-[55vh] mx-auto">
+                  <video
+                    ref={videoRef}
+                    src="/videos/onboarding-explainer.mp4"
+                    playsInline
+                    muted
+                    onEnded={() => setVideoPlaying(false)}
+                    className="w-full h-full object-cover"
+                  />
+                  {!videoPlaying && (
+                    <motion.button
+                      whileTap={{ scale: 0.9 }}
+                      onClick={handlePlayVideo}
+                      className="absolute inset-0 flex items-center justify-center bg-background/30"
+                    >
+                      <div className="w-16 h-16 rounded-full orb-gradient flex items-center justify-center orb-shadow">
+                        <Play size={28} className="text-primary-foreground ml-1" />
+                      </div>
+                    </motion.button>
+                  )}
+                </div>
+              </div>
+            )}
 
             {current.type === "text" && (
-              <input
-                autoFocus
-                value={answers[current.field] || ""}
-                onChange={(e) =>
-                  setAnswers({ ...answers, [current.field]: e.target.value })
-                }
-                placeholder={current.placeholder}
-                className="w-full rounded-xl surface-high px-4 py-4 text-on-surface text-lg font-body outline-none focus:ring-1 focus:ring-mint placeholder:text-on-surface-variant"
-              />
+              <>
+                <div className="space-y-2">
+                  <h1 className="font-display text-2xl text-on-surface leading-tight">
+                    {current.title}
+                  </h1>
+                  <p className="text-on-surface-variant text-sm">{current.subtitle}</p>
+                </div>
+                <input
+                  autoFocus
+                  value={answers[current.field] || ""}
+                  onChange={(e) =>
+                    setAnswers({ ...answers, [current.field]: e.target.value })
+                  }
+                  placeholder={current.placeholder}
+                  className="w-full rounded-xl surface-high px-4 py-4 text-on-surface text-lg font-body outline-none focus:ring-1 focus:ring-mint placeholder:text-on-surface-variant"
+                />
+              </>
             )}
 
             {current.type === "choice" && (
-              <div className="space-y-3">
-                {current.options.map((opt) => {
-                  const isSelected = answers[current.field] === opt.value;
-                  return (
-                    <motion.button
-                      key={String(opt.value)}
-                      whileTap={{ scale: 0.97 }}
-                      onClick={() =>
-                        setAnswers({ ...answers, [current.field]: opt.value })
-                      }
-                      className={`w-full rounded-xl p-4 text-left transition-colors ${
-                        isSelected
-                          ? "surface-container border border-mint/30"
-                          : "surface-low border border-transparent"
-                      }`}
-                    >
-                      <p className={`font-body font-semibold text-base ${isSelected ? "text-mint" : "text-on-surface"}`}>
-                        {opt.label}
-                      </p>
-                      {opt.desc && (
-                        <p className="text-on-surface-variant text-sm mt-1">{opt.desc}</p>
-                      )}
-                    </motion.button>
-                  );
-                })}
-              </div>
+              <>
+                <div className="space-y-2">
+                  <h1 className="font-display text-2xl text-on-surface leading-tight">
+                    {current.title}
+                  </h1>
+                  <p className="text-on-surface-variant text-sm">{current.subtitle}</p>
+                </div>
+                <div className="space-y-3">
+                  {current.options.map((opt) => {
+                    const isSelected = answers[current.field] === opt.value;
+                    return (
+                      <motion.button
+                        key={String(opt.value)}
+                        whileTap={{ scale: 0.97 }}
+                        onClick={() =>
+                          setAnswers({ ...answers, [current.field]: opt.value })
+                        }
+                        className={`w-full rounded-xl p-4 text-left transition-colors ${
+                          isSelected
+                            ? "surface-container border border-mint/30"
+                            : "surface-low border border-transparent"
+                        }`}
+                      >
+                        <p className={`font-body font-semibold text-base ${isSelected ? "text-mint" : "text-on-surface"}`}>
+                          {opt.label}
+                        </p>
+                        {opt.desc && (
+                          <p className="text-on-surface-variant text-sm mt-1">{opt.desc}</p>
+                        )}
+                      </motion.button>
+                    );
+                  })}
+                </div>
+              </>
             )}
           </motion.div>
         </AnimatePresence>

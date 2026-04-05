@@ -66,7 +66,7 @@ export default function HomePage() {
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex flex-col items-center gap-5 pt-16"
+          className="flex flex-col items-center gap-5 pt-8"
         >
           <VoiceOrb size="lg" onClick={() => navigate("/chat/new")} label="START A LOOP" />
           <div className="text-center space-y-2">

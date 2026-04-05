@@ -32,7 +32,7 @@ export function ThemeCard({ name, mentions, icon = "cloud", delay = 0 }: ThemeCa
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay, duration: 0.4 }}
-      onClick={() => navigate("/theme/ambiguity")}
+      onClick={() => navigate(`/theme/${name.toLowerCase()}`)}
       className="rounded-2xl surface-low p-4 flex flex-col gap-3 items-start text-left hover:bg-surface-container transition-colors"
     >
       <Icon size={24} className={iconColorMap[icon]} />

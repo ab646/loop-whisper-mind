@@ -63,6 +63,13 @@ export default function OnboardingPage() {
 
     // Final step — save profile
     setLoading(true);
+
+    if (!user?.id) {
+      toast.error("Session not ready — please try again.");
+      setLoading(false);
+      return;
+    }
+
     const { error } = await supabase
       .from("profiles")
       .update({
@@ -71,7 +78,7 @@ export default function OnboardingPage() {
         mantra: answers.mantra,
         onboarding_complete: true,
       })
-      .eq("user_id", user?.id ?? "");
+      .eq("user_id", user.id);
 
     setLoading(false);
     if (error) {

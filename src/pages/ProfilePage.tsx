@@ -41,8 +41,8 @@ export default function ProfilePage() {
             👤
           </div>
           <div>
-            <h3 className="text-on-surface font-body text-lg font-semibold">Sam</h3>
-            <p className="text-on-surface-variant text-sm">Stay Grounded</p>
+            <h3 className="text-on-surface font-body text-lg font-semibold">{profile?.display_name || "User"}</h3>
+            <p className="text-on-surface-variant text-sm">{profile?.mantra || "Stay Grounded"}</p>
             <div className="flex items-center gap-2 mt-1">
               <span className="text-mint text-xs font-semibold">CURRENT STREAK</span>
               <div className="flex gap-1">

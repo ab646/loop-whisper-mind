@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { ChevronRight, Loader2 } from "lucide-react";
 import { AppHeader } from "@/components/AppHeader";
 import { VoiceOrb } from "@/components/VoiceOrb";
-import { PromptChip } from "@/components/PromptChip";
+
 import { ChatInput } from "@/components/ChatInput";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -17,11 +17,6 @@ interface EntryPreview {
   tags: string[];
 }
 
-const promptChips = [
-  "Replaying a text?",
-  "Feeling a spiral?",
-  "Decision paralysis?",
-];
 
 export default function HomePage() {
   const navigate = useNavigate();
@@ -71,7 +66,7 @@ export default function HomePage() {
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex flex-col items-center gap-5 pt-4"
+          className="flex flex-col items-center gap-5 pt-16"
         >
           <VoiceOrb size="lg" onClick={() => navigate("/chat/new")} label="START A LOOP" />
           <div className="text-center space-y-2">
@@ -81,11 +76,6 @@ export default function HomePage() {
             <p className="font-display text-sm text-mint italic">
               Your brain is full. Talk it out.
             </p>
-          </div>
-          <div className="flex flex-wrap gap-2 justify-center">
-            {promptChips.map((chip) => (
-              <PromptChip key={chip} label={chip} onClick={() => navigate("/chat/new")} />
-            ))}
           </div>
         </motion.div>
 

@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
-import { ArrowLeft, MoreVertical, Shield, Upload, Mic, Clock, User, Settings } from "lucide-react";
+import { MoreVertical, Shield, Upload, Mic } from "lucide-react";
+import { AppHeader } from "@/components/AppHeader";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 
@@ -10,14 +11,7 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen mesh-gradient-bg pb-24">
-      {/* Header */}
-      <header className="flex items-center justify-between px-5 py-4">
-        <button onClick={() => navigate(-1)} className="text-on-surface-variant">
-          <ArrowLeft size={20} />
-        </button>
-        <h2 className="font-display text-lg text-on-surface font-semibold">Profile</h2>
-        <MoreVertical size={20} className="text-on-surface-variant" />
-      </header>
+      <AppHeader />
 
       <div className="px-5 space-y-6">
         {/* Profile card */}

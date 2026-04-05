@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, Heart, Briefcase, Calendar, Settings, Mic, ArrowUp } from "lucide-react";
+import { Heart, Briefcase, Calendar, Settings, Mic, ArrowUp } from "lucide-react";
+import { AppHeader } from "@/components/AppHeader";
 import { useState } from "react";
 
 const followUpQuestions = [
@@ -15,14 +16,7 @@ export default function ThemeExplorationPage() {
 
   return (
     <div className="min-h-screen mesh-gradient-bg pb-24">
-      {/* Header */}
-      <header className="flex items-center justify-between px-5 py-4">
-        <button onClick={() => navigate(-1)} className="text-on-surface-variant">
-          <ArrowLeft size={20} />
-        </button>
-        <h2 className="font-body text-sm font-semibold text-on-surface">Exploring: Ambiguity</h2>
-        <div className="w-9 h-9 rounded-full surface-high" />
-      </header>
+      <AppHeader />
 
       <div className="px-5 space-y-6">
         {/* Hero question */}

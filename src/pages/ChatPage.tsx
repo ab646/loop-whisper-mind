@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowLeft, Play } from "lucide-react";
+import { AppHeader } from "@/components/AppHeader";
 import { ChatInput } from "@/components/ChatInput";
 import { ReflectionCard } from "@/components/ReflectionCard";
 import { Waveform } from "@/components/Waveform";
@@ -78,16 +79,7 @@ export default function ChatPage() {
 
   return (
     <div className="flex flex-col h-screen mesh-gradient-bg">
-      {/* Header */}
-      <header className="flex items-center justify-between px-5 py-4 shrink-0">
-        <button onClick={() => navigate("/")} className="flex items-center gap-2 text-on-surface-variant">
-          <ArrowLeft size={20} />
-        </button>
-        <h1 className="font-display text-lg text-on-surface font-semibold">
-          {isNew ? "New Loop" : entry?.date?.split(" • ")[0] ?? "Loop"}
-        </h1>
-        <div className="w-9" />
-      </header>
+      <AppHeader />
 
       {/* Date */}
       {entry && (

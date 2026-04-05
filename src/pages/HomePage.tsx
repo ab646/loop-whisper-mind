@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ChevronRight } from "lucide-react";
+import { AppHeader } from "@/components/AppHeader";
 import { VoiceOrb } from "@/components/VoiceOrb";
 import { PromptChip } from "@/components/PromptChip";
 import { ChatInput } from "@/components/ChatInput";
@@ -56,10 +57,7 @@ export default function HomePage() {
 
   return (
     <div className="flex flex-col h-screen mesh-gradient-bg">
-      {/* Header */}
-      <header className="flex items-center justify-center px-5 py-4">
-        <h1 className="font-display text-xl text-on-surface font-semibold">Loop</h1>
-      </header>
+      <AppHeader />
 
       <div className="flex-1 overflow-y-auto px-5 space-y-8">
         {/* Hero */}

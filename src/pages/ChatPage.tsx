@@ -1,8 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Play, Loader2 } from "lucide-react";
-import { AppHeader } from "@/components/AppHeader";
+import { Play, Loader2, ArrowLeft } from "lucide-react";
 import { ChatInput } from "@/components/ChatInput";
 import { ReflectionCard } from "@/components/ReflectionCard";
 import { Waveform } from "@/components/Waveform";
@@ -150,7 +149,12 @@ export default function ChatPage() {
 
   return (
     <div className="flex flex-col h-screen mesh-gradient-bg">
-      
+      {/* Back button */}
+      <div className="flex items-center px-4 pt-4 pb-2">
+        <button onClick={() => navigate("/")} className="text-on-surface-variant hover:text-mint transition-colors">
+          <ArrowLeft size={22} />
+        </button>
+      </div>
 
       {entryDate && (
         <div className="flex justify-center pb-2">

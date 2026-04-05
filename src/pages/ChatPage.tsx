@@ -197,7 +197,7 @@ export default function ChatPage() {
         </div>
       )}
 
-      <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 pb-2">
+      <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 pb-24">
         {messages.length === 0 && isNew && (
           <div className="flex flex-col items-center justify-center min-h-[40vh] gap-4">
             <p className="font-display text-lg text-on-surface-variant italic text-center">

@@ -1,1 +1,10 @@
 project_id = "kcyifzayxgsogdkxmykm"
+
+[functions.reflect]
+verify_jwt = false
+
+[functions.insights]
+verify_jwt = false
+
+[functions.explore-theme]
+verify_jwt = false

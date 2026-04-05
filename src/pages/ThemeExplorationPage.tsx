@@ -16,7 +16,7 @@ export default function ThemeExplorationPage() {
 
   return (
     <div className="min-h-screen mesh-gradient-bg pb-24">
-      <AppHeader />
+      <AppHeader title="Ambiguity" showBack />
 
       <div className="px-5 space-y-6">
         {/* Hero question */}

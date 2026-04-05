@@ -12,7 +12,8 @@ export function BottomNav() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  if (location.pathname === "/recording" || location.pathname.startsWith("/chat/")) return null;
+  const hiddenPaths = ["/recording", "/login", "/signup", "/onboarding", "/forgot-password", "/reset-password"];
+  if (hiddenPaths.includes(location.pathname) || location.pathname.startsWith("/chat/")) return null;
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 glass-panel border-t border-border/30">

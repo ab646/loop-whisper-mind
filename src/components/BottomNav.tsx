@@ -24,18 +24,18 @@ export function BottomNav() {
             <button
               key={tab.path}
               onClick={() => navigate(tab.path)}
-              className="relative flex flex-col items-center gap-1 py-2 px-5 min-w-[72px]"
+              className="relative flex flex-col items-center gap-1 py-2 px-4 min-w-[64px]"
             >
               {isActive && (
                 <motion.div
                   layoutId="nav-active"
-                  className="absolute -top-1 left-1/2 -translate-x-1/2 w-14 h-14 rounded-full orb-gradient orb-shadow"
+                  className="absolute inset-x-2 top-1 bottom-1 rounded-xl bg-surface-high"
                   transition={{ type: "spring", stiffness: 400, damping: 30 }}
                 />
               )}
               <Icon
                 size={20}
-                className={`relative z-10 ${isActive ? "text-primary-foreground" : "text-on-surface-variant"}`}
+                className={`relative z-10 ${isActive ? "text-mint" : "text-on-surface-variant"}`}
               />
               <span
                 className={`relative z-10 text-[10px] tracking-[0.1em] font-semibold ${

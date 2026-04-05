@@ -145,6 +145,18 @@ export default function ChatPage() {
     setLoading(false);
   };
 
+  const handleDelete = async () => {
+    const currentId = window.location.pathname.split("/chat/")[1];
+    if (!currentId || currentId === "new") return;
+    const { error } = await supabase.from("entries").delete().eq("id", currentId);
+    if (error) {
+      toast.error("Failed to delete loop");
+      return;
+    }
+    toast.success("Loop deleted");
+    navigate("/");
+  };
+
   if (loadingEntry) {
     return (
       <div className="flex flex-col h-screen mesh-gradient-bg items-center justify-center">
@@ -155,11 +167,26 @@ export default function ChatPage() {
 
   return (
     <div className="flex flex-col h-screen mesh-gradient-bg">
-      {/* Back button */}
-      <div className="flex items-center px-4 pt-4 pb-2">
+      {/* Header */}
+      <div className="flex items-center justify-between px-4 pt-4 pb-2">
         <button onClick={() => navigate("/")} className="text-on-surface-variant hover:text-mint transition-colors">
           <ArrowLeft size={22} />
         </button>
+        {!isNew && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="text-on-surface-variant hover:text-on-surface transition-colors p-1">
+                <MoreVertical size={20} />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="surface-high border-border/30">
+              <DropdownMenuItem onClick={handleDelete} className="text-destructive focus:text-destructive gap-2">
+                <Trash2 size={14} />
+                Delete loop
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
       </div>
 
       {entryDate && (

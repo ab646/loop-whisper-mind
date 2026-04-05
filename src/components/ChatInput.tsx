@@ -31,12 +31,33 @@ export function ChatInput({ onSend, onVoice, placeholder = "Type your thoughts..
           placeholder={placeholder}
           className="flex-1 bg-transparent text-foreground placeholder:text-on-surface-variant text-base outline-none font-body"
         />
-        <button
-          onClick={text.trim() ? handleSend : onVoice}
-          className="w-9 h-9 rounded-full orb-gradient flex items-center justify-center"
-        >
-          <Mic size={16} className="text-primary-foreground" />
-        </button>
+        <AnimatePresence mode="wait">
+          {text.trim() ? (
+            <motion.button
+              key="send"
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.8, opacity: 0 }}
+              transition={{ duration: 0.15 }}
+              onClick={handleSend}
+              className="w-9 h-9 rounded-full bg-mint flex items-center justify-center shrink-0"
+            >
+              <ArrowUp size={18} className="text-primary-foreground" />
+            </motion.button>
+          ) : (
+            <motion.button
+              key="mic"
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.8, opacity: 0 }}
+              transition={{ duration: 0.15 }}
+              onClick={onVoice}
+              className="w-9 h-9 rounded-full orb-gradient flex items-center justify-center shrink-0"
+            >
+              <Mic size={16} className="text-primary-foreground" />
+            </motion.button>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );

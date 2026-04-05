@@ -1,8 +1,10 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Menu, ChevronRight } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import { VoiceOrb } from "@/components/VoiceOrb";
 import { PromptChip } from "@/components/PromptChip";
+import { ChatInput } from "@/components/ChatInput";
 
 interface EntryPreview {
   id: string;

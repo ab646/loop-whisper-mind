@@ -61,7 +61,7 @@ export default function ProfilePage() {
           <div className="rounded-2xl surface-low p-5 space-y-3">
             <div className="flex items-center justify-between">
               <span className="text-mint">🔽</span>
-              <ToggleSwitch checked={urgencyFilter} onChange={setUrgencyFilter} />
+              <ToggleSwitch checked={profile?.urgency_filter ?? true} onChange={() => togglePreference("urgency_filter")} />
             </div>
             <h4 className="text-on-surface font-body font-semibold">High-Urgency Filter</h4>
             <p className="text-on-surface-variant text-sm">

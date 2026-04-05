@@ -16,14 +16,7 @@ export default function ThemeExplorationPage() {
 
   return (
     <div className="min-h-screen mesh-gradient-bg pb-24">
-      {/* Header */}
-      <header className="flex items-center justify-between px-5 py-4">
-        <button onClick={() => navigate(-1)} className="text-on-surface-variant">
-          <ArrowLeft size={20} />
-        </button>
-        <h2 className="font-body text-sm font-semibold text-on-surface">Exploring: Ambiguity</h2>
-        <div className="w-9 h-9 rounded-full surface-high" />
-      </header>
+      <AppHeader />
 
       <div className="px-5 space-y-6">
         {/* Hero question */}

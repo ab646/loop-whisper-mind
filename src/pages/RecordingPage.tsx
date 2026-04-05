@@ -27,14 +27,7 @@ export default function RecordingPage() {
 
   return (
     <div className="flex flex-col min-h-screen mesh-gradient-bg">
-      {/* Header */}
-      <header className="flex items-center justify-between px-5 py-4">
-        <button onClick={() => navigate("/")} className="text-on-surface-variant">
-          <X size={24} />
-        </button>
-        <h2 className="font-display text-lg text-mint">Reflecting</h2>
-        <div className="w-6" />
-      </header>
+      <AppHeader />
 
       {/* Content */}
       <div className="flex-1 flex flex-col items-center justify-center gap-8 px-8">

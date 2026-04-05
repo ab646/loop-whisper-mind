@@ -19,14 +19,7 @@ const triggers = [
 export default function InsightsPage() {
   return (
     <div className="min-h-screen mesh-gradient-bg pb-24">
-      {/* Header */}
-      <header className="flex items-center justify-between px-5 py-4">
-        <div className="flex items-center gap-3">
-          <Menu size={20} className="text-on-surface-variant" />
-          <h1 className="font-display text-xl text-on-surface font-semibold">Loop</h1>
-        </div>
-        <span className="text-mint font-body font-semibold text-sm">Patterns</span>
-      </header>
+      <AppHeader />
 
       <div className="px-5 space-y-8">
         {/* Hero text */}

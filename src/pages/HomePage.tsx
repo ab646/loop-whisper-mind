@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { ChevronRight, Loader2 } from "lucide-react";
 import { AppHeader } from "@/components/AppHeader";
 import { VoiceOrb } from "@/components/VoiceOrb";
-import { PromptChip } from "@/components/PromptChip";
+
 import { ChatInput } from "@/components/ChatInput";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";

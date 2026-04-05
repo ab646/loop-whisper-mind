@@ -13,7 +13,7 @@ export function BottomNav() {
   const navigate = useNavigate();
 
   // Hide on voice recording screen
-  if (location.pathname === "/recording") return null;
+  if (location.pathname === "/recording" || location.pathname.startsWith("/chat/")) return null;
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 glass-panel border-t border-border/30">

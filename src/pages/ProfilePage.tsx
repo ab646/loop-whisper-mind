@@ -106,7 +106,7 @@ export default function ProfilePage() {
           <h3 className="font-display text-lg text-mint italic">Account</h3>
           <div className="flex items-center justify-between">
             <span className="label-uppercase">EMAIL ADDRESS</span>
-            <span className="text-on-surface text-sm">sam@noetic.fog</span>
+            <span className="text-on-surface text-sm">{user?.email ?? ""}</span>
           </div>
 
           <div className="rounded-2xl surface-low p-5 flex items-center justify-between">

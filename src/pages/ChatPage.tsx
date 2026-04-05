@@ -80,9 +80,6 @@ export default function ChatPage() {
   return (
     <div className="flex flex-col h-screen mesh-gradient-bg">
       <AppHeader />
-        </h1>
-        <div className="w-9" />
-      </header>
 
       {/* Date */}
       {entry && (

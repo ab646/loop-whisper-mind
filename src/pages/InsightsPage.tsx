@@ -42,47 +42,6 @@ export default function InsightsPage() {
           </p>
         </motion.div>
 
-        {/* Intensity chart */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="rounded-2xl surface-low p-5 space-y-4"
-        >
-          <div className="flex items-center justify-between">
-            <div>
-              <span className="label-uppercase text-mint">ATMOSPHERE</span>
-              <h3 className="font-display text-lg text-on-surface mt-1">Intensity trends over time</h3>
-            </div>
-            <span className="text-on-surface-variant text-xs">Last 7<br />Days</span>
-          </div>
-          {/* Simple SVG chart */}
-          <svg viewBox="0 0 300 80" className="w-full h-20">
-            <path
-              d="M 0 60 Q 30 55 60 50 Q 90 45 120 40 Q 150 35 180 38 Q 210 42 240 30 Q 270 25 300 35"
-              fill="none"
-              stroke="hsl(180, 25%, 80%)"
-              strokeWidth="2"
-              strokeLinecap="round"
-            />
-            <path
-              d="M 0 60 Q 30 55 60 50 Q 90 45 120 40 Q 150 35 180 38 Q 210 42 240 30 Q 270 25 300 35 L 300 80 L 0 80 Z"
-              fill="url(#chartGrad)"
-              opacity="0.1"
-            />
-            <defs>
-              <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="hsl(180, 25%, 80%)" />
-                <stop offset="100%" stopColor="transparent" />
-              </linearGradient>
-            </defs>
-          </svg>
-          <div className="flex justify-between text-on-surface-variant text-[10px] tracking-wider">
-            {["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"].map((d) => (
-              <span key={d}>{d}</span>
-            ))}
-          </div>
-        </motion.div>
 
         {/* Recurring themes */}
         <div className="space-y-3">

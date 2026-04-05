@@ -66,7 +66,7 @@ export default function HomePage() {
           animate={{ opacity: 1, y: 0 }}
           className="flex flex-col items-center gap-5 pt-4"
         >
-          <VoiceOrb size="lg" onClick={() => navigate("/chat/new")} label="START A BRAIN DUMP" />
+          <VoiceOrb size="lg" onClick={() => navigate("/chat/new")} label="START A LOOP" />
           <div className="text-center space-y-2">
             <h2 className="font-display text-2xl text-on-surface leading-tight">
               What's looping<br />right now?

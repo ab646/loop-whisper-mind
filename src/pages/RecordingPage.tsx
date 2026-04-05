@@ -34,7 +34,7 @@ export default function RecordingPage() {
         <div className="text-center space-y-2">
           <span className="label-uppercase">VOICE INPUT</span>
           <h1 className="font-display text-2xl text-on-surface italic">
-            Recording Brain Dump...
+            Recording Loop...
           </h1>
         </div>
 

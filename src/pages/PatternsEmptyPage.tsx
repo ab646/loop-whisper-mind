@@ -37,7 +37,7 @@ export default function PatternsEmptyPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
         >
-          <VoiceOrb size="lg" onClick={() => navigate("/recording")} label="START A BRAIN DUMP" />
+          <VoiceOrb size="lg" onClick={() => navigate("/recording")} label="START A LOOP" />
         </motion.div>
 
         <motion.div

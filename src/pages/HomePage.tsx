@@ -61,12 +61,12 @@ export default function HomePage() {
     <div className="flex flex-col h-screen mesh-gradient-bg">
       
 
-      <div className="flex-1 overflow-y-auto px-5 space-y-4">
+      <div className="flex-1 overflow-y-auto px-5 flex flex-col">
         {/* Hero */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex flex-col items-center gap-5 pt-16"
+          className="flex flex-col items-center gap-5 pt-8"
         >
           <VoiceOrb size="lg" onClick={() => navigate("/chat/new")} label="START A LOOP" />
           <div className="text-center space-y-2">
@@ -80,7 +80,7 @@ export default function HomePage() {
         </motion.div>
 
         {/* Past entries */}
-        <div className="space-y-3">
+        <div className="space-y-3 mt-auto pb-4">
           <span className="label-uppercase">RECENT LOOPS</span>
           {loading ? (
             <div className="flex justify-center py-8">

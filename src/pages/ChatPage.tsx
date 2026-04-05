@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowLeft, Play } from "lucide-react";
 import { AppHeader } from "@/components/AppHeader";
@@ -50,11 +50,32 @@ const entryData: Record<string, { date: string; messages: Message[] }> = {
 export default function ChatPage() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const scrollRef = useRef<HTMLDivElement>(null);
   const isNew = id === "new";
   const entry = id && id !== "new" ? entryData[id] : null;
+  const initialText = (location.state as any)?.initialText as string | undefined;
 
-  const [messages, setMessages] = useState<Message[]>(entry?.messages ?? []);
+  const [messages, setMessages] = useState<Message[]>(() => {
+    const base = entry?.messages ?? [];
+    if (initialText) {
+      return [
+        ...base,
+        { id: crypto.randomUUID(), type: "text" as const, content: initialText },
+        {
+          id: crypto.randomUUID(),
+          type: "reflection" as const,
+          data: {
+            mainLoop: "You seem to be circling around a need for certainty in a situation that can't provide it yet.",
+            knownVsAssumed: { known: ["You expressed what you're feeling."], assumed: ["You may be assuming the worst outcome is the most likely one."] },
+            oneQuestion: "If this resolved exactly how you wanted — what would actually change?",
+            tags: ["UNCERTAINTY", "HOPE"],
+          },
+        },
+      ];
+    }
+    return base;
+  });
 
   useEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;

@@ -100,7 +100,7 @@ export default function ChatPage() {
 
   return (
     <div className="flex flex-col h-screen mesh-gradient-bg">
-      <AppHeader />
+      <AppHeader showBack />
 
       {/* Date */}
       {entry && (

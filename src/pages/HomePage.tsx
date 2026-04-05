@@ -61,7 +61,7 @@ export default function HomePage() {
     <div className="flex flex-col h-screen mesh-gradient-bg">
       
 
-      <div className="flex-1 overflow-y-auto px-5 space-y-8">
+      <div className="flex-1 overflow-y-auto px-5 space-y-4">
         {/* Hero */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}

@@ -24,12 +24,22 @@ export function ChatInput({ onSend, onVoice, placeholder = "Type your thoughts..
         <button className="text-on-surface-variant hover:text-mint transition-colors">
           <Paperclip size={20} />
         </button>
-        <input
+        <textarea
           value={text}
-          onChange={(e) => setText(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && handleSend()}
+          onChange={(e) => {
+            setText(e.target.value);
+            e.target.style.height = "auto";
+            e.target.style.height = Math.min(e.target.scrollHeight, 120) + "px";
+          }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && !e.shiftKey) {
+              e.preventDefault();
+              handleSend();
+            }
+          }}
           placeholder={placeholder}
-          className="flex-1 bg-transparent text-foreground placeholder:text-on-surface-variant text-base outline-none font-body"
+          rows={1}
+          className="flex-1 bg-transparent text-foreground placeholder:text-on-surface-variant text-base outline-none font-body resize-none leading-relaxed max-h-[120px]"
         />
         <AnimatePresence mode="wait">
           {text.trim() ? (

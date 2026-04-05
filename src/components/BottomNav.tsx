@@ -1,5 +1,5 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import { Mic, BarChart3, User, Settings } from "lucide-react";
+import { Mic, BarChart3, User } from "lucide-react";
 import { motion } from "framer-motion";
 
 const tabs = [
@@ -12,7 +12,6 @@ export function BottomNav() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Hide on voice recording screen
   if (location.pathname === "/recording" || location.pathname.startsWith("/chat/")) return null;
 
   return (
@@ -25,21 +24,21 @@ export function BottomNav() {
             <button
               key={tab.path}
               onClick={() => navigate(tab.path)}
-              className="relative flex flex-col items-center gap-1 py-2 px-3 min-w-[64px]"
+              className="relative flex flex-col items-center gap-1 py-2 px-5 min-w-[72px]"
             >
               {isActive && (
                 <motion.div
                   layoutId="nav-active"
-                  className="absolute inset-0 rounded-2xl orb-gradient opacity-20"
+                  className="absolute -top-1 left-1/2 -translate-x-1/2 w-14 h-14 rounded-full orb-gradient orb-shadow"
                   transition={{ type: "spring", stiffness: 400, damping: 30 }}
                 />
               )}
               <Icon
                 size={20}
-                className={isActive ? "text-mint" : "text-on-surface-variant"}
+                className={`relative z-10 ${isActive ? "text-primary-foreground" : "text-on-surface-variant"}`}
               />
               <span
-                className={`text-[10px] tracking-[0.1em] font-semibold ${
+                className={`relative z-10 text-[10px] tracking-[0.1em] font-semibold ${
                   isActive ? "text-mint" : "text-on-surface-variant"
                 }`}
               >

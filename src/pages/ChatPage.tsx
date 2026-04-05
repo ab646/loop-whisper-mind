@@ -1,13 +1,19 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Play, Loader2, ArrowLeft } from "lucide-react";
+import { Play, Loader2, ArrowLeft, MoreVertical, Trash2 } from "lucide-react";
 import { ChatInput } from "@/components/ChatInput";
 import { ReflectionCard } from "@/components/ReflectionCard";
 import { Waveform } from "@/components/Waveform";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface TextMessage { id: string; type: "text"; content: string }
 interface VoiceMessage { id: string; type: "voice"; duration: string }

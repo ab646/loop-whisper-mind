@@ -4,7 +4,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
+    "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
 serve(async (req) => {
@@ -19,20 +19,30 @@ serve(async (req) => {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
 
-    const supabase = createClient(
-      Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_ANON_KEY") || Deno.env.get("SUPABASE_PUBLISHABLE_KEY")!,
-      { global: { headers: { Authorization: authHeader } } }
-    );
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+
+    // User client for auth validation
+    const userClient = createClient(supabaseUrl, anonKey, {
+      global: { headers: { Authorization: authHeader } },
+    });
 
     const {
       data: { user },
-    } = await supabase.auth.getUser();
-    if (!user)
+      error: userError,
+    } = await userClient.auth.getUser();
+
+    if (userError || !user) {
+      console.error("Auth error:", userError?.message);
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
+    }
+
+    // Admin client for DB operations (bypasses RLS)
+    const adminClient = createClient(supabaseUrl, serviceRoleKey);
 
     const { content, entryType, previousMessages } = await req.json();
     if (!content?.trim())
@@ -42,7 +52,7 @@ serve(async (req) => {
       });
 
     // Fetch recent entries for context
-    const { data: recentEntries } = await supabase
+    const { data: recentEntries } = await adminClient
       .from("entries")
       .select("content, reflection, tags, created_at")
       .eq("user_id", user.id)
@@ -152,8 +162,8 @@ Return ONLY valid JSON. No markdown, no explanation.${historyContext}${conversat
       };
     }
 
-    // Save entry to database
-    const { data: entry, error: insertError } = await supabase
+    // Save entry to database using admin client
+    const { data: entry, error: insertError } = await adminClient
       .from("entries")
       .insert({
         user_id: user.id,

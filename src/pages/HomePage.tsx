@@ -1,8 +1,10 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Menu, ChevronRight } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import { VoiceOrb } from "@/components/VoiceOrb";
 import { PromptChip } from "@/components/PromptChip";
+import { ChatInput } from "@/components/ChatInput";
 
 interface EntryPreview {
   id: string;
@@ -53,7 +55,7 @@ export default function HomePage() {
   const navigate = useNavigate();
 
   return (
-    <div className="flex flex-col min-h-screen mesh-gradient-bg pb-24">
+    <div className="flex flex-col h-screen mesh-gradient-bg">
       {/* Header */}
       <header className="flex items-center justify-center px-5 py-4">
         <h1 className="font-display text-xl text-on-surface font-semibold">Loop</h1>
@@ -118,6 +120,15 @@ export default function HomePage() {
             </motion.button>
           ))}
         </div>
+      </div>
+
+      {/* Floating input */}
+      <div className="shrink-0 pb-20">
+        <ChatInput
+          onSend={(text) => navigate("/chat/new", { state: { initialText: text } })}
+          onVoice={() => navigate("/recording")}
+          placeholder="Type your thoughts..."
+        />
       </div>
     </div>
   );

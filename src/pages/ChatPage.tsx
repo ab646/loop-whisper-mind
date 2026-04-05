@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowLeft, Play } from "lucide-react";
+import { AppHeader } from "@/components/AppHeader";
 import { ChatInput } from "@/components/ChatInput";
 import { ReflectionCard } from "@/components/ReflectionCard";
 import { Waveform } from "@/components/Waveform";

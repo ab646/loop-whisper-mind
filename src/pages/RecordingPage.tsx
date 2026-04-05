@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { X, Mic } from "lucide-react";
 import { AppHeader } from "@/components/AppHeader";
-import { VoiceOrb } from "@/components/VoiceOrb";
+
 import { Waveform } from "@/components/Waveform";
 
 export default function RecordingPage() {
@@ -43,14 +43,13 @@ export default function RecordingPage() {
         <motion.div
           animate={{ scale: [1, 1.03, 1] }}
           transition={{ duration: 2, repeat: Infinity }}
-          className="relative"
+          className="w-44 h-44 rounded-full orb-gradient orb-shadow flex flex-col items-center justify-center gap-1.5"
         >
-          <VoiceOrb size="lg" />
-          <div className="absolute inset-0 flex items-center justify-center pt-12">
-            <span className="text-primary-foreground text-lg font-body font-semibold">
-              {formatTime(seconds)}
-            </span>
-          </div>
+          <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/30 to-transparent" />
+          <Mic size={32} className="text-primary-foreground relative z-10" />
+          <span className="text-primary-foreground text-xl font-body font-semibold tracking-wide relative z-10 tabular-nums">
+            {formatTime(seconds)}
+          </span>
         </motion.div>
 
         <p className="font-display text-base text-mint italic text-center leading-relaxed max-w-xs">

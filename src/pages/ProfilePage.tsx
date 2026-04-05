@@ -123,13 +123,16 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        {/* Clear the noise */}
+        {/* Sign out */}
         <div className="flex flex-col items-center gap-2 py-6">
-          <div className="w-14 h-14 rounded-full border border-destructive/30 flex items-center justify-center">
-            <span className="text-destructive text-lg">🗑</span>
-          </div>
-          <p className="text-destructive text-sm font-semibold">Clear the Noise</p>
-          <p className="label-uppercase text-[10px]">ARCHIVE OR RESET OLD LOOPS</p>
+          <motion.button
+            whileTap={{ scale: 0.95 }}
+            onClick={handleSignOut}
+            className="flex items-center gap-2 text-destructive text-sm font-semibold"
+          >
+            <LogOut size={16} />
+            Sign Out
+          </motion.button>
         </div>
       </div>
     </div>

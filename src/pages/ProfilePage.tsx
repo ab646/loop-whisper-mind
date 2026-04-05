@@ -72,7 +72,7 @@ export default function ProfilePage() {
           <div className="rounded-2xl surface-low p-5 space-y-3">
             <div className="flex items-center justify-between">
               <Mic size={18} className="text-on-surface-variant" />
-              <ToggleSwitch checked={voiceFirst} onChange={setVoiceFirst} />
+              <ToggleSwitch checked={profile?.voice_first_mode ?? false} onChange={() => togglePreference("voice_first_mode")} />
             </div>
             <h4 className="text-on-surface font-body font-semibold">Voice-First Mode</h4>
             <p className="text-on-surface-variant text-sm">

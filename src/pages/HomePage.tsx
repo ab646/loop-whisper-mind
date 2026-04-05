@@ -17,11 +17,6 @@ interface EntryPreview {
   tags: string[];
 }
 
-const promptChips = [
-  "Replaying a text?",
-  "Feeling a spiral?",
-  "Decision paralysis?",
-];
 
 export default function HomePage() {
   const navigate = useNavigate();

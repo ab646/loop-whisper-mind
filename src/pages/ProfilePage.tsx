@@ -1,13 +1,30 @@
 import { motion } from "framer-motion";
-import { MoreVertical, Shield, Upload, Mic } from "lucide-react";
+import { Shield, Upload, Mic, LogOut } from "lucide-react";
 import { AppHeader } from "@/components/AppHeader";
+import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 export default function ProfilePage() {
   const navigate = useNavigate();
-  const [urgencyFilter, setUrgencyFilter] = useState(true);
-  const [voiceFirst, setVoiceFirst] = useState(false);
+  const { user, profile, signOut, refreshProfile } = useAuth();
+
+  const togglePreference = async (field: "urgency_filter" | "voice_first_mode") => {
+    if (!user || !profile) return;
+    const newVal = !profile[field];
+    const { error } = await supabase
+      .from("profiles")
+      .update({ [field]: newVal })
+      .eq("user_id", user.id);
+    if (error) toast.error("Failed to update");
+    else await refreshProfile();
+  };
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/login");
+  };
 
   return (
     <div className="min-h-screen mesh-gradient-bg pb-24">

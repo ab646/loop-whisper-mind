@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
-import { ArrowLeft, MoreVertical, Shield, Upload, Mic, Clock, User, Settings } from "lucide-react";
+import { MoreVertical, Shield, Upload, Mic } from "lucide-react";
+import { AppHeader } from "@/components/AppHeader";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 

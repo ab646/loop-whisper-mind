@@ -1,4 +1,5 @@
-import { Mic, Paperclip } from "lucide-react";
+import { Mic, Paperclip, ArrowUp } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
 import { useState } from "react";
 
 interface ChatInputProps {

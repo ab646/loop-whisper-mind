@@ -82,7 +82,7 @@ export default function InsightsPage() {
 
   return (
     <div className="min-h-screen mesh-gradient-bg pb-24">
-      <AppHeader />
+      
 
       <div className="px-5 space-y-8">
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-2">

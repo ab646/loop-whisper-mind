@@ -64,7 +64,7 @@ export default function HomePage() {
 
   return (
     <div className="flex flex-col h-screen mesh-gradient-bg">
-      <AppHeader />
+      
 
       <div className="flex-1 overflow-y-auto px-5 space-y-8">
         {/* Hero */}

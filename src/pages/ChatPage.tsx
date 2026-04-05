@@ -150,7 +150,7 @@ export default function ChatPage() {
 
   return (
     <div className="flex flex-col h-screen mesh-gradient-bg">
-      <AppHeader showBack />
+      
 
       {entryDate && (
         <div className="flex justify-center pb-2">

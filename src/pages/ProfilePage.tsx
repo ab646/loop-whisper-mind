@@ -1,13 +1,30 @@
 import { motion } from "framer-motion";
-import { MoreVertical, Shield, Upload, Mic } from "lucide-react";
+import { Shield, Upload, Mic, LogOut } from "lucide-react";
 import { AppHeader } from "@/components/AppHeader";
+import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 export default function ProfilePage() {
   const navigate = useNavigate();
-  const [urgencyFilter, setUrgencyFilter] = useState(true);
-  const [voiceFirst, setVoiceFirst] = useState(false);
+  const { user, profile, signOut, refreshProfile } = useAuth();
+
+  const togglePreference = async (field: "urgency_filter" | "voice_first_mode") => {
+    if (!user || !profile) return;
+    const newVal = !profile[field];
+    const { error } = await supabase
+      .from("profiles")
+      .update({ [field]: newVal })
+      .eq("user_id", user.id);
+    if (error) toast.error("Failed to update");
+    else await refreshProfile();
+  };
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/login");
+  };
 
   return (
     <div className="min-h-screen mesh-gradient-bg pb-24">
@@ -24,8 +41,8 @@ export default function ProfilePage() {
             👤
           </div>
           <div>
-            <h3 className="text-on-surface font-body text-lg font-semibold">Sam</h3>
-            <p className="text-on-surface-variant text-sm">Stay Grounded</p>
+            <h3 className="text-on-surface font-body text-lg font-semibold">{profile?.display_name || "User"}</h3>
+            <p className="text-on-surface-variant text-sm">{profile?.mantra || "Stay Grounded"}</p>
             <div className="flex items-center gap-2 mt-1">
               <span className="text-mint text-xs font-semibold">CURRENT STREAK</span>
               <div className="flex gap-1">
@@ -44,7 +61,7 @@ export default function ProfilePage() {
           <div className="rounded-2xl surface-low p-5 space-y-3">
             <div className="flex items-center justify-between">
               <span className="text-mint">🔽</span>
-              <ToggleSwitch checked={urgencyFilter} onChange={setUrgencyFilter} />
+              <ToggleSwitch checked={profile?.urgency_filter ?? true} onChange={() => togglePreference("urgency_filter")} />
             </div>
             <h4 className="text-on-surface font-body font-semibold">High-Urgency Filter</h4>
             <p className="text-on-surface-variant text-sm">
@@ -55,7 +72,7 @@ export default function ProfilePage() {
           <div className="rounded-2xl surface-low p-5 space-y-3">
             <div className="flex items-center justify-between">
               <Mic size={18} className="text-on-surface-variant" />
-              <ToggleSwitch checked={voiceFirst} onChange={setVoiceFirst} />
+              <ToggleSwitch checked={profile?.voice_first_mode ?? false} onChange={() => togglePreference("voice_first_mode")} />
             </div>
             <h4 className="text-on-surface font-body font-semibold">Voice-First Mode</h4>
             <p className="text-on-surface-variant text-sm">
@@ -89,7 +106,7 @@ export default function ProfilePage() {
           <h3 className="font-display text-lg text-mint italic">Account</h3>
           <div className="flex items-center justify-between">
             <span className="label-uppercase">EMAIL ADDRESS</span>
-            <span className="text-on-surface text-sm">sam@noetic.fog</span>
+            <span className="text-on-surface text-sm">{user?.email ?? ""}</span>
           </div>
 
           <div className="rounded-2xl surface-low p-5 flex items-center justify-between">
@@ -106,23 +123,26 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        {/* Clear the noise */}
+        {/* Sign out */}
         <div className="flex flex-col items-center gap-2 py-6">
-          <div className="w-14 h-14 rounded-full border border-destructive/30 flex items-center justify-center">
-            <span className="text-destructive text-lg">🗑</span>
-          </div>
-          <p className="text-destructive text-sm font-semibold">Clear the Noise</p>
-          <p className="label-uppercase text-[10px]">ARCHIVE OR RESET OLD LOOPS</p>
+          <motion.button
+            whileTap={{ scale: 0.95 }}
+            onClick={handleSignOut}
+            className="flex items-center gap-2 text-destructive text-sm font-semibold"
+          >
+            <LogOut size={16} />
+            Sign Out
+          </motion.button>
         </div>
       </div>
     </div>
   );
 }
 
-function ToggleSwitch({ checked, onChange }: { checked: boolean; onChange: (v: boolean) => void }) {
+function ToggleSwitch({ checked, onChange }: { checked: boolean; onChange: () => void }) {
   return (
     <button
-      onClick={() => onChange(!checked)}
+      onClick={onChange}
       className={`w-12 h-6 rounded-full relative transition-colors ${
         checked ? "bg-mint" : "bg-surface-high"
       }`}

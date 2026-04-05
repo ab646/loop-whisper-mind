@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, Heart, Briefcase, Calendar, Settings, Mic, ArrowUp } from "lucide-react";
+import { Heart, Briefcase, Calendar, Settings, Mic, ArrowUp } from "lucide-react";
+import { AppHeader } from "@/components/AppHeader";
 import { useState } from "react";
 
 const followUpQuestions = [

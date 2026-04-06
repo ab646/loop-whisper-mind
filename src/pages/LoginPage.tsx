@@ -16,28 +16,6 @@ export default function LoginPage() {
   const [socialLoading, setSocialLoading] = useState<string | null>(null);
   const navigate = useNavigate();
 
-  // Check if email exists when user finishes typing
-  useEffect(() => {
-    if (!email || !email.includes("@") || !email.includes(".")) return;
-    const timeout = setTimeout(async () => {
-      try {
-        const { error } = await supabase.auth.signInWithOtp({
-          email,
-          options: { shouldCreateUser: false },
-        });
-        // If no error, user exists → switch to login
-        if (!error) {
-          setMode("login");
-        } else {
-          setMode("signup");
-        }
-      } catch {
-        // ignore
-      }
-    }, 800);
-    return () => clearTimeout(timeout);
-  }, [email]);
-
   // Show confirm password after first password is entered in signup mode
   useEffect(() => {
     if (mode === "signup" && password.length >= 6) {

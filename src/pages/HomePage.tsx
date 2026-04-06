@@ -39,9 +39,10 @@ export default function HomePage() {
             const d = new Date(e.created_at);
             const now = new Date();
             const diffDays = Math.floor((now.getTime() - d.getTime()) / 86400000);
-            let dateLabel = d.toLocaleDateString("en-US", { weekday: "long" });
+            let dateLabel: string;
             if (diffDays === 0) dateLabel = "Today";
             else if (diffDays === 1) dateLabel = "Yesterday";
+            else dateLabel = d.toLocaleDateString("en-US", { weekday: "long", day: "numeric", month: "short", year: "numeric" });
 
             return {
               id: e.id,
@@ -49,6 +50,7 @@ export default function HomePage() {
               time: d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }),
               mainLoop: e.reflection?.mainLoop || e.content?.substring(0, 120) || "",
               tags: e.tags || [],
+              createdAt: e.created_at,
             };
           })
         );

@@ -96,7 +96,9 @@ serve(async (req) => {
       )
       .join("\n");
 
-    const weekCount = (entries || []).filter((e: any) => {
+    // Use allEntries for week count since theme names are AI-generated
+    // and may not match stored tags exactly
+    const weekCount = (allEntries || []).filter((e: any) => {
       const age = (now.getTime() - new Date(e.created_at).getTime()) / (1000 * 60 * 60);
       return age < 168;
     }).length;

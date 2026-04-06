@@ -264,7 +264,7 @@ export default function ChatPage() {
   if (loadingEntry) {
     return (
       <div className="flex flex-col h-screen mesh-gradient-bg items-center justify-center">
-        <Loader2 className="animate-spin text-mint" size={24} />
+        <ScribblingLogo size={28} />
       </div>
     );
   }

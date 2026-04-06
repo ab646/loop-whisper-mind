@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
-import { Mic, MicOff, Pause, Play, RotateCcw, Check } from "lucide-react";
+import { motion, useReducedMotion } from "framer-motion";
+import { Mic, MicOff, Pause, Play, RotateCcw } from "lucide-react";
 import { Waveform } from "@/components/Waveform";
 import { ScribblingLogo } from "@/components/LoopLogo";
 import { useAudioRecorder } from "@/hooks/useAudioRecorder";
@@ -14,28 +14,26 @@ const STEPS: { key: ProcessingStep; label: string }[] = [
   { key: "deleting", label: "Deleting recording" },
 ];
 
-function StepIndicator({
-  status,
-}: {
-  status: "done" | "active" | "pending";
-}) {
-  if (status === "done") {
-    return (
-      <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center">
-        <Check size={12} className="text-primary-foreground" />
-      </div>
-    );
+const TRANSCRIPTION_PHRASES = [
+  "Listening closely",
+  "Catching every word",
+  "Tuning in",
+  "Parsing the signal",
+  "Decoding your voice",
+  "Translating thought to text",
+  "Hearing what matters",
+  "Following the thread",
+  "Picking up the nuance",
+  "Processing your words",
+];
+
+function shuffle<T>(arr: T[]): T[] {
+  const copy = [...arr];
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
   }
-  if (status === "active") {
-    return (
-      <motion.div
-        animate={{ scale: [1, 1.3, 1], opacity: [0.7, 1, 0.7] }}
-        transition={{ duration: 1.2, repeat: Infinity }}
-        className="w-5 h-5 rounded-full bg-primary"
-      />
-    );
-  }
-  return <div className="w-5 h-5 rounded-full border-2 border-border/40" />;
+  return copy;
 }
 
 export default function RecordingPage() {
@@ -45,6 +43,15 @@ export default function RecordingPage() {
   const { isRecording, isPaused, duration, start, stop, pause, resume, reset } =
     useAudioRecorder();
   const startedRef = useRef(false);
+  const prefersReduced = useReducedMotion();
+
+  // Cycling phrases
+  const [shuffledPhrases] = useState(() => shuffle(TRANSCRIPTION_PHRASES));
+  const [phraseIndex, setPhraseIndex] = useState(0);
+  const [phraseFading, setPhraseFading] = useState(false);
+
+  // Fake progress percentage
+  const [fakePercent, setFakePercent] = useState(0);
 
   // Start recording on mount
   useEffect(() => {
@@ -52,6 +59,34 @@ export default function RecordingPage() {
     startedRef.current = true;
     start().catch(() => toast.error("Microphone permission denied"));
   }, []);
+
+  // Cycle phrases during processing
+  useEffect(() => {
+    if (!processing || prefersReduced) return;
+    const interval = setInterval(() => {
+      setPhraseFading(true);
+      setTimeout(() => {
+        setPhraseIndex((prev) => (prev + 1) % shuffledPhrases.length);
+        setPhraseFading(false);
+      }, 300);
+    }, 2800);
+    return () => clearInterval(interval);
+  }, [processing, shuffledPhrases.length, prefersReduced]);
+
+  // Fake progress that eases toward ~90% then jumps to 100% on "deleting"
+  useEffect(() => {
+    if (!processing) return;
+    const target = currentStep === "deleting" ? 100 : 90;
+    const interval = setInterval(() => {
+      setFakePercent((prev) => {
+        if (prev >= target) return prev;
+        const remaining = target - prev;
+        const increment = Math.max(0.5, remaining * 0.06);
+        return Math.min(target, prev + increment);
+      });
+    }, 200);
+    return () => clearInterval(interval);
+  }, [processing, currentStep]);
 
   const formatTime = (s: number) => {
     const m = Math.floor(s / 60);
@@ -82,6 +117,7 @@ export default function RecordingPage() {
 
     setProcessing(true);
     setCurrentStep("transcribing");
+    setFakePercent(0);
 
     try {
       const formData = new FormData();
@@ -89,8 +125,6 @@ export default function RecordingPage() {
 
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
       const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
-
-      setCurrentStep("transcribing");
 
       const response = await fetch(
         `${supabaseUrl}/functions/v1/transcribe`,
@@ -111,7 +145,6 @@ export default function RecordingPage() {
       const { text } = await response.json();
 
       setCurrentStep("deleting");
-      // Brief pause for the "deleting" reassurance step
       await new Promise((r) => setTimeout(r, 800));
 
       if (text && text.trim()) {
@@ -127,15 +160,6 @@ export default function RecordingPage() {
     }
   };
 
-  const getStepStatus = (stepKey: ProcessingStep): "done" | "active" | "pending" => {
-    const stepOrder = STEPS.map((s) => s.key);
-    const currentIdx = stepOrder.indexOf(currentStep);
-    const stepIdx = stepOrder.indexOf(stepKey);
-    if (stepIdx < currentIdx) return "done";
-    if (stepIdx === currentIdx) return "active";
-    return "pending";
-  };
-
   // Processing screen
   if (processing) {
     const activeStep = STEPS.find((s) => s.key === currentStep);
@@ -143,17 +167,22 @@ export default function RecordingPage() {
       <div className="flex flex-col min-h-screen mesh-gradient-bg items-center justify-center gap-6 px-8">
         <ScribblingLogo size={108} />
 
-        {activeStep && (
-          <motion.p
-            key={activeStep.key}
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            className="font-body text-sm text-on-surface-variant tracking-wide"
-          >
-            {activeStep.label}...
-          </motion.p>
-        )}
+        <span
+          className={`font-display text-base text-on-surface italic transition-opacity duration-300 ${
+            phraseFading ? "opacity-0" : "opacity-100"
+          }`}
+        >
+          {shuffledPhrases[phraseIndex]}...
+        </span>
+
+        <div className="flex items-center gap-2 mt-2">
+          <span className="font-body text-xs text-on-surface-variant/60 uppercase tracking-widest">
+            {activeStep?.label}
+          </span>
+          <span className="font-body text-xs text-on-surface-variant/40 tabular-nums">
+            {Math.round(fakePercent)}%
+          </span>
+        </div>
       </div>
     );
   }

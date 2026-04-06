@@ -191,13 +191,28 @@ export default function ChatPage() {
   const handleDelete = async () => {
     const currentId = window.location.pathname.split("/chat/")[1];
     if (!currentId || currentId === "new") return;
-    const { error } = await supabase.from("entries").delete().eq("id", currentId);
-    if (error) {
-      toast.error("Failed to delete loop");
-      return;
-    }
-    toast.success("Loop deleted");
+
+    // Optimistically navigate, show undo toast
+    const deletedMessages = [...messages];
     navigate("/");
+
+    toast("Loop deleted", {
+      action: {
+        label: "Undo",
+        onClick: () => {
+          // User wants to undo — navigate back (entry wasn't deleted yet if undo is fast)
+          navigate(`/chat/${currentId}`);
+        },
+      },
+      duration: 5000,
+      onAutoClose: async () => {
+        // Actually delete after toast expires
+        await supabase.from("entries").delete().eq("id", currentId);
+      },
+      onDismiss: async () => {
+        await supabase.from("entries").delete().eq("id", currentId);
+      },
+    });
   };
 
   if (loadingEntry) {

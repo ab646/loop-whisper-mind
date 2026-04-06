@@ -553,7 +553,7 @@ export default function ChatPage() {
             onSend={handleSend}
             onImageSelected={handleImageSelected}
             onVoice={() => navigate("/recording")}
-            placeholder="Type your thoughts..."
+            placeholder={messages.length > 0 ? "Ask a follow-up..." : "Type your thoughts..."}
             defaultValue={prefillText}
             disabled={loading}
             imageUploading={imageValidating}

@@ -148,11 +148,7 @@ export default function ThemeExplorationPage() {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen mesh-gradient-bg flex items-center justify-center">
-        <CyclingLoader mode="analysis" size={60} />
-      </div>
-    );
+    return <FullScreenLoader mode="analysis" />;
   }
 
   const themeName = theme ? theme.charAt(0).toUpperCase() + theme.slice(1) : "Theme";

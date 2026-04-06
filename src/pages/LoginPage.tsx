@@ -14,7 +14,30 @@ export default function LoginPage() {
   const [showConfirm, setShowConfirm] = useState(false);
   const [loading, setLoading] = useState(false);
   const [socialLoading, setSocialLoading] = useState<string | null>(null);
+  const [checkingEmail, setCheckingEmail] = useState(false);
   const navigate = useNavigate();
+
+  // Auto-detect if email exists → switch to login
+  useEffect(() => {
+    if (!email || !email.includes("@") || !email.includes(".")) return;
+    const timeout = setTimeout(async () => {
+      setCheckingEmail(true);
+      try {
+        const { data } = await supabase.functions.invoke("check-email", {
+          body: { email: email.trim() },
+        });
+        if (data?.exists) {
+          setMode("login");
+        } else {
+          setMode("signup");
+        }
+      } catch {
+        // ignore, stay in current mode
+      }
+      setCheckingEmail(false);
+    }, 600);
+    return () => clearTimeout(timeout);
+  }, [email]);
 
   // Show confirm password after first password is entered in signup mode
   useEffect(() => {

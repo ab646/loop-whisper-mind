@@ -7,9 +7,10 @@ interface ChatInputProps {
   onVoice: () => void;
   placeholder?: string;
   defaultValue?: string;
+  disabled?: boolean;
 }
 
-export function ChatInput({ onSend, onVoice, placeholder = "Type your thoughts...", defaultValue = "" }: ChatInputProps) {
+export function ChatInput({ onSend, onVoice, placeholder = "Type your thoughts...", defaultValue = "", disabled = false }: ChatInputProps) {
   const [text, setText] = useState(defaultValue);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -28,7 +29,7 @@ export function ChatInput({ onSend, onVoice, placeholder = "Type your thoughts..
   }, [defaultValue, autoResize]);
 
   const handleSend = () => {
-    if (text.trim() || imageFile) {
+    if ((text.trim() || imageFile) && !disabled) {
       onSend(text.trim(), imagePreview || undefined);
       setText("");
       setImagePreview(null);
@@ -104,7 +105,8 @@ export function ChatInput({ onSend, onVoice, placeholder = "Type your thoughts..
         />
         <button
           onClick={() => fileInputRef.current?.click()}
-          className="text-on-surface-variant hover:text-mint transition-colors"
+          disabled={disabled}
+          className="text-on-surface-variant hover:text-mint transition-colors disabled:opacity-50"
         >
           <Image size={20} />
         </button>
@@ -121,9 +123,10 @@ export function ChatInput({ onSend, onVoice, placeholder = "Type your thoughts..
               handleSend();
             }
           }}
+          disabled={disabled}
           placeholder={imageFile ? "Describe what you want from this image..." : placeholder}
           rows={1}
-          className="flex-1 bg-transparent text-foreground placeholder:text-on-surface-variant text-base outline-none font-body resize-none leading-relaxed max-h-[120px]"
+          className="flex-1 bg-transparent text-foreground placeholder:text-on-surface-variant text-base outline-none font-body resize-none leading-relaxed max-h-[120px] disabled:opacity-50"
         />
         <AnimatePresence mode="wait">
           {hasContent ? (
@@ -134,7 +137,8 @@ export function ChatInput({ onSend, onVoice, placeholder = "Type your thoughts..
               exit={{ scale: 0.8, opacity: 0 }}
               transition={{ duration: 0.15 }}
               onClick={handleSend}
-              className="w-9 h-9 rounded-full bg-mint flex items-center justify-center shrink-0"
+              disabled={disabled}
+              className="w-9 h-9 rounded-full bg-mint flex items-center justify-center shrink-0 disabled:opacity-50"
             >
               <ArrowUp size={18} className="text-primary-foreground" />
             </motion.button>
@@ -146,7 +150,8 @@ export function ChatInput({ onSend, onVoice, placeholder = "Type your thoughts..
               exit={{ scale: 0.8, opacity: 0 }}
               transition={{ duration: 0.15 }}
               onClick={onVoice}
-              className="w-9 h-9 rounded-full orb-gradient flex items-center justify-center shrink-0"
+              disabled={disabled}
+              className="w-9 h-9 rounded-full orb-gradient flex items-center justify-center shrink-0 disabled:opacity-50"
             >
               <Mic size={16} className="text-primary-foreground" />
             </motion.button>

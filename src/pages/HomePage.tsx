@@ -36,8 +36,6 @@ function getDateGroup(dateStr: string): string {
 }
 
 function groupEntries(entries: EntryPreview[]): [string, EntryPreview[]][] {
-  // Entries arrive pre-sorted newest-first from DB.
-  // We preserve that order: first group seen = most recent.
   const sorted = [...entries].sort(
     (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
   );
@@ -60,42 +58,93 @@ export default function HomePage() {
   const { session } = useAuth();
   const [entries, setEntries] = useState<EntryPreview[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
 
   useEffect(() => {
     if (!session) return;
     (async () => {
-      const { data } = await supabase
-        .from("entries")
-        .select("id, content, reflection, tags, created_at")
-        .order("created_at", { ascending: false })
-        .limit(20);
+      try {
+        const { data, error: fetchError } = await supabase
+          .from("entries")
+          .select("id, content, reflection, tags, created_at, entry_type")
+          .eq("user_id", session.user.id)
+          .neq("entry_type", "theme-exploration")
+          .order("created_at", { ascending: false })
+          .limit(20);
 
-      if (data) {
-        setEntries(
-          data.map((e: any) => {
-            const d = new Date(e.created_at);
-            const now = new Date();
-            const diffDays = Math.floor((now.getTime() - d.getTime()) / 86400000);
-            let dateLabel: string;
-            if (diffDays === 0) dateLabel = "Today";
-            else if (diffDays === 1) dateLabel = "Yesterday";
-            else dateLabel = d.toLocaleDateString("en-US", { weekday: "long", day: "numeric", month: "short", year: "numeric" });
+        if (fetchError) throw fetchError;
 
-            return {
-              id: e.id,
-              date: dateLabel,
-              time: d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }),
-              mainLoop: e.reflection?.mainLoop || e.content?.substring(0, 120) || "",
-              tags: e.tags || [],
-              createdAt: e.created_at,
-              hasReflection: !!e.reflection,
-            };
-          })
-        );
+        if (data) {
+          setEntries(
+            data.map((e: any) => {
+              const d = new Date(e.created_at);
+              const now = new Date();
+              const diffDays = Math.floor((now.getTime() - d.getTime()) / 86400000);
+              let dateLabel: string;
+              if (diffDays === 0) dateLabel = "Today";
+              else if (diffDays === 1) dateLabel = "Yesterday";
+              else dateLabel = d.toLocaleDateString("en-US", { weekday: "long", day: "numeric", month: "short", year: "numeric" });
+
+              return {
+                id: e.id,
+                date: dateLabel,
+                time: d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }),
+                mainLoop: e.reflection?.mainLoop || e.content?.substring(0, 120) || "",
+                tags: e.tags || [],
+                createdAt: e.created_at,
+                hasReflection: !!e.reflection,
+              };
+            })
+          );
+          setHasMore(data.length === 20);
+          setError(null);
+        }
+      } catch (e) {
+        console.error("Failed to load entries:", e);
+        setError("Couldn't load your loops. Tap to retry.");
       }
       setLoading(false);
     })();
-  }, [session]);
+  }, [session, retryCount]);
+
+  const loadMore = async () => {
+    if (!session) return;
+    const { data } = await supabase
+      .from("entries")
+      .select("id, content, reflection, tags, created_at, entry_type")
+      .eq("user_id", session.user.id)
+      .neq("entry_type", "theme-exploration")
+      .order("created_at", { ascending: false })
+      .range(entries.length, entries.length + 19);
+
+    if (data) {
+      setEntries((prev) => [
+        ...prev,
+        ...data.map((e: any) => {
+          const d = new Date(e.created_at);
+          const now = new Date();
+          const diffDays = Math.floor((now.getTime() - d.getTime()) / 86400000);
+          let dateLabel: string;
+          if (diffDays === 0) dateLabel = "Today";
+          else if (diffDays === 1) dateLabel = "Yesterday";
+          else dateLabel = d.toLocaleDateString("en-US", { weekday: "long", day: "numeric", month: "short", year: "numeric" });
+
+          return {
+            id: e.id,
+            date: dateLabel,
+            time: d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }),
+            mainLoop: e.reflection?.mainLoop || e.content?.substring(0, 120) || "",
+            tags: e.tags || [],
+            createdAt: e.created_at,
+            hasReflection: !!e.reflection,
+          };
+        }),
+      ]);
+      setHasMore(data.length === 20);
+    }
+  };
 
   return (
     <div className="flex flex-col h-screen mesh-gradient-bg relative overflow-hidden">
@@ -132,6 +181,16 @@ export default function HomePage() {
             <div className="flex justify-center py-8">
               <ScribblingLogo size={24} />
             </div>
+          ) : error && !loading ? (
+            <motion.button
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              onClick={() => { setError(null); setLoading(true); setRetryCount((c) => c + 1); }}
+              className="rounded-2xl surface-low p-6 text-center space-y-3 w-full"
+            >
+              <p className="text-on-surface text-sm">{error}</p>
+              <p className="text-mint text-sm font-semibold">Retry</p>
+            </motion.button>
           ) : entries.length === 0 ? (
             <motion.div
               initial={{ opacity: 0 }}
@@ -144,50 +203,57 @@ export default function HomePage() {
               </p>
             </motion.div>
           ) : (
-            groupEntries(entries).map(([group, groupItems]) => (
-              <div key={group} className="space-y-2">
-                <span className="label-uppercase text-mint">{group}</span>
-                {groupItems.map((entry, i) => (
-                  <motion.button
-                    key={entry.id}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: i * 0.04 }}
-                    onClick={() => navigate(`/chat/${entry.id}`)}
-                    className="w-full rounded-2xl surface-low p-4 flex items-start gap-3 text-left hover:bg-surface-container transition-colors"
-                  >
-                     <div className="flex-1 min-w-0 space-y-2">
-                      <div className="flex items-center justify-between">
-                        <span className="text-on-surface-variant text-[10px] tracking-wider uppercase font-semibold">
-                          {entry.date} • {entry.time}
-                        </span>
-                      </div>
-                      <p className="text-on-surface text-sm leading-relaxed line-clamp-2 font-body">
-                        {entry.mainLoop}
-                      </p>
-                      <div className="flex gap-2 flex-wrap">
-                        {entry.tags.map((tag) => (
-                          <span
-                            key={tag}
-                            className="tag-pill"
-                          >
-                            {tag.replace(/_/g, " ").trim().toLowerCase().replace(/^\w/, (char) => char.toUpperCase())}
+            <>
+              {groupEntries(entries).map(([group, groupItems]) => (
+                <div key={group} className="space-y-2">
+                  <span className="label-uppercase text-mint">{group}</span>
+                  {groupItems.map((entry, i) => (
+                    <motion.button
+                      key={entry.id}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: i * 0.04 }}
+                      onClick={() => navigate(`/chat/${entry.id}`)}
+                      className="w-full rounded-2xl surface-low p-4 flex items-start gap-3 text-left hover:bg-surface-container transition-colors"
+                    >
+                       <div className="flex-1 min-w-0 space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-on-surface-variant text-[10px] tracking-wider uppercase font-semibold">
+                            {entry.date} • {entry.time}
                           </span>
-                        ))}
+                        </div>
+                        <p className="text-on-surface text-sm leading-relaxed line-clamp-2 font-body">
+                          {entry.mainLoop}
+                        </p>
+                        <div className="flex gap-2 flex-wrap">
+                          {entry.tags.map((tag) => (
+                            <span
+                              key={tag}
+                              className="tag-pill"
+                            >
+                              {tag.replace(/_/g, " ").trim().toLowerCase().replace(/^\w/, (char) => char.toUpperCase())}
+                            </span>
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                    <ChevronRight size={16} className="text-on-surface-variant mt-1 shrink-0" />
-                  </motion.button>
-                ))}
-              </div>
-            ))
+                      <ChevronRight size={16} className="text-on-surface-variant mt-1 shrink-0" />
+                    </motion.button>
+                  ))}
+                </div>
+              ))}
+              {hasMore && entries.length > 0 && (
+                <button onClick={loadMore} className="w-full text-center text-mint text-sm py-4">
+                  Load more
+                </button>
+              )}
+            </>
           )}
         </div>
       </div>
 
       <div className="shrink-0 pb-20">
         <ChatInput
-          onSend={(text) => navigate("/chat/new", { state: { initialText: text } })}
+          onSend={(text) => navigate("/chat/new", { state: { prefillText: text } })}
           onVoice={() => navigate("/recording")}
           placeholder="Type your thoughts..."
         />

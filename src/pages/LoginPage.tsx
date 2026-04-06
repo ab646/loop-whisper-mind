@@ -14,30 +14,8 @@ export default function LoginPage() {
   const [showConfirm, setShowConfirm] = useState(false);
   const [loading, setLoading] = useState(false);
   const [socialLoading, setSocialLoading] = useState<string | null>(null);
-  const [checkingEmail, setCheckingEmail] = useState(false);
+  const [showConfirmation, setShowConfirmation] = useState(false);
   const navigate = useNavigate();
-
-  // Auto-detect if email exists → switch to login
-  useEffect(() => {
-    if (!email || !email.includes("@") || !email.includes(".")) return;
-    const timeout = setTimeout(async () => {
-      setCheckingEmail(true);
-      try {
-        const { data } = await supabase.functions.invoke("check-email", {
-          body: { email: email.trim() },
-        });
-        if (data?.exists) {
-          setMode("login");
-        } else {
-          setMode("signup");
-        }
-      } catch {
-        // ignore, stay in current mode
-      }
-      setCheckingEmail(false);
-    }, 600);
-    return () => clearTimeout(timeout);
-  }, [email]);
 
   // Show confirm password after first password is entered in signup mode
   useEffect(() => {
@@ -65,10 +43,14 @@ export default function LoginPage() {
       });
       setLoading(false);
       if (error) {
-        toast.error(error.message);
+        if (error.message?.toLowerCase().includes("already registered")) {
+          setMode("login");
+          toast.info("Looks like you already have an account — sign in below.");
+        } else {
+          toast.error(error.message);
+        }
       } else {
-        toast.success("Check your email to confirm your account");
-        navigate("/onboarding");
+        setShowConfirmation(true);
       }
     } else {
       setLoading(true);
@@ -102,6 +84,38 @@ export default function LoginPage() {
   };
 
   const isLogin = mode === "login";
+
+  // Fix #2: Confirmation screen after signup
+  if (showConfirmation) {
+    return (
+      <div className="min-h-screen mesh-gradient-bg flex flex-col items-center justify-center px-6">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="w-full max-w-sm space-y-6 text-center"
+        >
+          <StaticLogo size={80} />
+          <h1 className="font-display text-2xl text-on-surface">Check your inbox</h1>
+          <p className="text-on-surface-variant text-sm leading-relaxed">
+            We sent a confirmation link to <strong className="text-on-surface">{email}</strong>.
+            Click it to activate your account.
+          </p>
+          <p className="text-on-surface-variant text-xs">
+            Didn't get it?{" "}
+            <button
+              onClick={async () => {
+                await supabase.auth.resend({ type: "signup", email });
+                toast.success("Confirmation email resent");
+              }}
+              className="text-mint hover:underline"
+            >
+              Resend
+            </button>
+          </p>
+        </motion.div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen mesh-gradient-bg flex flex-col items-center justify-center px-6">

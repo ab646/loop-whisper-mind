@@ -38,12 +38,13 @@ export default function ProfilePage() {
     }
   };
 
+  // Fix #15: Include reflections in data export
   const handleExportData = async () => {
     if (!user) return;
     setExporting(true);
     const { data, error } = await supabase
       .from("entries")
-      .select("created_at, entry_type, content, tags, voice_duration")
+      .select("created_at, entry_type, content, tags, voice_duration, reflection")
       .eq("user_id", user.id)
       .order("created_at", { ascending: false });
 
@@ -53,16 +54,20 @@ export default function ProfilePage() {
       return;
     }
 
-    const headers = ["Date", "Type", "Content", "Tags", "Voice Duration"];
+    const headers = ["Date", "Type", "Content", "Tags", "Voice Duration", "Main Loop", "One Question", "Facts", "Assumptions"];
     const csvRows = [
       headers.join(","),
-      ...(data || []).map((e) =>
+      ...(data || []).map((e: any) =>
         [
           e.created_at,
           e.entry_type,
           `"${(e.content || "").replace(/"/g, '""')}"`,
           `"${(e.tags || []).join(", ")}"`,
           e.voice_duration || "",
+          `"${(e.reflection?.mainLoop || "").replace(/"/g, '""')}"`,
+          `"${(e.reflection?.oneQuestion || "").replace(/"/g, '""')}"`,
+          `"${((e.reflection?.knownVsAssumed?.known || []) as string[]).join("; ").replace(/"/g, '""')}"`,
+          `"${((e.reflection?.knownVsAssumed?.assumed || []) as string[]).join("; ").replace(/"/g, '""')}"`,
         ].join(",")
       ),
     ];
@@ -77,17 +82,20 @@ export default function ProfilePage() {
     toast.success("Data exported");
   };
 
+  // Fix #14: Delete account via edge function (removes auth user too)
   const handleDeleteAccount = async () => {
     if (!user) return;
     setDeleting(true);
-    // Delete user data first
-    await supabase.from("entries").delete().eq("user_id", user.id);
-    await supabase.from("profiles").delete().eq("user_id", user.id);
-    // Sign out (full account deletion requires admin, but we clear data)
-    await signOut();
+    try {
+      const { error } = await supabase.functions.invoke("delete-account");
+      if (error) throw error;
+      await signOut();
+      toast.success("Account deleted");
+      navigate("/login");
+    } catch (e) {
+      toast.error("Failed to delete account. Please try again.");
+    }
     setDeleting(false);
-    toast.success("Account data deleted");
-    navigate("/login");
   };
 
   const handleSignOut = async () => {

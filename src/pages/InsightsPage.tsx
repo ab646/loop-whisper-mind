@@ -2,8 +2,8 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
-  Mic, Heart, HeartCrack, Briefcase, Brain, Users, Home, Clock,
-  Flame, Target, Eye, Zap, Compass, MessageCircle, Shield,
+  MessageCircle, Heart, HeartCrack, Briefcase, Brain, Users, Home, Clock,
+  Flame, Target, Eye, Zap, Compass, Shield,
   Ghost, Moon, Lock, Leaf, Sun, BatteryLow, AlertCircle,
   CloudRain, Cloud, Mail, VolumeX, Calendar, Phone,
   type LucideIcon,
@@ -51,7 +51,6 @@ const triggerIconMap: Record<string, LucideIcon> = {
 
 function resolveTriggerIcon(iconType?: string, label?: string): LucideIcon {
   if (iconType && triggerIconMap[iconType]) return triggerIconMap[iconType];
-  // keyword fallback
   if (label) {
     const lower = label.toLowerCase();
     const kwMap: [string[], LucideIcon][] = [
@@ -88,7 +87,6 @@ export default function InsightsPage() {
     if (!session) return;
     (async () => {
       try {
-        // Fetch entry count for progress indicator
         const { count } = await supabase
           .from("entries")
           .select("*", { count: "exact", head: true })
@@ -166,15 +164,15 @@ export default function InsightsPage() {
             <div className="rounded-2xl surface-low p-4 h-16" />
           </motion.div>
 
-          {/* CTA */}
+          {/* CTA — Fix #9: changed to /chat/new with MessageCircle */}
           <motion.button
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
-            onClick={() => navigate("/recording")}
+            onClick={() => navigate("/chat/new")}
             className="flex items-center gap-2 px-6 py-3 rounded-full orb-gradient text-primary-foreground font-semibold text-sm"
           >
-            <Mic size={16} />
+            <MessageCircle size={16} />
             Start a reflection
           </motion.button>
         </div>

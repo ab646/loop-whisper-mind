@@ -140,6 +140,7 @@ export default function ChatPage() {
       setMessages((prev) => [...prev, userMsg]);
     }
     setLoading(true);
+    setLoadingImage(!!imageUrl);
 
     try {
       const { data, error } = await supabase.functions.invoke("reflect", {

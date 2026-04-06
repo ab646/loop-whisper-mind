@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Mic, MicOff, Pause, Play, RotateCcw } from "lucide-react";
+import { Mic, MicOff, Pause, Play, RotateCcw, X } from "lucide-react";
 import { Waveform } from "@/components/Waveform";
 import { ScribblingLogo } from "@/components/LoopLogo";
 import { useAudioRecorder } from "@/hooks/useAudioRecorder";
@@ -143,6 +143,16 @@ export default function RecordingPage() {
   // Recording screen
   return (
     <div className="flex flex-col min-h-screen mesh-gradient-bg">
+      {/* Cancel button */}
+      <div className="px-4 pt-4">
+        <button
+          onClick={() => { reset(); navigate(-1); }}
+          className="text-on-surface-variant hover:text-on-surface transition-colors"
+        >
+          <X size={22} />
+        </button>
+      </div>
+
       <div className="flex-1 flex flex-col items-center justify-center gap-8 px-8">
         <div className="text-center space-y-2">
           <span className="label-uppercase">VOICE INPUT</span>

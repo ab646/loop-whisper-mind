@@ -44,7 +44,6 @@ export default function ChatPage() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const { session } = useAuth();
   const isNew = id === "new";
-  const initialText = (location.state as any)?.initialText as string | undefined;
   const prefillText = (location.state as any)?.prefillText as string | undefined;
 
   const [messages, setMessages] = useState<Message[]>([]);
@@ -91,18 +90,10 @@ export default function ChatPage() {
     })();
   }, [id, isNew]);
 
-  // Process initial text from home page
-  useEffect(() => {
-    if (initialText && isNew) {
-      handleSend(initialText);
-    }
-  }, []);
-
   useEffect(() => {
     if (!scrollRef.current) return;
     const lastMsg = messages[messages.length - 1];
     if (lastMsg?.type === "reflection") {
-      // Scroll to the start of the reflection card
       requestAnimationFrame(() => {
         const cards = scrollRef.current?.querySelectorAll("[data-reflection]");
         const lastCard = cards?.[cards.length - 1];
@@ -240,7 +231,6 @@ export default function ChatPage() {
     const currentId = window.location.pathname.split("/chat/")[1];
     if (!currentId || currentId === "new") return;
 
-    // Optimistically navigate, show undo toast
     const deletedMessages = [...messages];
     navigate("/");
 
@@ -248,13 +238,11 @@ export default function ChatPage() {
       action: {
         label: "Undo",
         onClick: () => {
-          // User wants to undo — navigate back (entry wasn't deleted yet if undo is fast)
           navigate(`/chat/${currentId}`);
         },
       },
       duration: 5000,
       onAutoClose: async () => {
-        // Actually delete after toast expires
         await supabase.from("entries").delete().eq("id", currentId);
       },
       onDismiss: async () => {
@@ -328,7 +316,6 @@ export default function ChatPage() {
                     {msg.content.split(/\n{2,}|\.\s+(?=[A-Z])/).filter(Boolean).length > 1 ? (
                       <div className="space-y-3">
                         {msg.content.split(/\n{2,}/).filter(Boolean).map((paragraph, i, arr) => {
-                          // Further split long paragraphs at sentence boundaries for voice transcriptions
                           const sentences = paragraph.split(/(?<=\.)\s+(?=[A-Z])/);
                           const chunks: string[][] = [];
                           let current: string[] = [];
@@ -395,7 +382,7 @@ export default function ChatPage() {
                   <span className="text-primary-foreground text-xs">✦</span>
                 </div>
                 <div>
-                  <p className="text-on-surface-variant text-sm">Want to go deeper? Ask a follow-up.</p>
+                  <p className="text-on-surface-variant text-sm">Want to go deeper? Ask a follow-up, or add more context.</p>
                 </div>
               </div>
 
@@ -480,9 +467,9 @@ export default function ChatPage() {
         </div>
       </div>
 
-      {isNew && !hasReflection && (
+      {isNew && (
         <div className="shrink-0 pb-20">
-          <ChatInput onSend={handleSend} onVoice={() => navigate("/recording")} placeholder="Type your thoughts..." defaultValue={prefillText} />
+          <ChatInput onSend={handleSend} onVoice={() => navigate("/recording")} placeholder="Type your thoughts..." defaultValue={prefillText} disabled={loading} />
         </div>
       )}
     </div>

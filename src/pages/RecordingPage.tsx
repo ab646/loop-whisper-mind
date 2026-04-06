@@ -5,6 +5,7 @@ import { Mic, MicOff, Pause, Play, RotateCcw } from "lucide-react";
 import { Waveform } from "@/components/Waveform";
 import { FullScreenLoader } from "@/components/FullScreenLoader";
 import { useAudioRecorder } from "@/hooks/useAudioRecorder";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 type ProcessingStep = "transcribing" | "deleting";
@@ -85,14 +86,21 @@ export default function RecordingPage() {
       formData.append("audio", blob, "recording.webm");
 
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-      const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+
+      // Use authenticated user token instead of anon key
+      const sessionData = await supabase.auth.getSession();
+      const token = sessionData.data.session?.access_token;
+
+      if (!token) {
+        throw new Error("Not authenticated");
+      }
 
       const response = await fetch(
         `${supabaseUrl}/functions/v1/transcribe`,
         {
           method: "POST",
           headers: {
-            Authorization: `Bearer ${supabaseKey}`,
+            Authorization: `Bearer ${token}`,
           },
           body: formData,
         }
@@ -109,7 +117,7 @@ export default function RecordingPage() {
       await new Promise((r) => setTimeout(r, 800));
 
       if (text && text.trim()) {
-        navigate("/chat/new", { state: { initialText: text.trim() } });
+        navigate("/chat/new", { state: { prefillText: text.trim() } });
       } else {
         toast.error("No speech detected. Try again.");
         navigate(-1);

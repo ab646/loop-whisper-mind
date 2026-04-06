@@ -47,7 +47,7 @@ function CollapsibleSection({ title, children, defaultOpen = false }: { title: s
   );
 }
 
-export function ReflectionCard({ mainLoop, feelings, knownVsAssumed, repeatingPattern, oneQuestion, nextStep, tags }: ReflectionCardProps) {
+export function ReflectionCard({ mainLoop, feelings, knownVsAssumed, repeatingPattern, oneQuestion, nextStep, tags, themeAnswer }: ReflectionCardProps) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}

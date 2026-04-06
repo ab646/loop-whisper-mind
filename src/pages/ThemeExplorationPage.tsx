@@ -151,8 +151,9 @@ export default function ThemeExplorationPage() {
                     axisLine={false}
                     interval={0}
                     tickFormatter={(v: string) => {
-                      const d = new Date(v);
-                      return d.toLocaleDateString("en-US", { weekday: "short" }).toUpperCase();
+                      const [y, m, d] = v.split("-").map(Number);
+                      const date = new Date(y, m - 1, d);
+                      return date.toLocaleDateString("en-US", { weekday: "short" }).toUpperCase();
                     }}
                   />
                   <YAxis

@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Play, Loader2, ArrowLeft, MoreVertical, Trash2, ArrowUp } from "lucide-react";
+import { Play, ArrowLeft, MoreVertical, Trash2, ArrowUp } from "lucide-react";
 import { CyclingLoader } from "@/components/CyclingLoader";
 import { ScribblingLogo } from "@/components/LoopLogo";
 import { ChatInput } from "@/components/ChatInput";
@@ -264,7 +264,7 @@ export default function ChatPage() {
   if (loadingEntry) {
     return (
       <div className="flex flex-col h-screen mesh-gradient-bg items-center justify-center">
-        <Loader2 className="animate-spin text-mint" size={24} />
+        <ScribblingLogo size={28} />
       </div>
     );
   }
@@ -411,7 +411,7 @@ export default function ChatPage() {
                     className="w-7 h-7 rounded-full orb-gradient flex items-center justify-center disabled:opacity-50"
                   >
                     {explorationLoading ? (
-                      <Loader2 size={12} className="animate-spin text-primary-foreground" />
+                      <ScribblingLogo size={14} />
                     ) : (
                       <ArrowUp size={14} className="text-primary-foreground" />
                     )}

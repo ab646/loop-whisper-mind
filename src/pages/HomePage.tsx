@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ChevronRight, Loader2 } from "lucide-react";
+import { ChevronRight } from "lucide-react";
+import { ScribblingLogo } from "@/components/LoopLogo";
 import { AppHeader } from "@/components/AppHeader";
 import { VoiceOrb } from "@/components/VoiceOrb";
 
@@ -123,7 +124,7 @@ export default function HomePage() {
           <span className="label-uppercase">RECENT LOOPS</span>
           {loading ? (
             <div className="flex justify-center py-8">
-              <Loader2 className="animate-spin text-mint" size={20} />
+              <ScribblingLogo size={24} />
             </div>
           ) : entries.length === 0 ? (
             <motion.div

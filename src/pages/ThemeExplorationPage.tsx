@@ -5,6 +5,7 @@ import { ScribblingLogo } from "@/components/LoopLogo";
 import { CyclingLoader } from "@/components/CyclingLoader";
 import { FullScreenLoader } from "@/components/FullScreenLoader";
 import { AppHeader } from "@/components/AppHeader";
+import { FeedbackButtons } from "@/components/FeedbackButtons";
 import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";

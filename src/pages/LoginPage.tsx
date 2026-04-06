@@ -1,27 +1,44 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { StaticLogo } from "@/components/LoopLogo";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { toast } from "sonner";
 
 export default function LoginPage() {
+  const [mode, setMode] = useState<"login" | "signup">("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [socialLoading, setSocialLoading] = useState<string | null>(null);
   const navigate = useNavigate();
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    setLoading(false);
-    if (error) {
-      toast.error(error.message);
+
+    if (mode === "signup") {
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: { emailRedirectTo: window.location.origin },
+      });
+      setLoading(false);
+      if (error) {
+        toast.error(error.message);
+      } else {
+        toast.success("Check your email to confirm your account");
+        navigate("/onboarding");
+      }
     } else {
-      navigate("/");
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      setLoading(false);
+      if (error) {
+        toast.error(error.message);
+      } else {
+        navigate("/");
+      }
     }
   };
 
@@ -44,6 +61,8 @@ export default function LoginPage() {
     }
   };
 
+  const isLogin = mode === "login";
+
   return (
     <div className="min-h-screen mesh-gradient-bg flex flex-col items-center justify-center px-6">
       <motion.div
@@ -54,10 +73,20 @@ export default function LoginPage() {
         <div className="flex flex-col items-center space-y-3">
           <StaticLogo size={80} />
           <h1 className="font-display text-3xl text-on-surface">Loop</h1>
-          <p className="font-display text-base text-mint italic">Welcome back.</p>
+          <AnimatePresence mode="wait">
+            <motion.p
+              key={mode}
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              className="font-display text-base text-mint italic"
+            >
+              {isLogin ? "Welcome back." : "Talk it out. See the pattern."}
+            </motion.p>
+          </AnimatePresence>
         </div>
 
-        {/* Social login buttons */}
+        {/* Social login */}
         <div className="space-y-3">
           <motion.button
             whileTap={{ scale: 0.97 }}
@@ -94,7 +123,7 @@ export default function LoginPage() {
           <div className="flex-1 h-px bg-border/30" />
         </div>
 
-        <form onSubmit={handleLogin} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <label className="label-uppercase text-[10px]">EMAIL</label>
             <input
@@ -113,14 +142,17 @@ export default function LoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
+              minLength={mode === "signup" ? 6 : undefined}
               className="w-full rounded-xl surface-high border border-border/40 px-4 py-3 text-on-surface text-base font-body outline-none focus:ring-1 focus:ring-mint placeholder:text-on-surface-variant"
-              placeholder="••••••••"
+              placeholder={mode === "signup" ? "At least 6 characters" : "••••••••"}
             />
           </div>
 
-          <Link to="/forgot-password" className="block text-right text-mint text-sm font-body hover:underline py-3 px-2 min-h-[44px]">
-            Forgot password?
-          </Link>
+          {isLogin && (
+            <Link to="/forgot-password" className="block text-right text-mint text-sm font-body hover:underline py-3 px-2 min-h-[44px]">
+              Forgot password?
+            </Link>
+          )}
 
           <motion.button
             whileTap={{ scale: 0.97 }}
@@ -128,13 +160,20 @@ export default function LoginPage() {
             disabled={loading}
             className="w-full rounded-xl orb-gradient py-3.5 text-primary-foreground font-body font-semibold text-sm uppercase tracking-wider disabled:opacity-50"
           >
-            {loading ? "Signing in..." : "Sign In"}
+            {loading
+              ? isLogin ? "Signing in..." : "Creating account..."
+              : isLogin ? "Sign In" : "Get Started"}
           </motion.button>
         </form>
 
         <p className="text-center text-on-surface-variant text-sm font-body py-3">
-          New here?{" "}
-          <Link to="/signup" className="text-mint hover:underline py-3 px-2 inline-block min-h-[44px] leading-[44px]">Create an account</Link>
+          {isLogin ? "New here?" : "Already have an account?"}{" "}
+          <button
+            onClick={() => setMode(isLogin ? "signup" : "login")}
+            className="text-mint hover:underline py-3 px-2 inline-block min-h-[44px]"
+          >
+            {isLogin ? "Create an account" : "Sign in"}
+          </button>
         </p>
       </motion.div>
     </div>

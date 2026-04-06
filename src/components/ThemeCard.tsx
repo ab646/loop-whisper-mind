@@ -1,8 +1,9 @@
 import { motion } from "framer-motion";
 import {
-  Heart, Briefcase, Brain, Shield, Users, Home, Clock,
-  Flame, Target, Eye, Zap, Compass, Leaf, Moon, Sun,
-  MessageCircle, TrendingUp, Lock, Lightbulb, Frown,
+  Heart, HeartCrack, Briefcase, Brain, Shield, Users, Home, Clock,
+  Flame, Target, Eye, Zap, Compass, Leaf, Moon, Sun, Ghost,
+  MessageCircle, TrendingUp, Lock, Lightbulb, Frown, Cloud,
+  CloudRain, BatteryLow, AlertCircle, HelpCircle, UserX,
   type LucideIcon,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -15,48 +16,81 @@ interface ThemeCardProps {
   colorIndex?: number;
 }
 
-// Keyword-to-icon mapping for semantic matching
-const keywordIconMap: [string[], LucideIcon][] = [
-  [["love", "relationship", "partner", "romance", "dating", "intimacy"], Heart],
-  [["work", "job", "career", "boss", "office", "professional", "business"], Briefcase],
-  [["family", "parent", "mother", "father", "child", "sibling", "home"], Home],
-  [["friend", "social", "people", "community", "connection", "loneliness", "lonely"], Users],
-  [["anxiety", "worry", "stress", "overwhelm", "pressure", "tension", "nervous"], Flame],
-  [["identity", "self", "worth", "esteem", "confidence", "ego", "image"], Eye],
-  [["control", "power", "autonomy", "freedom", "independence"], Shield],
-  [["time", "deadline", "rush", "busy", "waiting", "patience"], Clock],
-  [["goal", "ambition", "purpose", "direction", "success", "achievement"], Target],
-  [["change", "growth", "transition", "evolving", "progress"], TrendingUp],
-  [["fear", "scared", "afraid", "dread", "phobia"], Frown],
-  [["energy", "motivation", "drive", "passion", "excitement"], Zap],
-  [["meaning", "spiritual", "belief", "faith", "values"], Compass],
-  [["rest", "sleep", "fatigue", "burnout", "exhaustion"], Moon],
-  [["health", "body", "wellness", "healing", "nature"], Leaf],
-  [["joy", "happiness", "gratitude", "optimism", "hope"], Sun],
-  [["communication", "conflict", "conversation", "expression"], MessageCircle],
-  [["boundary", "trust", "safety", "vulnerability", "secret"], Lock],
-  [["creativity", "idea", "inspiration", "curiosity", "learning"], Lightbulb],
-  [["mind", "thought", "thinking", "overthinking", "decision", "pattern"], Brain],
+// Broad icon map covering AI-returned icon names
+const iconMap: Record<string, LucideIcon> = {
+  cloud: Cloud,
+  "cloud-rain": CloudRain,
+  heart: Heart,
+  "heart-crack": HeartCrack,
+  briefcase: Briefcase,
+  brain: Brain,
+  shield: Shield,
+  users: Users,
+  "user-x": UserX,
+  home: Home,
+  clock: Clock,
+  flame: Flame,
+  target: Target,
+  eye: Eye,
+  zap: Zap,
+  compass: Compass,
+  leaf: Leaf,
+  moon: Moon,
+  sun: Sun,
+  ghost: Ghost,
+  "message-circle": MessageCircle,
+  "trending-up": TrendingUp,
+  lock: Lock,
+  lightbulb: Lightbulb,
+  frown: Frown,
+  "battery-low": BatteryLow,
+  "alert-circle": AlertCircle,
+  "help-circle": HelpCircle,
+  alert: AlertCircle,
+};
+
+// Keyword fallback if icon prop doesn't match
+const keywordFallback: [string[], LucideIcon][] = [
+  [["love", "relationship", "partner", "rejection", "abandon"], HeartCrack],
+  [["work", "job", "career", "boss", "office", "professional"], Briefcase],
+  [["family", "parent", "mother", "father", "child", "home"], Home],
+  [["friend", "social", "people", "lonely", "loneliness"], Users],
+  [["anxiety", "worry", "stress", "overwhelm", "pressure"], Flame],
+  [["identity", "self", "worth", "doubt", "confidence"], UserX],
+  [["control", "power", "autonomy", "boundary"], Shield],
+  [["ambiguity", "uncertain", "unclear", "vague", "unknown"], Cloud],
+  [["fear", "scared", "dread"], Ghost],
+  [["time", "deadline", "rush", "waiting"], Clock],
+  [["goal", "ambition", "purpose", "success"], Target],
+  [["energy", "motivation", "burnout", "exhaust"], BatteryLow],
+  [["change", "growth", "transition"], Compass],
+  [["communication", "conflict", "conversation"], MessageCircle],
+  [["creativity", "idea", "inspiration"], Lightbulb],
 ];
 
-function getSemanticIcon(name: string): LucideIcon {
-  const lower = name.toLowerCase();
-  for (const [keywords, icon] of keywordIconMap) {
-    if (keywords.some((kw) => lower.includes(kw))) return icon;
+function resolveIcon(icon?: string, name?: string): LucideIcon {
+  if (icon && iconMap[icon]) return iconMap[icon];
+  if (name) {
+    const lower = name.toLowerCase();
+    for (const [kws, ic] of keywordFallback) {
+      if (kws.some((kw) => lower.includes(kw))) return ic;
+    }
   }
-  return Brain; // default fallback
+  return Brain;
 }
 
-// Rotating accent colors using design tokens
+// Vibrant, distinct accent palettes
 const accentColors = [
-  { icon: "text-mint", bg: "bg-mint/15" },
-  { icon: "text-secondary", bg: "bg-secondary/15" },
-  { icon: "text-tertiary-foreground", bg: "bg-tertiary/20" },
-  { icon: "text-primary", bg: "bg-primary/15" },
+  { icon: "text-mint", bg: "bg-mint/20" },
+  { icon: "text-[hsl(280,60%,70%)]", bg: "bg-[hsl(280,60%,70%)]/15" },   // lavender/purple
+  { icon: "text-secondary", bg: "bg-secondary/20" },
+  { icon: "text-[hsl(0,65%,60%)]", bg: "bg-[hsl(0,65%,60%)]/15" },       // coral/red
+  { icon: "text-[hsl(45,80%,60%)]", bg: "bg-[hsl(45,80%,60%)]/15" },     // amber
+  { icon: "text-tertiary-foreground", bg: "bg-tertiary/25" },
 ];
 
-export function ThemeCard({ name, mentions, delay = 0, colorIndex = 0 }: ThemeCardProps) {
-  const Icon = getSemanticIcon(name);
+export function ThemeCard({ name, mentions, icon, delay = 0, colorIndex = 0 }: ThemeCardProps) {
+  const Icon = resolveIcon(icon, name);
   const navigate = useNavigate();
   const accent = accentColors[colorIndex % accentColors.length];
 

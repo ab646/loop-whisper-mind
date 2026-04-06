@@ -96,48 +96,43 @@ export default function ThemeExplorationPage() {
           <div className="w-16 h-1 rounded-full bg-mint" />
         </motion.div>
 
-        {/* Frequency & Intensity Timeline */}
+        {/* Atmosphere Timeline */}
         {analysis?.frequencyData?.length > 0 && analysis.frequencyData.reduce((sum: number, d: any) => sum + d.count, 0) >= 3 && (
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.05 }}
-            className="rounded-2xl surface-low p-5 space-y-3"
+            className="rounded-2xl surface-low p-5 space-y-4"
           >
-            <span className="label-uppercase">TIMELINE</span>
-            <h3 className="font-display text-lg text-on-surface">Intensity over time</h3>
-            <div className="h-44">
+            <div className="flex items-start justify-between">
+              <div className="space-y-1">
+                <span className="label-uppercase text-mint">ATMOSPHERE</span>
+                <h3 className="font-display text-lg text-on-surface leading-snug">Intensity trends over time</h3>
+              </div>
+              <button className="text-on-surface-variant text-xs tracking-wide px-3 py-1.5 rounded-lg surface-high border border-border/20">
+                Last 7 Days
+              </button>
+            </div>
+            <div className="h-36">
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={analysis.frequencyData} margin={{ top: 4, right: 4, bottom: 0, left: -20 }}>
+                <AreaChart data={analysis.frequencyData} margin={{ top: 4, right: 4, bottom: 0, left: 4 }}>
                   <defs>
                     <linearGradient id="intensityGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="hsl(var(--mint))" stopOpacity={0.35} />
-                      <stop offset="100%" stopColor="hsl(var(--mint))" stopOpacity={0.05} />
+                      <stop offset="0%" stopColor="hsl(var(--mint))" stopOpacity={0.15} />
+                      <stop offset="100%" stopColor="hsl(var(--mint))" stopOpacity={0} />
                     </linearGradient>
                   </defs>
                   <XAxis
                     dataKey="date"
-                    tick={{ fill: "hsl(var(--on-surface-variant))", fontSize: 10 }}
+                    tick={{ fill: "hsl(var(--on-surface-variant))", fontSize: 10, textTransform: "uppercase" } as any}
                     tickLine={false}
                     axisLine={false}
                     tickFormatter={(v: string) => {
                       const d = new Date(v);
-                      const day = d.toLocaleDateString("en-US", { weekday: "short" });
-                      return `${day} ${d.getDate()}/${d.getMonth() + 1}`;
+                      return d.toLocaleDateString("en-US", { weekday: "short" }).toUpperCase();
                     }}
                   />
-                  <YAxis
-                    domain={[0, 3]}
-                    ticks={[1, 2, 3]}
-                    allowDecimals={false}
-                    tick={{ fill: "hsl(var(--on-surface-variant))", fontSize: 10 }}
-                    tickLine={false}
-                    axisLine={false}
-                    tickFormatter={(v: number) => {
-                      const labels: Record<number, string> = { 1: "Low", 2: "Mid", 3: "High" };
-                      return labels[v] || "";
-                    }}
-                  />
+                  <YAxis hide domain={[0, 3]} />
                   <Tooltip
                     contentStyle={{
                       background: "hsl(var(--surface-container))",
@@ -150,29 +145,23 @@ export default function ThemeExplorationPage() {
                       const d = new Date(v);
                       return d.toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" });
                     }}
-                    formatter={(value: number, name: string) => {
-                      if (name === "intensity") {
-                        const labels = ["—", "Low", "Moderate", "High"];
-                        return [labels[Math.round(value)] || `${value}`, "Intensity"];
-                      }
-                      return [`${value}`, name];
+                    formatter={(value: number) => {
+                      const labels = ["—", "Low", "Moderate", "High"];
+                      return [labels[Math.round(value)] || `${value}`, "Intensity"];
                     }}
                   />
                   <Area
-                    type="monotone"
+                    type="natural"
                     dataKey="intensity"
                     stroke="hsl(var(--mint))"
-                    strokeWidth={2}
+                    strokeWidth={1.5}
                     fill="url(#intensityGrad)"
-                    dot={{ r: 3, fill: "hsl(var(--mint))", strokeWidth: 0 }}
-                    activeDot={{ r: 5, fill: "hsl(var(--mint))", strokeWidth: 2, stroke: "hsl(var(--surface-low))" }}
+                    dot={{ r: 2, fill: "hsl(var(--mint))", strokeWidth: 0 }}
+                    activeDot={{ r: 4, fill: "hsl(var(--mint))", strokeWidth: 2, stroke: "hsl(var(--surface-low))" }}
                   />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
-            <p className="text-on-surface-variant text-[10px] tracking-wider">
-              {analysis.frequencyData.reduce((s: number, d: any) => s + d.count, 0)} entries across {analysis.frequencyData.length} days
-            </p>
           </motion.div>
         )}
 

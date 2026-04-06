@@ -177,8 +177,9 @@ export default function ThemeExplorationPage() {
                       color: "hsl(var(--on-surface))",
                     }}
                     labelFormatter={(v: string) => {
-                      const d = new Date(v);
-                      return d.toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" });
+                      const [y, m, d] = v.split("-").map(Number);
+                      const date = new Date(y, m - 1, d);
+                      return date.toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" });
                     }}
                     formatter={(value: number) => {
                       const labels: Record<number, string> = { 0: "None", 1: "Low", 2: "Mild", 3: "Moderate", 4: "Strong", 5: "Extreme" };

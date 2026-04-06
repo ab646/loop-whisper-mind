@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 interface TextMessage { id: string; type: "text"; content: string }
+interface ImageMessage { id: string; type: "image"; imageUrl: string; caption?: string }
 interface VoiceMessage { id: string; type: "voice"; duration: string }
 interface ReflectionMessage {
   id: string;
@@ -31,7 +32,7 @@ interface ReflectionMessage {
     tags: string[];
   };
 }
-type Message = TextMessage | VoiceMessage | ReflectionMessage;
+type Message = TextMessage | ImageMessage | VoiceMessage | ReflectionMessage;
 
 export default function ChatPage() {
   const { id } = useParams();

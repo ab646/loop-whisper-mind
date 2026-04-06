@@ -96,7 +96,7 @@ export default function ThemeExplorationPage() {
           <div className="w-16 h-1 rounded-full bg-mint" />
         </motion.div>
 
-        {/* Frequency Timeline */}
+        {/* Frequency & Intensity Timeline */}
         {analysis?.frequencyData?.length > 0 && analysis.frequencyData.reduce((sum: number, d: any) => sum + d.count, 0) >= 3 && (
           <motion.div
             initial={{ opacity: 0, y: 10 }}
@@ -104,15 +104,19 @@ export default function ThemeExplorationPage() {
             transition={{ delay: 0.05 }}
             className="rounded-2xl surface-low p-5 space-y-3"
           >
-            <span className="label-uppercase">FREQUENCY</span>
-            <h3 className="font-display text-lg text-on-surface">Mentions over time</h3>
-            <div className="h-32">
+            <span className="label-uppercase">TIMELINE</span>
+            <h3 className="font-display text-lg text-on-surface">Activity & intensity</h3>
+            <div className="h-40">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={analysis.frequencyData} margin={{ top: 4, right: 4, bottom: 0, left: -20 }}>
                   <defs>
                     <linearGradient id="mintGrad" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="0%" stopColor="hsl(var(--mint))" stopOpacity={0.4} />
                       <stop offset="100%" stopColor="hsl(var(--mint))" stopOpacity={0} />
+                    </linearGradient>
+                    <linearGradient id="intensityGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="hsl(var(--destructive))" stopOpacity={0.3} />
+                      <stop offset="100%" stopColor="hsl(var(--destructive))" stopOpacity={0} />
                     </linearGradient>
                   </defs>
                   <XAxis
@@ -140,7 +144,11 @@ export default function ThemeExplorationPage() {
                       color: "hsl(var(--on-surface))",
                     }}
                     labelFormatter={(v: string) => new Date(v).toLocaleDateString()}
-                    formatter={(value: number) => [`${value} entries`, "Count"]}
+                    formatter={(value: number, name: string) => {
+                      if (name === "count") return [`${value} entries`, "Entries"];
+                      const labels = ["—", "Low", "Moderate", "High"];
+                      return [labels[Math.round(value)] || `${value}`, "Intensity"];
+                    }}
                   />
                   <Area
                     type="monotone"
@@ -149,8 +157,20 @@ export default function ThemeExplorationPage() {
                     strokeWidth={2}
                     fill="url(#mintGrad)"
                   />
+                  <Area
+                    type="monotone"
+                    dataKey="intensity"
+                    stroke="hsl(var(--destructive))"
+                    strokeWidth={1.5}
+                    fill="url(#intensityGrad)"
+                    strokeDasharray="4 2"
+                  />
                 </AreaChart>
               </ResponsiveContainer>
+            </div>
+            <div className="flex items-center gap-4 text-[10px] tracking-wider uppercase font-semibold">
+              <span className="flex items-center gap-1.5"><span className="w-3 h-0.5 rounded-full bg-mint inline-block" /> Entries</span>
+              <span className="flex items-center gap-1.5"><span className="w-3 h-0.5 rounded-full bg-destructive inline-block opacity-60" style={{ borderTop: "1px dashed" }} /> Intensity</span>
             </div>
           </motion.div>
         )}

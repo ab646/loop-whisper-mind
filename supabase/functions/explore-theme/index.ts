@@ -140,24 +140,35 @@ Return ONLY valid JSON. No markdown, no explanation.`;
       { temperature: 0.4, maxTokens: 1536 }
     );
 
-    // Ensure entriesThisWeek is accurate from data, not AI guess
     analysis.entriesThisWeek = weekCount;
 
-    // Build frequency timeline data grouped by day
-    const frequencyMap: Record<string, number> = {};
-    for (const e of entries || []) {
+    // Build frequency + intensity timeline from ALL entries (theme names from
+    // insights are AI-generated and don't always match stored tags exactly)
+    const intensityScore: Record<string, number> = { low: 1, moderate: 2, high: 3 };
+    const dayMap: Record<string, { count: number; intensitySum: number }> = {};
+
+    for (const e of allEntries || []) {
       const day = new Date(e.created_at).toISOString().split("T")[0];
-      frequencyMap[day] = (frequencyMap[day] || 0) + 1;
+      const reflection = (e.reflection || {}) as Record<string, any>;
+      const score = intensityScore[reflection.intensity as string] ?? 2;
+      if (!dayMap[day]) dayMap[day] = { count: 0, intensitySum: 0 };
+      dayMap[day].count += 1;
+      dayMap[day].intensitySum += score;
     }
-    // Fill gaps and sort
-    const dates = Object.keys(frequencyMap).sort();
-    const frequencyData: Array<{ date: string; count: number }> = [];
+
+    const dates = Object.keys(dayMap).sort();
+    const frequencyData: Array<{ date: string; count: number; intensity: number }> = [];
     if (dates.length > 0) {
       const start = new Date(dates[0]);
       const end = new Date(dates[dates.length - 1]);
       for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
         const key = d.toISOString().split("T")[0];
-        frequencyData.push({ date: key, count: frequencyMap[key] || 0 });
+        const bucket = dayMap[key];
+        frequencyData.push({
+          date: key,
+          count: bucket?.count || 0,
+          intensity: bucket ? Math.round((bucket.intensitySum / bucket.count) * 10) / 10 : 0,
+        });
       }
     }
 

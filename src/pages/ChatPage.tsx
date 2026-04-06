@@ -517,7 +517,7 @@ export default function ChatPage() {
               animate={{ opacity: 1 }}
               className="py-4"
             >
-              <div className="flex items-center gap-2">
+              <div className="flex items-center justify-center gap-2">
                 <ScribblingLogo size={28} />
                 <span className="text-on-surface-variant text-sm italic font-display">
                   Checking your image...

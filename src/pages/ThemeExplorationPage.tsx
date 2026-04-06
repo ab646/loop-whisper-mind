@@ -138,7 +138,7 @@ export default function ThemeExplorationPage() {
                     tick={{ fill: "hsl(var(--on-surface-variant))", fontSize: 9 }}
                     tickLine={false}
                     axisLine={false}
-                    width={32}
+                    width={36}
                     tickFormatter={(v: number) => {
                       const labels: Record<number, string> = { 0: "None", 1: "Low", 2: "", 3: "Mid", 4: "", 5: "High" };
                       return labels[v] ?? "";

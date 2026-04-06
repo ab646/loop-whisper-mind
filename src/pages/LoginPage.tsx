@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { StaticLogo } from "@/components/LoopLogo";
@@ -7,18 +7,56 @@ import { lovable } from "@/integrations/lovable/index";
 import { toast } from "sonner";
 
 export default function LoginPage() {
-  const [mode, setMode] = useState<"login" | "signup">("login");
+  const [mode, setMode] = useState<"login" | "signup">("signup");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showConfirm, setShowConfirm] = useState(false);
   const [loading, setLoading] = useState(false);
   const [socialLoading, setSocialLoading] = useState<string | null>(null);
   const navigate = useNavigate();
 
+  // Check if email exists when user finishes typing
+  useEffect(() => {
+    if (!email || !email.includes("@") || !email.includes(".")) return;
+    const timeout = setTimeout(async () => {
+      try {
+        const { error } = await supabase.auth.signInWithOtp({
+          email,
+          options: { shouldCreateUser: false },
+        });
+        // If no error, user exists → switch to login
+        if (!error) {
+          setMode("login");
+        } else {
+          setMode("signup");
+        }
+      } catch {
+        // ignore
+      }
+    }, 800);
+    return () => clearTimeout(timeout);
+  }, [email]);
+
+  // Show confirm password after first password is entered in signup mode
+  useEffect(() => {
+    if (mode === "signup" && password.length >= 6) {
+      setShowConfirm(true);
+    } else if (mode === "login") {
+      setShowConfirm(false);
+      setConfirmPassword("");
+    }
+  }, [password, mode]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
 
     if (mode === "signup") {
+      if (password !== confirmPassword) {
+        toast.error("Passwords don't match");
+        return;
+      }
+      setLoading(true);
       const { error } = await supabase.auth.signUp({
         email,
         password,
@@ -32,6 +70,7 @@ export default function LoginPage() {
         navigate("/onboarding");
       }
     } else {
+      setLoading(true);
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       setLoading(false);
       if (error) {
@@ -148,28 +187,61 @@ export default function LoginPage() {
             />
           </div>
 
+          {/* Confirm password for signup */}
+          <AnimatePresence>
+            {mode === "signup" && showConfirm && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                className="space-y-2 overflow-hidden"
+              >
+                <label className="label-uppercase text-[10px]">CONFIRM PASSWORD</label>
+                <input
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
+                  minLength={6}
+                  className="w-full rounded-xl surface-high border border-border/40 px-4 py-3 text-on-surface text-base font-body outline-none focus:ring-1 focus:ring-mint placeholder:text-on-surface-variant"
+                  placeholder="Re-enter your password"
+                />
+                {confirmPassword && password !== confirmPassword && (
+                  <p className="text-destructive text-xs font-body">Passwords don't match</p>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
+
           {isLogin && (
             <Link to="/forgot-password" className="block text-right text-mint text-sm font-body hover:underline py-3 px-2 min-h-[44px]">
               Forgot password?
             </Link>
           )}
 
-          <motion.button
-            whileTap={{ scale: 0.97 }}
-            type="submit"
-            disabled={loading}
-            className="w-full rounded-xl orb-gradient py-3.5 text-primary-foreground font-body font-semibold text-sm uppercase tracking-wider disabled:opacity-50"
-          >
-            {loading
-              ? isLogin ? "Signing in..." : "Creating account..."
-              : isLogin ? "Sign In" : "Get Started"}
-          </motion.button>
+          <div className="pt-4">
+            <motion.button
+              whileTap={{ scale: 0.97 }}
+              type="submit"
+              disabled={loading || (mode === "signup" && showConfirm && password !== confirmPassword)}
+              className="w-full rounded-xl orb-gradient py-3.5 text-primary-foreground font-body font-semibold text-sm uppercase tracking-wider disabled:opacity-50"
+            >
+              {loading
+                ? isLogin ? "Signing in..." : "Creating account..."
+                : isLogin ? "Sign In" : "Get Started"}
+            </motion.button>
+          </div>
         </form>
 
         <p className="text-center text-on-surface-variant text-sm font-body py-3">
           {isLogin ? "New here?" : "Already have an account?"}{" "}
           <button
-            onClick={() => setMode(isLogin ? "signup" : "login")}
+            onClick={() => {
+              setMode(isLogin ? "signup" : "login");
+              setPassword("");
+              setConfirmPassword("");
+              setShowConfirm(false);
+            }}
             className="text-mint hover:underline py-3 px-2 inline-block min-h-[44px]"
           >
             {isLogin ? "Create an account" : "Sign in"}

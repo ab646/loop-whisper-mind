@@ -1,43 +1,40 @@
 
 
-# Revised UX Audit Implementation Plan
+## Make Fact vs Story More Visually Distinct
 
-Same plan as before, with **Fix 6 (Single Entry Point) removed** — the ChatInput stays on the Home Page.
+Right now both "known" (facts) and "assumed" (stories) items use the same bullet list with only a subtle color/italic difference. The screenshot confirms they blend together.
 
----
+### Changes to `src/components/ReflectionCard.tsx`
 
-## Already Done (No Changes)
-- #2 ReflectionCard, #3 Insights Empty State, #7 BottomNav
+Split the list into two labeled groups with clear visual separation:
 
-## CRITICAL
-### Fix 1: Contrast Ratios
-- Bump `--on-surface-variant` and `--on-surface` in `src/index.css`
-- Add subtle borders to auth input fields
+1. **Add sub-headers** — a small "FACT" label (mint colored) before the known items and a "STORY" label (muted) before the assumed items
+2. **Stronger visual differentiation for stories** — wrap assumed items in a subtle bordered/dimmed container or use a distinct left-border accent to set them apart from facts
+3. **Keep facts as solid white text with mint bullet, keep stories italic + muted with a gray bullet** (already exists, just reinforce with grouping)
 
-## HIGH PRIORITY
-### Fix 4: Social Login (Google + Apple)
-- Add OAuth buttons to LoginPage and SignupPage
-- Divider "or continue with email"
-- Enable providers in backend auth config
+Layout would become:
 
-### Fix 5: `prefers-reduced-motion` Support
-- Use `useReducedMotion` from Framer Motion in VoiceOrb, Waveform, CyclingLoader
-- Replace animations with opacity fades when enabled
+```text
+FACT VS STORY                              ^
+┌─────────────────────────────────────────┐
+│  FACT                                   │
+│  • You feel physically raw and tired    │
+│  • Specific social interactions felt... │
+│                                         │
+│  STORY                                  │
+│  ┃ These small shifts mean people...    │
+│  ┃ You are 'too much' or 'hard to...'  │
+└─────────────────────────────────────────┘
+```
 
-### Fix 8: Enhance Entry Display on Home
-- Add loop type badge when reflection data exists
-- Make tags more prominent
+Specifically:
+- Add `<span className="label-uppercase text-mint text-[10px] mb-1">Fact</span>` before known items
+- Add `<span className="label-uppercase text-on-surface-variant text-[10px] mb-1 mt-3">Story</span>` before assumed items
+- Wrap story items in a container with `border-l-2 border-on-surface-variant/30 pl-3` to visually separate them as "less solid"
+- Change story bullets from dots to no bullet (the left border serves as the marker)
 
-## MODERATE PRIORITY
-### Fix 9: Remove Duplicate Tagline on Signup
-### Fix 10: Pause/Resume on Recording Page
-### Fix 11: Show Up to 4 Themes in Insights
-### Fix 12: Undo Toast Instead of Delete Confirmation
-### Fix 13: Consistent Glass-Panel Styling
-### Fix 14: CyclingLoader Consistency
-### Fix 15: Touch Target Sizes on Auth Pages
+This makes it immediately obvious which items are grounded facts and which are narratives/assumptions.
 
----
-
-**Files to modify:** ~12 files — `src/index.css`, auth pages, `HomePage.tsx`, `RecordingPage.tsx`, `ChatPage.tsx`, `InsightsPage.tsx`, `VoiceOrb.tsx`, `Waveform.tsx`, `CyclingLoader.tsx`, `ReflectionCard.tsx`, `ThemeCard.tsx`, plus backend auth config.
+### Files
+- `src/components/ReflectionCard.tsx` — update the Fact vs Story collapsible section
 

@@ -209,6 +209,31 @@ export default function ChatPage() {
     setLoading(false);
   };
 
+  const handleExplore = async (question: string) => {
+    if (!question.trim() || explorationLoading) return;
+    setExplorationMessages((prev) => [...prev, { role: "user", content: question }]);
+    setExplorationInput("");
+    setExplorationLoading(true);
+
+    // Get the last reflection's tags for theme context
+    const lastReflection = [...messages].reverse().find((m) => m.type === "reflection");
+    const theme = lastReflection?.type === "reflection" ? (lastReflection.data.tags?.[0] || "reflection") : "reflection";
+
+    try {
+      const { data, error } = await supabase.functions.invoke("explore-theme", {
+        body: { theme: theme.toLowerCase(), question },
+      });
+      if (error) throw error;
+      const answer = data?.answer || data?.connectedBelief || "I couldn't generate a reflection for that.";
+      setExplorationMessages((prev) => [...prev, { role: "ai", content: answer }]);
+    } catch (e) {
+      toast.error("Failed to get answer");
+    }
+    setExplorationLoading(false);
+  };
+
+  const hasReflection = messages.some((m) => m.type === "reflection");
+
   const handleDelete = async () => {
     const currentId = window.location.pathname.split("/chat/")[1];
     if (!currentId || currentId === "new") return;

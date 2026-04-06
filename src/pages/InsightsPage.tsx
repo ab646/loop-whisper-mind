@@ -160,7 +160,7 @@ export default function InsightsPage() {
             <h3 className="font-display text-lg text-on-surface">Top recurring themes</h3>
             <div className="grid grid-cols-2 gap-3">
               {themes.slice(0, 4).map((t: any, i: number) => (
-                <ThemeCard key={t.name} name={t.name} mentions={t.mentions} icon={t.icon || "cloud"} delay={i * 0.08} />
+                <ThemeCard key={t.name} name={t.name} mentions={t.mentions} icon={t.icon || "cloud"} delay={i * 0.08} colorIndex={i} />
               ))}
             </div>
             {themes.length > 4 && (

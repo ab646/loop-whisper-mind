@@ -49,7 +49,7 @@ export default function ChatPage() {
 
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
-  const [loadingImage, setLoadingImage] = useState(false);
+  
   const [imageValidating, setImageValidating] = useState(false);
   const [loadingEntry, setLoadingEntry] = useState(!isNew);
   const [entryDate, setEntryDate] = useState<string | null>(null);
@@ -121,7 +121,7 @@ export default function ChatPage() {
     setImageValidating(true);
 
     try {
-      // Upload image to storage
+      // Upload image temporarily to get a URL for AI analysis
       const base64 = imageDataUrl.split(",")[1];
       const mimeMatch = imageDataUrl.match(/data:(.*?);/);
       const mime = mimeMatch?.[1] || "image/jpeg";
@@ -144,10 +144,13 @@ export default function ChatPage() {
         .getPublicUrl(filePath);
       const imageUrl = urlData.publicUrl;
 
-      // Validate image content
+      // Validate image and extract transcription
       const { data: validation, error: valError } = await supabase.functions.invoke("validate-image", {
         body: { imageUrl },
       });
+
+      // Delete the temporary image — we only needed it for analysis
+      supabase.storage.from("chat-images").remove([filePath]).catch(() => {});
 
       if (valError) throw valError;
 
@@ -157,18 +160,20 @@ export default function ChatPage() {
         return;
       }
 
-      // Image is valid — add to chat and proceed to reflect
+      // Use transcribed text as the entry content
+      const transcribedText = validation.transcription || "[Image content]";
       setImageValidating(false);
-      const imgMsg: ImageMessage = { id: crypto.randomUUID(), type: "image", imageUrl };
-      setMessages((prev) => [...prev, imgMsg]);
-      setLoading(true);
-      setLoadingImage(true);
 
+      // Show transcribed text as a text message (not image)
+      const textMsg: TextMessage = { id: crypto.randomUUID(), type: "text", content: transcribedText };
+      setMessages((prev) => [...prev, textMsg]);
+      setLoading(true);
+
+      // Reflect on the transcribed text — no image needed
       const { data, error } = await supabase.functions.invoke("reflect", {
         body: {
-          content: "",
+          content: transcribedText,
           entryType: "image",
-          imageUrl,
           previousMessages: messages
             .filter((m) => m.type === "text")
             .map((m) => ({ role: "user", content: (m as TextMessage).content })),
@@ -219,7 +224,7 @@ export default function ChatPage() {
     const userMsg: TextMessage = { id: crypto.randomUUID(), type: "text", content: text };
     setMessages((prev) => [...prev, userMsg]);
     setLoading(true);
-    setLoadingImage(false);
+    
 
     try {
       const { data, error } = await supabase.functions.invoke("reflect", {
@@ -532,16 +537,7 @@ export default function ChatPage() {
               animate={{ opacity: 1 }}
               className="py-4"
             >
-              {loadingImage ? (
-                <div className="flex items-center gap-2">
-                  <ScribblingLogo size={28} />
-                  <span className="text-on-surface-variant text-sm italic font-display">
-                    Reading your image...
-                  </span>
-                </div>
-              ) : (
-                <CyclingLoader mode="reflection" size={28} layout="inline" />
-              )}
+              <CyclingLoader mode="reflection" size={28} layout="inline" />
             </motion.div>
           )}
         </div>

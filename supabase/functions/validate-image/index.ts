@@ -5,18 +5,20 @@ import { chatCompletionJSON, AIError } from "../_shared/ai.ts";
 
 /**
  * Validates whether an uploaded image contains content suitable for
- * a Loop reflection — emotional writing, journal entries, screenshots
- * of thoughts, etc. Rejects random photos, memes, or non-reflective content.
+ * a Loop reflection, and if valid, extracts/transcribes the text content
+ * from the image so the image itself can be discarded.
  */
 
 interface ValidationResult {
   valid: boolean;
   reason: string;
+  transcription: string | null;
 }
 
 const VALIDATION_FALLBACK: ValidationResult = {
   valid: false,
   reason: "Could not analyze the image. Please try again.",
+  transcription: null,
 };
 
 serve(async (req) => {
@@ -34,7 +36,9 @@ serve(async (req) => {
       [
         {
           role: "system",
-          content: `You are a content validator for Loop, a reflective journaling app. Your job is to determine if an uploaded image contains content that could be meaningfully reflected on — something that reveals thoughts, emotions, or mental patterns.
+          content: `You are a content validator and transcriber for Loop, a reflective journaling app. Your job is to:
+1. Determine if an uploaded image contains content that could be meaningfully reflected on
+2. If valid, extract and transcribe ALL text/content from the image into a natural paragraph
 
 ACCEPT images that contain:
 - Screenshots of text messages, social media posts, emails, or notes that reveal emotional content or interpersonal dynamics
@@ -53,21 +57,29 @@ REJECT images that contain:
 Return ONLY valid JSON:
 {
   "valid": true/false,
-  "reason": "Brief explanation of why this was accepted or rejected"
+  "reason": "Brief explanation of why this was accepted or rejected",
+  "transcription": "If valid, provide a faithful transcription of all visible text and a brief description of any visual context (e.g. 'Screenshot of a text conversation where...'). If rejected, null."
 }
 
-If rejecting, make the reason friendly and helpful, like: "This looks like a technical screenshot. Loop works best with content that reflects your thoughts or feelings — try sharing a journal entry, a text conversation, or something that's been on your mind."`,
+For the transcription:
+- Extract ALL visible text faithfully
+- Add brief context about what the image shows (e.g. 'A text message conversation between...')
+- If it's handwritten, do your best to transcribe accurately
+- If it's a photo (not text), describe what's happening emotionally in the scene
+- Make it read naturally as a journal entry someone could reflect on
+
+If rejecting, make the reason friendly and helpful.`,
         },
         {
           role: "user",
           content: [
-            { type: "text", text: "Is this image suitable for emotional reflection?" },
+            { type: "text", text: "Analyze this image: validate it for reflection and transcribe its content." },
             { type: "image_url", image_url: { url: imageUrl } },
           ],
         },
       ],
       VALIDATION_FALLBACK,
-      { temperature: 0.2, maxTokens: 256 }
+      { temperature: 0.2, maxTokens: 1024 }
     );
 
     return jsonResponse(req, result);

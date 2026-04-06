@@ -417,6 +417,13 @@ export default function ChatPage() {
                       <div className="rounded-2xl p-4 space-y-2 border-l-4 border-mint/30 surface-container">
                         <span className="label-uppercase text-mint">Reflection</span>
                         <p className="text-on-surface text-sm leading-relaxed font-body">{msg.content}</p>
+                        <div className="flex justify-end">
+                          <FeedbackButtons
+                            contentType="exploration-answer"
+                            contentId={`chat-explore-${id}-${i}`}
+                            contentPreview={msg.content}
+                          />
+                        </div>
                       </div>
                     )}
                   </motion.div>

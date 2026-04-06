@@ -13,7 +13,7 @@ export function BottomNav() {
   const navigate = useNavigate();
 
   const hiddenPaths = ["/recording", "/login", "/signup", "/onboarding", "/forgot-password", "/reset-password"];
-  const hiddenPrefixes = ["/chat", "/theme"];
+  const hiddenPrefixes: string[] = [];
 
   const shouldHide =
     hiddenPaths.includes(location.pathname) ||

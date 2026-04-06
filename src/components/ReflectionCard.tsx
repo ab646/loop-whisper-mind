@@ -10,6 +10,7 @@ interface ReflectionCardProps {
   oneQuestion: string;
   nextStep?: string;
   tags?: string[];
+  themeAnswer?: string;
 }
 
 function CollapsibleSection({ title, children, defaultOpen = false }: { title: string; children: React.ReactNode; defaultOpen?: boolean }) {

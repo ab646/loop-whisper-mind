@@ -146,13 +146,14 @@ Return ONLY valid JSON. No markdown, no explanation.`;
 
     // Build frequency + intensity timeline from ALL entries (theme names from
     // insights are AI-generated and don't always match stored tags exactly)
-    const intensityScore: Record<string, number> = { low: 1, moderate: 3, high: 5 };
     const dayMap: Record<string, { count: number; intensitySum: number }> = {};
 
     for (const e of allEntries || []) {
       const day = new Date(e.created_at).toISOString().split("T")[0];
       const reflection = (e.reflection || {}) as Record<string, any>;
-      const score = intensityScore[reflection.intensity as string] ?? 2;
+      const score = typeof reflection.intensityScore === "number"
+        ? Math.max(0, Math.min(5, reflection.intensityScore))
+        : 2; // fallback for older entries without intensityScore
       if (!dayMap[day]) dayMap[day] = { count: 0, intensitySum: 0 };
       dayMap[day].count += 1;
       dayMap[day].intensitySum += score;

@@ -164,7 +164,7 @@ export default function ThemeExplorationPage() {
                     axisLine={false}
                     width={46}
                     tickFormatter={(v: number) => {
-                      const labels: Record<number, string> = { 0: "", 1: "Low", 2: "", 3: "Mod", 4: "", 5: "High" };
+                      const labels: Record<number, string> = { 0: "", 1: "Mild", 2: "Mod", 3: "Elev", 4: "Spiral", 5: "Crisis" };
                       return labels[v] ?? "";
                     }}
                   />

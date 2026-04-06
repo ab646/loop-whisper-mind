@@ -143,7 +143,25 @@ Return ONLY valid JSON. No markdown, no explanation.`;
     // Ensure entriesThisWeek is accurate from data, not AI guess
     analysis.entriesThisWeek = weekCount;
 
-    return jsonResponse(req, analysis);
+    // Build frequency timeline data grouped by day
+    const frequencyMap: Record<string, number> = {};
+    for (const e of entries || []) {
+      const day = new Date(e.created_at).toISOString().split("T")[0];
+      frequencyMap[day] = (frequencyMap[day] || 0) + 1;
+    }
+    // Fill gaps and sort
+    const dates = Object.keys(frequencyMap).sort();
+    const frequencyData: Array<{ date: string; count: number }> = [];
+    if (dates.length > 0) {
+      const start = new Date(dates[0]);
+      const end = new Date(dates[dates.length - 1]);
+      for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+        const key = d.toISOString().split("T")[0];
+        frequencyData.push({ date: key, count: frequencyMap[key] || 0 });
+      }
+    }
+
+    return jsonResponse(req, { ...analysis, frequencyData });
   } catch (e) {
     if (e instanceof AuthError) return errorResponse(req, e.message, e.status);
     if (e instanceof AIError) return errorResponse(req, e.message, e.status);

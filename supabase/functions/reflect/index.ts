@@ -135,9 +135,9 @@ serve(async (req) => {
   try {
     const { userId, adminClient } = await authenticateRequest(req);
 
-    const { content, entryType, previousMessages } = await req.json();
-    if (!content?.trim()) {
-      return errorResponse(req, "Content required", 400);
+    const { content, entryType, previousMessages, imageUrl } = await req.json();
+    if (!content?.trim() && !imageUrl) {
+      return errorResponse(req, "Content or image required", 400);
     }
 
     // Fetch recent entries for pattern detection
@@ -183,12 +183,22 @@ serve(async (req) => {
 
     const systemPrompt = buildSystemPrompt(historyContext, conversationContext);
 
+    // Build the user message — text-only or multimodal with image
+    const userContent = imageUrl
+      ? [
+          ...(content?.trim()
+            ? [{ type: "text" as const, text: content }]
+            : [{ type: "text" as const, text: "Please look at this image and reflect on what you see. Extract any text if present, and identify the emotional or cognitive themes." }]),
+          { type: "image_url" as const, image_url: { url: imageUrl } },
+        ]
+      : content;
+
     const reflection = await chatCompletionJSON<Reflection>(
       [
         { role: "system", content: systemPrompt },
-        { role: "user", content },
+        { role: "user", content: userContent },
       ],
-      { ...REFLECTION_FALLBACK, mainLoop: content.substring(0, 200) },
+      { ...REFLECTION_FALLBACK, mainLoop: (content || "Image reflection").substring(0, 200) },
       { temperature: 0.4, maxTokens: 1024 }
     );
 
@@ -215,8 +225,8 @@ serve(async (req) => {
       .from("entries")
       .insert({
         user_id: userId,
-        entry_type: entryType || "text",
-        content,
+        entry_type: imageUrl ? "image" : (entryType || "text"),
+        content: content || "[Image]",
         reflection,
         tags: reflection.tags,
       })

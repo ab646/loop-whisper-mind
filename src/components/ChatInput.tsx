@@ -1,6 +1,6 @@
 import { Mic, Paperclip, ArrowUp, X, Image } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 
 interface ChatInputProps {
   onSend: (text: string, imageUrl?: string) => void;

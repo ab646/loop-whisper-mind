@@ -94,8 +94,8 @@ export function ThemeCard({ name, mentions, icon, delay = 0, colorIndex = 0 }: T
       onClick={() => navigate(`/theme/${name.toLowerCase()}`)}
       className="rounded-2xl glass-panel p-4 flex flex-col gap-3 items-start text-left border border-border/20 hover:bg-surface-container transition-colors"
     >
-      <div className={`w-10 h-10 rounded-xl ${accent.bg} flex items-center justify-center`}>
-        <Icon size={20} className={accent.icon} />
+      <div className={`w-10 h-10 rounded-xl ${badgeClasses.bg} flex items-center justify-center`}>
+        <Icon size={20} className={badgeClasses.icon} />
       </div>
       <div>
         <p className="text-on-surface font-body font-semibold text-sm">{name}</p>

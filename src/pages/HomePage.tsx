@@ -259,10 +259,10 @@ export default function HomePage() {
                   ))}
                 </div>
               ))}
-              {hasMore && entries.length > 0 && (
-                <button onClick={loadMore} className="w-full text-center text-mint text-sm py-4">
-                  Load more
-                </button>
+              {hasMore && (
+                <div ref={sentinelRef} className="flex justify-center py-6">
+                  {loadingMore && <ScribblingLogo size={20} />}
+                </div>
               )}
             </>
           )}

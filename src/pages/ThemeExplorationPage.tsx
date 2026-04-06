@@ -135,9 +135,9 @@ export default function ThemeExplorationPage() {
                 Last 7 Days
               </button>
             </div>
-            <div className="h-44">
+            <div className="h-52">
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={analysis.frequencyData} margin={{ top: 10, right: 4, bottom: 0, left: 0 }}>
+                <AreaChart data={analysis.frequencyData} margin={{ top: 16, right: 20, bottom: 0, left: 0 }}>
                   <defs>
                     <linearGradient id="intensityGrad" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="0%" stopColor="hsl(180, 25%, 80%)" stopOpacity={0.35} />
@@ -157,14 +157,14 @@ export default function ThemeExplorationPage() {
                     }}
                   />
                    <YAxis
-                     domain={[0, 5]}
+                     domain={[0, 5.5]}
                      ticks={[1, 2, 3, 4, 5]}
                      tick={{ fill: "hsl(var(--on-surface-variant))", fontSize: 9 }}
                      tickLine={false}
                      axisLine={false}
-                     width={36}
+                     width={52}
                      tickFormatter={(v: number) => {
-                       const labels: Record<number, string> = { 1: "Mild", 2: "Mod", 3: "Elev", 4: "Sprl", 5: "Crit" };
+                       const labels: Record<number, string> = { 1: "Mild", 2: "Moderate", 3: "Elevated", 4: "Spiral", 5: "Crisis" };
                        return labels[v] ?? "";
                      }}
                    />

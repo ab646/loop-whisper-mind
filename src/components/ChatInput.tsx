@@ -14,6 +14,18 @@ export function ChatInput({ onSend, onVoice, placeholder = "Type your thoughts..
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const autoResize = useCallback((el: HTMLTextAreaElement | null) => {
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = Math.min(el.scrollHeight, 120) + "px";
+  }, []);
+
+  // Auto-expand on mount when defaultValue is set
+  useEffect(() => {
+    if (defaultValue) autoResize(textareaRef.current);
+  }, [defaultValue, autoResize]);
 
   const handleSend = () => {
     if (text.trim() || imageFile) {

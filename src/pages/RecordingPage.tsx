@@ -203,6 +203,13 @@ export default function RecordingPage() {
             Stop & Process
           </motion.button>
         </div>
+
+        <button
+          onClick={() => { reset(); navigate(-1); }}
+          className="text-destructive text-sm font-body tracking-wider uppercase hover:text-destructive/80 transition-colors mt-2"
+        >
+          Cancel
+        </button>
       </div>
     </div>
   );

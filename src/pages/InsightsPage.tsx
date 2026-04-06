@@ -196,8 +196,7 @@ export default function InsightsPage() {
       </div>
 
       <div className="px-5 space-y-8 relative z-10">
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-1">
-          <span className="label-uppercase text-mint">PATTERNS</span>
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
           <h2 className="font-display text-3xl text-on-surface leading-tight tracking-tight">
             Patterns in the quiet.
           </h2>

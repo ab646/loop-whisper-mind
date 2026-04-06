@@ -7,6 +7,7 @@ interface ThemeCardProps {
   mentions: number;
   icon?: string;
   delay?: number;
+  colorIndex?: number;
 }
 
 const iconMap = {
@@ -18,19 +19,19 @@ const iconMap = {
   shield: Shield,
 };
 
-const iconColorMap = {
-  cloud: "text-on-surface-variant",
-  heart: "text-mint",
-  briefcase: "text-on-surface",
-  alert: "text-destructive",
-  brain: "text-mint",
-  shield: "text-on-surface-variant",
-};
+// Rotating accent colors using design tokens
+const accentColors = [
+  { icon: "text-mint", bg: "bg-mint/15" },
+  { icon: "text-secondary", bg: "bg-secondary/15" },
+  { icon: "text-tertiary", bg: "bg-tertiary/20" },
+  { icon: "text-destructive", bg: "bg-destructive/15" },
+];
 
-export function ThemeCard({ name, mentions, icon = "cloud", delay = 0 }: ThemeCardProps) {
+export function ThemeCard({ name, mentions, icon = "cloud", delay = 0, colorIndex = 0 }: ThemeCardProps) {
   const safeIcon = icon in iconMap ? (icon as keyof typeof iconMap) : "cloud";
   const Icon = iconMap[safeIcon];
   const navigate = useNavigate();
+  const accent = accentColors[colorIndex % accentColors.length];
 
   return (
     <motion.button
@@ -40,10 +41,12 @@ export function ThemeCard({ name, mentions, icon = "cloud", delay = 0 }: ThemeCa
       onClick={() => navigate(`/theme/${name.toLowerCase()}`)}
       className="rounded-2xl glass-panel p-4 flex flex-col gap-3 items-start text-left border border-border/20 hover:bg-surface-container transition-colors"
     >
-      <Icon size={24} className={iconColorMap[safeIcon]} />
+      <div className={`w-10 h-10 rounded-xl ${accent.bg} flex items-center justify-center`}>
+        <Icon size={20} className={accent.icon} />
+      </div>
       <div>
         <p className="text-on-surface font-body font-semibold text-sm">{name}</p>
-        <p className="text-on-surface-variant text-xs">{mentions} MENTIONS</p>
+        <p className="text-on-surface-variant text-[10px] tracking-wider uppercase">{mentions} MENTIONS</p>
       </div>
     </motion.button>
   );

@@ -15,6 +15,36 @@ interface EntryPreview {
   time: string;
   mainLoop: string;
   tags: string[];
+  createdAt: string;
+}
+
+function getDateGroup(dateStr: string): string {
+  const d = new Date(dateStr);
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const entryDate = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  const diffDays = Math.floor((today.getTime() - entryDate.getTime()) / 86400000);
+
+  if (diffDays === 0) return "Today";
+  if (diffDays === 1) return "Yesterday";
+  if (diffDays < 7) return "This Week";
+  if (diffDays < 14) return "Last Week";
+  if (diffDays < 30) return "This Month";
+  return d.toLocaleDateString("en-US", { month: "long", year: "numeric" });
+}
+
+function groupEntries(entries: EntryPreview[]): [string, EntryPreview[]][] {
+  const groups: Record<string, EntryPreview[]> = {};
+  const order: string[] = [];
+  for (const entry of entries) {
+    const group = getDateGroup(entry.createdAt);
+    if (!groups[group]) {
+      groups[group] = [];
+      order.push(group);
+    }
+    groups[group].push(entry);
+  }
+  return order.map((g) => [g, groups[g]]);
 }
 
 

@@ -14,27 +14,6 @@ const STEPS: { key: ProcessingStep; label: string }[] = [
   { key: "deleting", label: "Deleting recording" },
 ];
 
-const TRANSCRIPTION_PHRASES = [
-  "Listening closely",
-  "Catching every word",
-  "Tuning in",
-  "Parsing the signal",
-  "Decoding your voice",
-  "Translating thought to text",
-  "Hearing what matters",
-  "Following the thread",
-  "Picking up the nuance",
-  "Processing your words",
-];
-
-function shuffle<T>(arr: T[]): T[] {
-  const copy = [...arr];
-  for (let i = copy.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [copy[i], copy[j]] = [copy[j], copy[i]];
-  }
-  return copy;
-}
 
 export default function RecordingPage() {
   const navigate = useNavigate();

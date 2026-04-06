@@ -96,6 +96,65 @@ export default function ThemeExplorationPage() {
           <div className="w-16 h-1 rounded-full bg-mint" />
         </motion.div>
 
+        {/* Frequency Timeline */}
+        {analysis?.frequencyData?.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.05 }}
+            className="rounded-2xl surface-low p-5 space-y-3"
+          >
+            <span className="label-uppercase">FREQUENCY</span>
+            <h3 className="font-display text-lg text-on-surface">Mentions over time</h3>
+            <div className="h-32">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={analysis.frequencyData} margin={{ top: 4, right: 4, bottom: 0, left: -20 }}>
+                  <defs>
+                    <linearGradient id="mintGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="hsl(var(--mint))" stopOpacity={0.4} />
+                      <stop offset="100%" stopColor="hsl(var(--mint))" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <XAxis
+                    dataKey="date"
+                    tick={{ fill: "hsl(var(--on-surface-variant))", fontSize: 10 }}
+                    tickLine={false}
+                    axisLine={false}
+                    tickFormatter={(v: string) => {
+                      const d = new Date(v);
+                      return `${d.getMonth() + 1}/${d.getDate()}`;
+                    }}
+                  />
+                  <YAxis
+                    allowDecimals={false}
+                    tick={{ fill: "hsl(var(--on-surface-variant))", fontSize: 10 }}
+                    tickLine={false}
+                    axisLine={false}
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      background: "hsl(var(--surface-container))",
+                      border: "1px solid hsl(var(--border))",
+                      borderRadius: "12px",
+                      fontSize: "12px",
+                      color: "hsl(var(--on-surface))",
+                    }}
+                    labelFormatter={(v: string) => new Date(v).toLocaleDateString()}
+                    formatter={(value: number) => [`${value} entries`, "Count"]}
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="count"
+                    stroke="hsl(var(--mint))"
+                    strokeWidth={2}
+                    fill="url(#mintGrad)"
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+          </motion.div>
+        )}
+
         {analysis?.connectedBelief && (
           <motion.div
             initial={{ opacity: 0, y: 10 }}

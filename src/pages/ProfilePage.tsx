@@ -1,24 +1,93 @@
 import { motion } from "framer-motion";
-import { Shield, Upload, Mic, LogOut } from "lucide-react";
-import { AppHeader } from "@/components/AppHeader";
+import { KeyRound, Download, Trash2, LogOut } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useState } from "react";
 
 export default function ProfilePage() {
   const navigate = useNavigate();
-  const { user, profile, signOut, refreshProfile } = useAuth();
+  const { user, profile, signOut } = useAuth();
+  const [showPasswordForm, setShowPasswordForm] = useState(false);
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [updating, setUpdating] = useState(false);
+  const [exporting, setExporting] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
-  const togglePreference = async (field: "urgency_filter" | "voice_first_mode") => {
-    if (!user || !profile) return;
-    const newVal = !profile[field];
-    const { error } = await supabase
-      .from("profiles")
-      .update({ [field]: newVal })
-      .eq("user_id", user.id);
-    if (error) toast.error("Failed to update");
-    else await refreshProfile();
+  const handleChangePassword = async () => {
+    if (newPassword.length < 6) {
+      toast.error("Password must be at least 6 characters");
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      toast.error("Passwords don't match");
+      return;
+    }
+    setUpdating(true);
+    const { error } = await supabase.auth.updateUser({ password: newPassword });
+    setUpdating(false);
+    if (error) toast.error(error.message);
+    else {
+      toast.success("Password updated");
+      setShowPasswordForm(false);
+      setNewPassword("");
+      setConfirmPassword("");
+    }
+  };
+
+  const handleExportData = async () => {
+    if (!user) return;
+    setExporting(true);
+    const { data, error } = await supabase
+      .from("entries")
+      .select("created_at, entry_type, content, tags, voice_duration")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      toast.error("Failed to export data");
+      setExporting(false);
+      return;
+    }
+
+    const headers = ["Date", "Type", "Content", "Tags", "Voice Duration"];
+    const csvRows = [
+      headers.join(","),
+      ...(data || []).map((e) =>
+        [
+          e.created_at,
+          e.entry_type,
+          `"${(e.content || "").replace(/"/g, '""')}"`,
+          `"${(e.tags || []).join(", ")}"`,
+          e.voice_duration || "",
+        ].join(",")
+      ),
+    ];
+    const blob = new Blob([csvRows.join("\n")], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `loop-export-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    setExporting(false);
+    toast.success("Data exported");
+  };
+
+  const handleDeleteAccount = async () => {
+    if (!user) return;
+    setDeleting(true);
+    // Delete user data first
+    await supabase.from("entries").delete().eq("user_id", user.id);
+    await supabase.from("profiles").delete().eq("user_id", user.id);
+    // Sign out (full account deletion requires admin, but we clear data)
+    await signOut();
+    setDeleting(false);
+    toast.success("Account data deleted");
+    navigate("/login");
   };
 
   const handleSignOut = async () => {
@@ -28,8 +97,6 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen mesh-gradient-bg pb-24 pt-6">
-      
-
       <div className="px-5 space-y-6">
         {/* Profile card */}
         <motion.div
@@ -41,91 +108,127 @@ export default function ProfilePage() {
             👤
           </div>
           <div>
-            <h3 className="text-on-surface font-body text-lg font-semibold">{profile?.display_name || "User"}</h3>
-            <p className="text-on-surface-variant text-sm">{profile?.mantra || "Stay Grounded"}</p>
-            <div className="flex items-center gap-2 mt-1">
-              <span className="text-mint text-xs font-semibold">CURRENT STREAK</span>
-              <div className="flex gap-1">
-                {[1, 2, 3].map((i) => (
-                  <div key={i} className="w-5 h-2 rounded-full bg-mint" />
-                ))}
-              </div>
-            </div>
+            <h3 className="text-on-surface font-body text-lg font-semibold">
+              {profile?.display_name || "User"}
+            </h3>
+            <p className="text-on-surface-variant text-sm">{user?.email ?? ""}</p>
           </div>
         </motion.div>
 
-        {/* Cognitive preferences */}
-        <div className="space-y-4">
-          <h3 className="font-display text-lg text-mint italic">Cognitive Preferences</h3>
-
-          <div className="rounded-2xl surface-low p-5 space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="text-mint">🔽</span>
-              <ToggleSwitch checked={profile?.urgency_filter ?? true} onChange={() => togglePreference("urgency_filter")} />
-            </div>
-            <h4 className="text-on-surface font-body font-semibold">High-Urgency Filter</h4>
-            <p className="text-on-surface-variant text-sm">
-              Only allow loops that require immediate spatial awareness.
-            </p>
-          </div>
-
-          <div className="rounded-2xl surface-low p-5 space-y-3">
-            <div className="flex items-center justify-between">
-              <Mic size={18} className="text-on-surface-variant" />
-              <ToggleSwitch checked={profile?.voice_first_mode ?? false} onChange={() => togglePreference("voice_first_mode")} />
-            </div>
-            <h4 className="text-on-surface font-body font-semibold">Voice-First Mode</h4>
-            <p className="text-on-surface-variant text-sm">
-              Default to audio interactions to reduce screen fatigue.
-            </p>
-          </div>
-        </div>
-
-        {/* Privacy & Security */}
-        <div className="space-y-4">
-          <h3 className="font-display text-lg text-mint italic">Privacy & Security</h3>
-          {[
-            { icon: Shield, label: "Secure My Sanctuary" },
-            { icon: Upload, label: "Data Export" },
-          ].map((item) => (
-            <button
-              key={item.label}
-              className="w-full rounded-2xl surface-low p-5 flex items-center justify-between"
-            >
-              <div className="flex items-center gap-3">
-                <item.icon size={18} className="text-on-surface-variant" />
-                <span className="text-on-surface text-sm font-semibold">{item.label}</span>
-              </div>
-              <span className="text-on-surface-variant">›</span>
-            </button>
-          ))}
-        </div>
-
-        {/* Account */}
-        <div className="space-y-4">
-          <h3 className="font-display text-lg text-mint italic">Account</h3>
-          <div className="flex items-center justify-between">
-            <span className="label-uppercase">EMAIL ADDRESS</span>
-            <span className="text-on-surface text-sm">{user?.email ?? ""}</span>
-          </div>
-
-          <div className="rounded-2xl surface-low p-5 flex items-center justify-between">
+        {/* Actions */}
+        <div className="space-y-3">
+          {/* Change Password */}
+          <motion.button
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.05 }}
+            onClick={() => setShowPasswordForm(!showPasswordForm)}
+            className="w-full rounded-2xl surface-low p-5 flex items-center justify-between"
+          >
             <div className="flex items-center gap-3">
-              <span className="text-mint">⭐</span>
-              <div>
-                <p className="text-on-surface text-sm font-semibold">Loop Premium</p>
-                <p className="text-on-surface-variant text-[10px] tracking-wider uppercase">RENEWS OCT 24, 2024</p>
-              </div>
+              <KeyRound size={18} className="text-on-surface-variant" />
+              <span className="text-on-surface text-sm font-semibold">Change Password</span>
             </div>
-            <button className="px-3 py-1.5 rounded-lg surface-high text-on-surface-variant text-xs font-semibold uppercase tracking-wider">
-              Manage
-            </button>
-          </div>
+            <span className="text-on-surface-variant">›</span>
+          </motion.button>
+
+          {showPasswordForm && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              className="rounded-2xl surface-low p-5 space-y-3"
+            >
+              <input
+                type="password"
+                placeholder="New password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                className="w-full rounded-xl bg-background border border-border px-4 py-3 text-sm text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:ring-2 focus:ring-primary"
+              />
+              <input
+                type="password"
+                placeholder="Confirm password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className="w-full rounded-xl bg-background border border-border px-4 py-3 text-sm text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:ring-2 focus:ring-primary"
+              />
+              <button
+                onClick={handleChangePassword}
+                disabled={updating}
+                className="w-full rounded-xl bg-primary text-primary-foreground py-3 text-sm font-semibold disabled:opacity-50"
+              >
+                {updating ? "Updating..." : "Update Password"}
+              </button>
+            </motion.div>
+          )}
+
+          {/* Export Data */}
+          <motion.button
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            onClick={handleExportData}
+            disabled={exporting}
+            className="w-full rounded-2xl surface-low p-5 flex items-center justify-between disabled:opacity-50"
+          >
+            <div className="flex items-center gap-3">
+              <Download size={18} className="text-on-surface-variant" />
+              <span className="text-on-surface text-sm font-semibold">
+                {exporting ? "Exporting..." : "Export Data"}
+              </span>
+            </div>
+            <span className="text-on-surface-variant">›</span>
+          </motion.button>
+
+          {/* Delete Account */}
+          <motion.button
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15 }}
+            onClick={() => setShowDeleteConfirm(true)}
+            className="w-full rounded-2xl surface-low p-5 flex items-center justify-between"
+          >
+            <div className="flex items-center gap-3">
+              <Trash2 size={18} className="text-destructive" />
+              <span className="text-destructive text-sm font-semibold">Delete Account</span>
+            </div>
+            <span className="text-on-surface-variant">›</span>
+          </motion.button>
+
+          {showDeleteConfirm && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              className="rounded-2xl surface-low p-5 space-y-3"
+            >
+              <p className="text-on-surface-variant text-sm">
+                This will permanently delete all your entries and profile data. This action cannot be undone.
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowDeleteConfirm(false)}
+                  className="flex-1 rounded-xl surface-high py-3 text-sm font-semibold text-on-surface"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleDeleteAccount}
+                  disabled={deleting}
+                  className="flex-1 rounded-xl bg-destructive text-destructive-foreground py-3 text-sm font-semibold disabled:opacity-50"
+                >
+                  {deleting ? "Deleting..." : "Delete"}
+                </button>
+              </div>
+            </motion.div>
+          )}
         </div>
 
         {/* Sign out */}
         <div className="flex flex-col items-center gap-2 py-6">
           <motion.button
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.2 }}
             whileTap={{ scale: 0.95 }}
             onClick={handleSignOut}
             className="flex items-center gap-2 text-destructive text-sm font-semibold"
@@ -136,22 +239,5 @@ export default function ProfilePage() {
         </div>
       </div>
     </div>
-  );
-}
-
-function ToggleSwitch({ checked, onChange }: { checked: boolean; onChange: () => void }) {
-  return (
-    <button
-      onClick={onChange}
-      className={`w-12 h-6 rounded-full relative transition-colors ${
-        checked ? "bg-mint" : "bg-surface-high"
-      }`}
-    >
-      <motion.div
-        className="w-5 h-5 rounded-full bg-on-surface absolute top-0.5"
-        animate={{ left: checked ? 26 : 2 }}
-        transition={{ type: "spring", stiffness: 500, damping: 30 }}
-      />
-    </button>
   );
 }

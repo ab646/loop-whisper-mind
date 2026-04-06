@@ -21,6 +21,9 @@
 
     --secondary: 213 30% 79%;
     --secondary-foreground: 180 10% 4%;
+    --tag-pill: 213 24% 28%;
+    --tag-pill-border: 213 18% 35%;
+    --tag-pill-foreground: 213 30% 86%;
 
     --muted: 180 8% 12%;
     --muted-foreground: 180 6% 55%;
@@ -121,6 +124,24 @@
 
   .surface-high {
     background-color: hsl(var(--surface-container-high));
+  }
+
+  .tag-pill {
+    @apply inline-flex items-center whitespace-nowrap rounded-full border px-4 py-1.5 text-[13px] font-medium leading-none;
+    background-color: hsl(var(--tag-pill));
+    border-color: hsl(var(--tag-pill-border));
+    color: hsl(var(--tag-pill-foreground));
+    box-shadow: inset 0 1px 0 hsl(var(--foreground) / 0.04);
+  }
+
+  .tag-pill-interactive {
+    @apply transition-colors;
+  }
+
+  .tag-pill-interactive:hover {
+    background-color: hsl(var(--secondary) / 0.32);
+    border-color: hsl(var(--secondary) / 0.2);
+    color: hsl(var(--foreground));
   }
 
   .text-mint {

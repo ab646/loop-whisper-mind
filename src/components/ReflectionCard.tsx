@@ -1,4 +1,6 @@
-import { motion } from "framer-motion";
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { ChevronDown } from "lucide-react";
 
 interface ReflectionCardProps {
   mainLoop: string;
@@ -10,30 +12,71 @@ interface ReflectionCardProps {
   tags?: string[];
 }
 
+function CollapsibleSection({ title, children, defaultOpen = false }: { title: string; children: React.ReactNode; defaultOpen?: boolean }) {
+  const [isOpen, setIsOpen] = useState(defaultOpen);
+
+  return (
+    <div className="border-t border-border/20 pt-3">
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="flex items-center justify-between w-full py-1 group"
+      >
+        <span className="label-uppercase group-hover:text-mint transition-colors">{title}</span>
+        <motion.div
+          animate={{ rotate: isOpen ? 180 : 0 }}
+          transition={{ duration: 0.2 }}
+        >
+          <ChevronDown size={14} className="text-on-surface-variant" />
+        </motion.div>
+      </button>
+      <AnimatePresence initial={false}>
+        {isOpen && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.25, ease: "easeInOut" }}
+            className="overflow-hidden"
+          >
+            <div className="pt-2 pb-1">{children}</div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
 export function ReflectionCard({ mainLoop, feelings, knownVsAssumed, repeatingPattern, oneQuestion, nextStep, tags }: ReflectionCardProps) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, ease: "easeOut" }}
-      className="rounded-2xl surface-low p-6 space-y-5 border-l-4 border-mint/30"
+      className="rounded-2xl surface-low p-6 space-y-4 border-l-4 border-mint/30"
     >
-      <h3 className="font-display text-xl text-mint italic">Here's what I'm noticing</h3>
-
+      {/* Lead with the One Question — the "aha moment" */}
       <div className="space-y-2">
+        <span className="label-uppercase text-mint">One Question</span>
+        <p className="font-display text-xl text-mint italic leading-relaxed">
+          {oneQuestion}
+        </p>
+      </div>
+
+      {/* Main Loop as context label */}
+      <div className="space-y-1.5">
         <span className="label-uppercase">Main Loop</span>
         <p className="text-on-surface text-base leading-relaxed font-body">{mainLoop}</p>
       </div>
 
+      {/* Collapsible: Feelings */}
       {feelings && feelings.length > 0 && (
-        <div className="space-y-2">
-          <span className="label-uppercase">What you may be feeling</span>
+        <CollapsibleSection title="What you may be feeling">
           <p className="text-on-surface text-base font-body">{feelings.join(", ")}</p>
-        </div>
+        </CollapsibleSection>
       )}
 
-      <div className="space-y-3">
-        <span className="label-uppercase">What is known vs assumed</span>
+      {/* Collapsible: Fact vs Story — Loop's differentiator */}
+      <CollapsibleSection title="Fact vs Story" defaultOpen>
         <ul className="space-y-2">
           {knownVsAssumed.known.map((item, i) => (
             <li key={`k-${i}`} className="flex items-start gap-2">
@@ -44,33 +87,27 @@ export function ReflectionCard({ mainLoop, feelings, knownVsAssumed, repeatingPa
           {knownVsAssumed.assumed.map((item, i) => (
             <li key={`a-${i}`} className="flex items-start gap-2">
               <span className="w-1.5 h-1.5 rounded-full bg-on-surface-variant mt-2 shrink-0" />
-              <span className="text-on-surface-variant text-base">{item}</span>
+              <span className="text-on-surface-variant text-base italic">{item}</span>
             </li>
           ))}
         </ul>
-      </div>
+      </CollapsibleSection>
 
-      {repeatingPattern && (
-        <div className="space-y-2">
-          <span className="label-uppercase">What may be repeating</span>
-          <p className="text-on-surface text-base leading-relaxed font-body">{repeatingPattern}</p>
-        </div>
+      {/* Collapsible: Pattern */}
+      {(repeatingPattern || nextStep) && (
+        <CollapsibleSection title="Pattern">
+          {repeatingPattern && (
+            <p className="text-on-surface text-base leading-relaxed font-body">{repeatingPattern}</p>
+          )}
+          {nextStep && (
+            <p className="text-on-surface-variant text-sm leading-relaxed font-body mt-2">
+              Next step: {nextStep}
+            </p>
+          )}
+        </CollapsibleSection>
       )}
 
-      <div className="border-t border-border/30 pt-4 space-y-2">
-        <span className="label-uppercase text-mint">One Question</span>
-        <p className="font-display text-lg text-mint italic leading-relaxed">
-          {oneQuestion}
-        </p>
-      </div>
-
-      {nextStep && (
-        <div className="space-y-2">
-          <span className="label-uppercase">One Next Step</span>
-          <p className="text-on-surface text-sm leading-relaxed font-body">{nextStep}</p>
-        </div>
-      )}
-
+      {/* Tags always visible */}
       {tags && tags.length > 0 && (
         <div className="flex flex-wrap gap-2 pt-2">
           {tags.map((tag) => (

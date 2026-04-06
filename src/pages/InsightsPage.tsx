@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { MessageSquare, Mail, VolumeX } from "lucide-react";
+import { MessageSquare, Mail, VolumeX, Mic } from "lucide-react";
 import { CyclingLoader } from "@/components/CyclingLoader";
 import { AppHeader } from "@/components/AppHeader";
 import { ThemeCard } from "@/components/ThemeCard";
@@ -22,13 +23,22 @@ const triggerIconMap = {
 
 export default function InsightsPage() {
   const { session } = useAuth();
+  const navigate = useNavigate();
   const [insights, setInsights] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [entryCount, setEntryCount] = useState(0);
 
   useEffect(() => {
     if (!session) return;
     (async () => {
       try {
+        // Fetch entry count for progress indicator
+        const { count } = await supabase
+          .from("entries")
+          .select("*", { count: "exact", head: true })
+          .eq("user_id", session.user.id);
+        setEntryCount(count ?? 0);
+
         const { data, error } = await supabase.functions.invoke("insights");
         if (error) throw error;
         if (data?.error) {
@@ -54,20 +64,65 @@ export default function InsightsPage() {
   }
 
   if (!insights || insights.isEmpty) {
+    const threshold = 5;
+    const progress = Math.min(entryCount, threshold);
+
     return (
       <div className="min-h-screen mesh-gradient-bg pb-24 pt-6">
-        <div className="px-5 flex flex-col items-center justify-center min-h-[60vh] gap-4">
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="text-center space-y-3">
+        <div className="px-5 flex flex-col items-center justify-center min-h-[60vh] gap-6">
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="text-center space-y-4">
             <h2 className="font-display text-2xl text-on-surface leading-tight">
               Patterns in the quiet.
             </h2>
             <p className="text-on-surface-variant text-sm leading-relaxed max-w-xs mx-auto">
-              Once you have a few entries, I'll start noticing what's repeating, what's assumed, and what patterns keep showing up.
+              Reflect {threshold - progress} more time{threshold - progress !== 1 ? "s" : ""} to unlock your first patterns.
             </p>
-            <p className="text-mint text-sm italic font-display">
-              Start a loop to begin.
+
+            {/* Progress dots */}
+            <div className="flex items-center justify-center gap-2 py-2">
+              {Array.from({ length: threshold }).map((_, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ delay: i * 0.08 }}
+                  className={`w-3 h-3 rounded-full ${
+                    i < progress ? "bg-mint" : "surface-high"
+                  }`}
+                />
+              ))}
+            </div>
+            <p className="text-on-surface-variant text-xs">
+              {progress} of {threshold} reflections
             </p>
           </motion.div>
+
+          {/* Preview cards — blurred placeholder */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3 }}
+            className="w-full max-w-sm space-y-3 opacity-30 blur-[2px] pointer-events-none"
+          >
+            <div className="rounded-2xl surface-low p-4 h-20" />
+            <div className="grid grid-cols-2 gap-3">
+              <div className="rounded-2xl surface-low p-4 h-24" />
+              <div className="rounded-2xl surface-low p-4 h-24" />
+            </div>
+            <div className="rounded-2xl surface-low p-4 h-16" />
+          </motion.div>
+
+          {/* CTA */}
+          <motion.button
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            onClick={() => navigate("/recording")}
+            className="flex items-center gap-2 px-6 py-3 rounded-full orb-gradient text-primary-foreground font-semibold text-sm"
+          >
+            <Mic size={16} />
+            Start a reflection
+          </motion.button>
         </div>
       </div>
     );

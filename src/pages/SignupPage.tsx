@@ -38,10 +38,10 @@ export default function SignupPage() {
           <StaticLogo size={80} />
           <h1 className="font-display text-3xl text-on-surface">Loop</h1>
           <p className="font-display text-base text-mint italic">
-            A voice journal for overthinkers.
+            Talk it out. See the pattern.
           </p>
           <p className="text-on-surface-variant text-sm leading-relaxed">
-            Talk it out. See the pattern.
+            A voice journal for overthinkers.
           </p>
         </div>
 
@@ -80,9 +80,9 @@ export default function SignupPage() {
           </motion.button>
         </form>
 
-        <p className="text-center text-on-surface-variant text-sm font-body">
+        <p className="text-center text-on-surface-variant text-sm font-body py-3">
           Already have an account?{" "}
-          <Link to="/login" className="text-mint hover:underline">Sign in</Link>
+          <Link to="/login" className="text-mint hover:underline py-2 px-1">Sign in</Link>
         </p>
       </motion.div>
     </div>

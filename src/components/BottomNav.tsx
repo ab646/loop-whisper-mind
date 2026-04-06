@@ -1,9 +1,9 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import { Mic, BarChart3, User } from "lucide-react";
+import { MessageCircle, BarChart3, User } from "lucide-react";
 import { motion } from "framer-motion";
 
 const tabs = [
-  { path: "/", label: "CHAT", icon: Mic },
+  { path: "/", label: "REFLECT", icon: MessageCircle },
   { path: "/insights", label: "PATTERNS", icon: BarChart3 },
   { path: "/profile", label: "PROFILE", icon: User },
 ];

@@ -60,7 +60,7 @@ export default function LoginPage() {
             />
           </div>
 
-          <Link to="/forgot-password" className="block text-right text-mint text-sm font-body hover:underline">
+          <Link to="/forgot-password" className="block text-right text-mint text-sm font-body hover:underline py-2">
             Forgot password?
           </Link>
 
@@ -74,9 +74,9 @@ export default function LoginPage() {
           </motion.button>
         </form>
 
-        <p className="text-center text-on-surface-variant text-sm font-body">
+        <p className="text-center text-on-surface-variant text-sm font-body py-3">
           New here?{" "}
-          <Link to="/signup" className="text-mint hover:underline">Create an account</Link>
+          <Link to="/signup" className="text-mint hover:underline py-2 px-1">Create an account</Link>
         </p>
       </motion.div>
     </div>

@@ -136,9 +136,19 @@
   }
 
   .mesh-gradient-bg {
-    background: 
+    background:
       radial-gradient(ellipse at 20% 50%, hsla(180, 25%, 80%, 0.04) 0%, transparent 60%),
       radial-gradient(ellipse at 80% 20%, hsla(180, 20%, 25%, 0.06) 0%, transparent 50%),
       hsl(var(--surface));
+  }
+}
+
+/* Accessibility: reduce motion for sensitive users */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

@@ -133,16 +133,21 @@ export function ReflectionCard({ mainLoop, feelings, knownVsAssumed, repeatingPa
         </CollapsibleSection>
       )}
 
-      {/* Tags always visible */}
-      {tags && tags.length > 0 && (
-        <div className="flex flex-wrap gap-2 pt-2">
-          {tags.map((tag) => (
+      {/* Tags + Feedback */}
+      <div className="flex items-center justify-between pt-2">
+        <div className="flex flex-wrap gap-2">
+          {tags && tags.length > 0 && tags.map((tag) => (
             <span key={tag} className="tag-pill">
               {tag.replace(/_/g, " ").trim().toLowerCase().replace(/^\w/, (char) => char.toUpperCase())}
             </span>
           ))}
         </div>
-      )}
+        <FeedbackButtons
+          contentType="reflection"
+          contentId={feedbackId}
+          contentPreview={oneQuestion}
+        />
+      </div>
     </motion.div>
   );
 }

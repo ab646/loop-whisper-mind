@@ -214,6 +214,13 @@ export default function InsightsPage() {
             <p className="text-on-surface text-[15px] leading-relaxed font-display">
               {insights.weeklyInsight}
             </p>
+            <div className="flex justify-end">
+              <FeedbackButtons
+                contentType="weekly-summary"
+                contentId={`weekly-${new Date().toISOString().split("T")[0]}`}
+                contentPreview={insights.weeklyInsight}
+              />
+            </div>
           </motion.div>
         )}
 

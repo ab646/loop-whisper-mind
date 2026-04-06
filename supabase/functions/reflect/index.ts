@@ -140,6 +140,21 @@ serve(async (req) => {
       return errorResponse(req, "Content or image required", 400);
     }
 
+    // Validate that text content resembles a thought/journal entry
+    if (content?.trim() && !imageUrl) {
+      const text = content.trim();
+      const wordCount = text.split(/\s+/).length;
+      // Too short to be a meaningful thought
+      if (wordCount < 3) {
+        return errorResponse(req, "That's a bit short — try sharing a fuller thought or feeling.", 400);
+      }
+      // Check if it looks like a meaningful thought (not random noise or commands)
+      const looksLikeNoise = /^[^a-zA-Z]*$/.test(text) || /^(\d+[\s,]*)+$/.test(text);
+      if (looksLikeNoise) {
+        return errorResponse(req, "That doesn't look like a journal entry. Try sharing what's on your mind in words.", 400);
+      }
+    }
+
     // Fetch recent entries for pattern detection
     const { data: recentEntries } = await adminClient
       .from("entries")

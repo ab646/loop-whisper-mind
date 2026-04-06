@@ -3,6 +3,7 @@ import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Play, ArrowLeft, MoreVertical, Trash2, ArrowUp } from "lucide-react";
 import { CyclingLoader } from "@/components/CyclingLoader";
+import { FullScreenLoader } from "@/components/FullScreenLoader";
 import { ScribblingLogo } from "@/components/LoopLogo";
 import { ChatInput } from "@/components/ChatInput";
 import { ReflectionCard } from "@/components/ReflectionCard";

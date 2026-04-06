@@ -169,7 +169,7 @@ export default function HomePage() {
                         {entry.tags.map((tag) => (
                           <span
                             key={tag}
-                            className="px-2.5 py-1 rounded-full surface-high text-[9px] text-mint tracking-wider uppercase font-semibold border border-mint/20"
+                            className="px-2.5 py-1 rounded-full bg-secondary/15 border border-secondary/40 text-[9px] text-secondary tracking-wider uppercase font-semibold"
                           >
                             {tag}
                           </span>

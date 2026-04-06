@@ -85,7 +85,6 @@ const badgeClasses = { icon: "text-secondary", bg: "bg-secondary/15" };
 export function ThemeCard({ name, mentions, icon, delay = 0, colorIndex = 0 }: ThemeCardProps) {
   const Icon = resolveIcon(icon, name);
   const navigate = useNavigate();
-  const accent = accentColors[colorIndex % accentColors.length];
 
   return (
     <motion.button

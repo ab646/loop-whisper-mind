@@ -33,18 +33,6 @@ export default function RecordingPage() {
     start().catch(() => toast.error("Microphone permission denied"));
   }, []);
 
-  // Cycle phrases during processing
-  useEffect(() => {
-    if (!processing || prefersReduced) return;
-    const interval = setInterval(() => {
-      setPhraseFading(true);
-      setTimeout(() => {
-        setPhraseIndex((prev) => (prev + 1) % shuffledPhrases.length);
-        setPhraseFading(false);
-      }, 300);
-    }, 2800);
-    return () => clearInterval(interval);
-  }, [processing, shuffledPhrases.length, prefersReduced]);
 
   // Fake progress that eases toward ~90% then jumps to 100% on "deleting"
   useEffect(() => {

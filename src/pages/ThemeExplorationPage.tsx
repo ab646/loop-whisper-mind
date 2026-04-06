@@ -182,7 +182,7 @@ export default function ThemeExplorationPage() {
             {analysis.beliefTags?.length > 0 && (
               <div className="flex gap-2 flex-wrap">
                 {analysis.beliefTags.map((tag: string) => (
-                  <span key={tag} className="px-3 py-1 rounded-full surface-high text-[10px] text-mint tracking-wider uppercase font-semibold">
+                  <span key={tag} className="px-3 py-1 rounded-full bg-secondary/20 border border-secondary/30 text-[10px] text-secondary tracking-wider uppercase font-semibold">
                     {tag}
                   </span>
                 ))}

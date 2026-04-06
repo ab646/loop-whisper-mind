@@ -7,11 +7,9 @@ import { ScribblingLogo } from "@/components/LoopLogo";
 import { useAudioRecorder } from "@/hooks/useAudioRecorder";
 import { toast } from "sonner";
 
-type ProcessingStep = "saved" | "uploading" | "transcribing" | "deleting";
+type ProcessingStep = "transcribing" | "deleting";
 
 const STEPS: { key: ProcessingStep; label: string }[] = [
-  { key: "saved", label: "Recording saved" },
-  { key: "uploading", label: "Uploading audio" },
   { key: "transcribing", label: "Transcribing" },
   { key: "deleting", label: "Deleting recording" },
 ];
@@ -43,7 +41,7 @@ function StepIndicator({
 export default function RecordingPage() {
   const navigate = useNavigate();
   const [processing, setProcessing] = useState(false);
-  const [currentStep, setCurrentStep] = useState<ProcessingStep>("saved");
+  const [currentStep, setCurrentStep] = useState<ProcessingStep>("transcribing");
   const { isRecording, isPaused, duration, start, stop, pause, resume, reset } =
     useAudioRecorder();
   const startedRef = useRef(false);
@@ -83,11 +81,7 @@ export default function RecordingPage() {
     }
 
     setProcessing(true);
-    setCurrentStep("saved");
-
-    // Brief pause to show "saved"
-    await new Promise((r) => setTimeout(r, 600));
-    setCurrentStep("uploading");
+    setCurrentStep("transcribing");
 
     try {
       const formData = new FormData();
@@ -144,38 +138,22 @@ export default function RecordingPage() {
 
   // Processing screen
   if (processing) {
+    const activeStep = STEPS.find((s) => s.key === currentStep);
     return (
-      <div className="flex flex-col min-h-screen mesh-gradient-bg items-center justify-center gap-8 px-8">
+      <div className="flex flex-col min-h-screen mesh-gradient-bg items-center justify-center gap-6 px-8">
         <ScribblingLogo size={108} />
 
-        <div className="space-y-3 w-full max-w-xs">
-          {STEPS.map((step) => {
-            const status = getStepStatus(step.key);
-            return (
-              <motion.div
-                key={step.key}
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.1 }}
-                className="flex items-center gap-3"
-              >
-                <StepIndicator status={status} />
-                <span
-                  className={`font-body text-sm ${
-                    status === "done"
-                      ? "text-on-surface"
-                      : status === "active"
-                      ? "text-on-surface font-semibold"
-                      : "text-on-surface-variant/50"
-                  }`}
-                >
-                  {step.label}
-                  {status === "active" && "..."}
-                </span>
-              </motion.div>
-            );
-          })}
-        </div>
+        {activeStep && (
+          <motion.p
+            key={activeStep.key}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            className="font-body text-sm text-on-surface-variant tracking-wide"
+          >
+            {activeStep.label}...
+          </motion.p>
+        )}
       </div>
     );
   }

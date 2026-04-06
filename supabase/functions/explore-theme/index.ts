@@ -119,7 +119,7 @@ Return ONLY a valid JSON object:
 {
   "connectedBelief": "The core belief driving this pattern, written as an inner-voice quote (1-2 sentences)",
   "beliefTags": ["1-2 psychological labels like 'Safety-seeking', 'Control', 'Perfectionism', 'Attachment anxiety', 'Avoidance'"],
-  "triggers": [{"label": "Specific trigger", "iconType": "heart"|"briefcase"|"calendar"|"people"|"clock"|"message"}] (top 3),
+  "triggers": [{"label": "Specific trigger", "iconType": "heart"|"heart-crack"|"brain"|"users"|"clock"|"message-circle"|"briefcase"|"shield"|"eye"|"flame"|"cloud-rain"|"zap"|"target"|"lock"|"phone"|"moon"|"battery-low"|"scale"|"hand-heart"|"ghost"|"volume-x"|"compass"|"hourglass"|"alarm-clock"}] (top 3, pick the icon that BEST represents the trigger's essence),
   "entriesThisWeek": ${weekCount},
   "timeline": "1-2 sentences about how this theme has evolved over the entries. Reference specific shifts if visible.",
   "patternInsight": "Your most valuable observation about this pattern — something the user likely hasn't noticed. 1-2 sentences. Be specific.",

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ChevronRight } from "lucide-react";
@@ -61,6 +61,8 @@ export default function HomePage() {
   const [error, setError] = useState<string | null>(null);
   const [retryCount, setRetryCount] = useState(0);
   const [hasMore, setHasMore] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const sentinelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!session) return;
@@ -109,8 +111,9 @@ export default function HomePage() {
     })();
   }, [session, retryCount]);
 
-  const loadMore = async () => {
-    if (!session) return;
+  const loadMore = useCallback(async () => {
+    if (!session || loadingMore || !hasMore) return;
+    setLoadingMore(true);
     const { data } = await supabase
       .from("entries")
       .select("id, content, reflection, tags, created_at, entry_type")
@@ -144,7 +147,22 @@ export default function HomePage() {
       ]);
       setHasMore(data.length === 20);
     }
-  };
+    setLoadingMore(false);
+  }, [session, loadingMore, hasMore, entries.length]);
+
+  // Infinite scroll via IntersectionObserver
+  useEffect(() => {
+    const sentinel = sentinelRef.current;
+    if (!sentinel) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) loadMore();
+      },
+      { rootMargin: "200px" }
+    );
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [loadMore]);
 
   return (
     <div className="flex flex-col h-screen mesh-gradient-bg relative overflow-hidden">
@@ -241,10 +259,10 @@ export default function HomePage() {
                   ))}
                 </div>
               ))}
-              {hasMore && entries.length > 0 && (
-                <button onClick={loadMore} className="w-full text-center text-mint text-sm py-4">
-                  Load more
-                </button>
+              {hasMore && (
+                <div ref={sentinelRef} className="flex justify-center py-6">
+                  {loadingMore && <ScribblingLogo size={20} />}
+                </div>
               )}
             </>
           )}

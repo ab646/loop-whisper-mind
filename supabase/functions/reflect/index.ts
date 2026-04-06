@@ -183,12 +183,22 @@ serve(async (req) => {
 
     const systemPrompt = buildSystemPrompt(historyContext, conversationContext);
 
+    // Build the user message — text-only or multimodal with image
+    const userContent = imageUrl
+      ? [
+          ...(content?.trim()
+            ? [{ type: "text" as const, text: content }]
+            : [{ type: "text" as const, text: "Please look at this image and reflect on what you see. Extract any text if present, and identify the emotional or cognitive themes." }]),
+          { type: "image_url" as const, image_url: { url: imageUrl } },
+        ]
+      : content;
+
     const reflection = await chatCompletionJSON<Reflection>(
       [
         { role: "system", content: systemPrompt },
-        { role: "user", content },
+        { role: "user", content: userContent },
       ],
-      { ...REFLECTION_FALLBACK, mainLoop: content.substring(0, 200) },
+      { ...REFLECTION_FALLBACK, mainLoop: (content || "Image reflection").substring(0, 200) },
       { temperature: 0.4, maxTokens: 1024 }
     );
 

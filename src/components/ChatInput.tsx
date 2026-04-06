@@ -1,6 +1,6 @@
 import { Mic, Paperclip, ArrowUp, X, Image } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 
 interface ChatInputProps {
   onSend: (text: string, imageUrl?: string) => void;
@@ -14,6 +14,18 @@ export function ChatInput({ onSend, onVoice, placeholder = "Type your thoughts..
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const autoResize = useCallback((el: HTMLTextAreaElement | null) => {
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = Math.min(el.scrollHeight, 120) + "px";
+  }, []);
+
+  // Auto-expand on mount when defaultValue is set
+  useEffect(() => {
+    if (defaultValue) autoResize(textareaRef.current);
+  }, [defaultValue, autoResize]);
 
   const handleSend = () => {
     if (text.trim() || imageFile) {
@@ -97,11 +109,11 @@ export function ChatInput({ onSend, onVoice, placeholder = "Type your thoughts..
           <Image size={20} />
         </button>
         <textarea
+          ref={textareaRef}
           value={text}
           onChange={(e) => {
             setText(e.target.value);
-            e.target.style.height = "auto";
-            e.target.style.height = Math.min(e.target.scrollHeight, 120) + "px";
+            autoResize(e.target);
           }}
           onKeyDown={(e) => {
             if (e.key === "Enter" && !e.shiftKey) {

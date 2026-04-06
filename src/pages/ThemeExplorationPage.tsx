@@ -77,7 +77,9 @@ export default function ThemeExplorationPage() {
   const [loading, setLoading] = useState(true);
   const [input, setInput] = useState("");
   const [askingQuestion, setAskingQuestion] = useState(false);
-  const [answer, setAnswer] = useState<string | null>(null);
+  const [chatMessages, setChatMessages] = useState<{ role: "user" | "ai"; content: string }[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(true);
+  const chatEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!session || !theme) return;
@@ -101,25 +103,27 @@ export default function ThemeExplorationPage() {
     })();
   }, [session, theme]);
 
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [chatMessages, askingQuestion]);
+
   const askQuestion = async (question: string) => {
     if (!question.trim()) return;
+    setChatMessages((prev) => [...prev, { role: "user", content: question }]);
+    setShowSuggestions(false);
     setAskingQuestion(true);
-    setAnswer(null);
+    setInput("");
     try {
       const { data, error } = await supabase.functions.invoke("explore-theme", {
         body: { theme, question },
       });
       if (error) throw error;
-      if (data?.answer) {
-        setAnswer(data.answer);
-      } else if (data?.connectedBelief) {
-        setAnswer(data.connectedBelief);
-      }
+      const answer = data?.answer || data?.connectedBelief || "I couldn't generate a reflection for that.";
+      setChatMessages((prev) => [...prev, { role: "ai", content: answer }]);
     } catch (e) {
       toast.error("Failed to get answer");
     }
     setAskingQuestion(false);
-    setInput("");
   };
 
   if (loading) {
@@ -294,7 +298,7 @@ export default function ThemeExplorationPage() {
           </motion.div>
         )}
 
-        {/* Follow-up questions */}
+        {/* Deepen the exploration — Chat */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -312,7 +316,8 @@ export default function ThemeExplorationPage() {
           </div>
 
           <div className="rounded-2xl surface-low p-4 space-y-3">
-            {(analysis?.followUpQuestions || []).map((q: string) => (
+            {/* Suggestion chips — hidden once conversation starts */}
+            {showSuggestions && (analysis?.followUpQuestions || []).map((q: string) => (
               <button
                 key={q}
                 onClick={() => askQuestion(q)}
@@ -322,6 +327,54 @@ export default function ThemeExplorationPage() {
                 {q}
               </button>
             ))}
+
+            {/* Chat thread */}
+            {chatMessages.length > 0 && (
+              <div className="space-y-3">
+                {chatMessages.map((msg, i) => (
+                  <motion.div
+                    key={i}
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    {msg.role === "user" ? (
+                      <div className="flex justify-end">
+                        <div className="rounded-2xl surface-high px-4 py-3 max-w-[85%]">
+                          <p className="text-on-surface text-sm leading-relaxed">{msg.content}</p>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="rounded-2xl p-4 space-y-2 border-l-4 border-mint/30 surface-container">
+                        <span className="label-uppercase text-mint">Reflection</span>
+                        <p className="text-on-surface text-sm leading-relaxed font-body">{msg.content}</p>
+                      </div>
+                    )}
+                  </motion.div>
+                ))}
+
+                {askingQuestion && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="flex items-center gap-2 py-2"
+                  >
+                    <CyclingLoader mode="reflection" size={20} layout="inline" />
+                  </motion.div>
+                )}
+
+                <div ref={chatEndRef} />
+              </div>
+            )}
+
+            {/* Loading for first question (no messages yet) */}
+            {askingQuestion && chatMessages.length <= 1 && (
+              <div className="flex items-center gap-2 py-2">
+                <CyclingLoader mode="reflection" size={20} layout="inline" />
+              </div>
+            )}
+
+            {/* Input */}
             <div className="flex items-center gap-2 rounded-xl surface-high px-4 py-3 border border-border/20">
               <input
                 value={input}
@@ -343,18 +396,6 @@ export default function ThemeExplorationPage() {
               </button>
             </div>
           </div>
-
-          {/* AI Answer */}
-          {answer && (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="rounded-2xl surface-low p-5 space-y-2 border-l-4 border-mint/30"
-            >
-              <span className="label-uppercase text-mint">REFLECTION</span>
-              <p className="text-on-surface text-sm leading-relaxed font-body">{answer}</p>
-            </motion.div>
-          )}
         </motion.div>
       </div>
     </div>

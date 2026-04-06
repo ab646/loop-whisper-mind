@@ -79,12 +79,20 @@ function resolveIcon(icon?: string, name?: string): LucideIcon {
   return Brain;
 }
 
-// Consistent secondary badge style
-const badgeClasses = { icon: "text-secondary", bg: "bg-secondary/15" };
+// Vibrant, distinct accent palettes
+const accentColors = [
+  { icon: "text-mint", bg: "bg-mint/20" },
+  { icon: "text-[hsl(280,60%,70%)]", bg: "bg-[hsl(280,60%,70%)]/15" },   // lavender/purple
+  { icon: "text-secondary", bg: "bg-secondary/20" },
+  { icon: "text-[hsl(0,65%,60%)]", bg: "bg-[hsl(0,65%,60%)]/15" },       // coral/red
+  { icon: "text-[hsl(45,80%,60%)]", bg: "bg-[hsl(45,80%,60%)]/15" },     // amber
+  { icon: "text-tertiary-foreground", bg: "bg-tertiary/25" },
+];
 
 export function ThemeCard({ name, mentions, icon, delay = 0, colorIndex = 0 }: ThemeCardProps) {
   const Icon = resolveIcon(icon, name);
   const navigate = useNavigate();
+  const accent = accentColors[colorIndex % accentColors.length];
 
   return (
     <motion.button
@@ -94,8 +102,8 @@ export function ThemeCard({ name, mentions, icon, delay = 0, colorIndex = 0 }: T
       onClick={() => navigate(`/theme/${name.toLowerCase()}`)}
       className="rounded-2xl glass-panel p-4 flex flex-col gap-3 items-start text-left border border-border/20 hover:bg-surface-container transition-colors"
     >
-      <div className={`w-10 h-10 rounded-xl ${badgeClasses.bg} flex items-center justify-center`}>
-        <Icon size={20} className={badgeClasses.icon} />
+      <div className={`w-10 h-10 rounded-xl ${accent.bg} flex items-center justify-center`}>
+        <Icon size={20} className={accent.icon} />
       </div>
       <div>
         <p className="text-on-surface font-body font-semibold text-sm">{name}</p>

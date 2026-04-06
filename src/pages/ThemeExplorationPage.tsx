@@ -227,11 +227,28 @@ export default function ThemeExplorationPage() {
           </motion.div>
         )}
 
+        {analysis?.patternInsight && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="rounded-2xl overflow-hidden relative"
+          >
+            <div className="absolute inset-0 bg-gradient-to-br from-surface-container to-surface-low" />
+            <div className="relative p-5 space-y-2">
+              <span className="label-uppercase text-mint">PATTERN INSIGHT</span>
+              <p className="font-display text-lg text-on-surface leading-relaxed">
+                {analysis.patternInsight}
+              </p>
+            </div>
+          </motion.div>
+        )}
+
         {/* Follow-up questions */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
+          transition={{ delay: 0.4 }}
           className="space-y-4"
         >
           <div className="flex items-start gap-3">
@@ -289,23 +306,6 @@ export default function ThemeExplorationPage() {
             </motion.div>
           )}
         </motion.div>
-
-        {analysis?.patternInsight && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-            className="rounded-2xl overflow-hidden relative"
-          >
-            <div className="absolute inset-0 bg-gradient-to-br from-surface-container to-surface-low" />
-            <div className="relative p-5 space-y-2">
-              <span className="label-uppercase text-mint">PATTERN INSIGHT</span>
-              <p className="font-display text-lg text-on-surface leading-relaxed">
-                {analysis.patternInsight}
-              </p>
-            </div>
-          </motion.div>
-        )}
       </div>
     </div>
   );

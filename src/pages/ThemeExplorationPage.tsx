@@ -334,13 +334,16 @@ export default function ThemeExplorationPage() {
 
           <div className="rounded-2xl surface-low p-4 space-y-3">
             {/* Suggestion chips — hidden once conversation starts */}
-            {showSuggestions && (analysis?.followUpQuestions || []).map((q: string) => (
+            {showSuggestions && (analysis?.followUpQuestions || []).map((q: string, i: number) => (
               <button
                 key={q}
                 onClick={() => askQuestion(q)}
                 disabled={askingQuestion}
-                className="w-full text-left rounded-xl surface-high px-4 py-3 text-on-surface-variant text-sm font-body hover:text-mint transition-colors border border-border/20 disabled:opacity-50"
+                className="w-full text-left rounded-xl surface-high px-4 py-3 text-on-surface text-sm font-body leading-relaxed hover:border-mint/40 transition-colors border border-border/20 disabled:opacity-50"
               >
+                <span className="text-mint text-[10px] tracking-wider uppercase font-semibold block mb-1">
+                  {["Pattern", "Connection", "Signal"][i] || "Insight"}
+                </span>
                 {q}
               </button>
             ))}

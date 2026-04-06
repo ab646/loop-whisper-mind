@@ -224,7 +224,7 @@ export default function ChatPage() {
     const userMsg: TextMessage = { id: crypto.randomUUID(), type: "text", content: text };
     setMessages((prev) => [...prev, userMsg]);
     setLoading(true);
-    setLoadingImage(false);
+    
 
     try {
       const { data, error } = await supabase.functions.invoke("reflect", {

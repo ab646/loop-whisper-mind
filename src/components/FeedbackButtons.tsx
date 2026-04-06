@@ -16,19 +16,20 @@ export function FeedbackButtons({ contentType, contentId, contentPreview }: Feed
 
   useEffect(() => {
     if (!session?.user?.id) return;
-    supabase
-      .from("feedback" as any)
-      .select("rating")
-      .eq("user_id", session.user.id)
-      .eq("content_type", contentType)
-      .eq("content_id", contentId)
-      .maybeSingle()
-      .then(({ data }: any) => {
+    (async () => {
+      try {
+        const { data } = await supabase
+          .from("feedback" as any)
+          .select("rating")
+          .eq("user_id", session.user.id)
+          .eq("content_type", contentType)
+          .eq("content_id", contentId)
+          .maybeSingle() as any;
         if (data?.rating) setRating(data.rating);
-      })
-      .catch(() => {
+      } catch {
         // feedback table may not exist yet — silently ignore
-      });
+      }
+    })();
   }, [session, contentType, contentId]);
 
   const handleRate = async (value: 1 | -1) => {

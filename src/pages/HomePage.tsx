@@ -80,7 +80,7 @@ export default function HomePage() {
         </motion.div>
 
         {/* Past entries */}
-        <div className="space-y-3 mt-auto pb-4">
+        <div className="space-y-3 mt-auto pt-16 pb-4">
           <span className="label-uppercase">RECENT LOOPS</span>
           {loading ? (
             <div className="flex justify-center py-8">

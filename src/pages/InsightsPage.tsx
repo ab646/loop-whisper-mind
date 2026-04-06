@@ -112,9 +112,7 @@ export default function InsightsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen mesh-gradient-bg flex items-center justify-center">
-        <CyclingLoader mode="analysis" size={108} />
-      </div>
+      <FullScreenLoader mode="analysis" />
     );
   }
 

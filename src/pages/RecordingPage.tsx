@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Mic, MicOff, Pause, Play, RotateCcw } from "lucide-react";
 import { Waveform } from "@/components/Waveform";
-import { ScribblingLogo } from "@/components/LoopLogo";
+import { FullScreenLoader } from "@/components/FullScreenLoader";
 import { useAudioRecorder } from "@/hooks/useAudioRecorder";
 import { toast } from "sonner";
 

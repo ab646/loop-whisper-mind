@@ -1,7 +1,11 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { MessageSquare, Mail, VolumeX, Mic } from "lucide-react";
+import {
+  Mic, Heart, Briefcase, Brain, Users, Home, Clock,
+  Flame, Target, Eye, Zap, Compass, MessageCircle, Shield,
+  type LucideIcon,
+} from "lucide-react";
 import { CyclingLoader } from "@/components/CyclingLoader";
 import { AppHeader } from "@/components/AppHeader";
 import { ThemeCard } from "@/components/ThemeCard";
@@ -9,17 +13,29 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 
-const iconTypeMap: Record<string, "message" | "mail" | "silence"> = {
-  message: "message",
-  mail: "mail",
-  silence: "silence",
-};
+const triggerKeywords: [string[], LucideIcon][] = [
+  [["conflict", "argument", "disagree", "fight", "tension"], Flame],
+  [["deadline", "time", "rush", "late", "waiting"], Clock],
+  [["rejection", "dismiss", "ignore", "abandon"], Heart],
+  [["work", "job", "boss", "meeting", "office"], Briefcase],
+  [["family", "parent", "child", "home"], Home],
+  [["social", "people", "friend", "group", "crowd"], Users],
+  [["decision", "choice", "uncertain", "doubt"], Brain],
+  [["control", "power", "helpless", "boundary"], Shield],
+  [["comparison", "jealous", "envy", "compete"], Eye],
+  [["change", "transition", "unknown", "new"], Compass],
+  [["message", "text", "email", "call", "notification"], MessageCircle],
+  [["goal", "expect", "fail", "success", "pressure"], Target],
+  [["energy", "overwhelm", "exhaust", "stress"], Zap],
+];
 
-const triggerIconMap = {
-  message: MessageSquare,
-  mail: Mail,
-  silence: VolumeX,
-};
+function getTriggerIcon(label: string): LucideIcon {
+  const lower = label.toLowerCase();
+  for (const [keywords, icon] of triggerKeywords) {
+    if (keywords.some((kw) => lower.includes(kw))) return icon;
+  }
+  return Brain;
+}
 
 export default function InsightsPage() {
   const { session } = useAuth();

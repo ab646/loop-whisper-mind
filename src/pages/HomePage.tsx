@@ -272,6 +272,7 @@ export default function HomePage() {
       <div className="shrink-0 pb-20">
         <ChatInput
           onSend={(text) => navigate("/chat/new", { state: { prefillText: text } })}
+          onImageSelected={(imageDataUrl) => navigate("/chat/new", { state: { prefillImage: imageDataUrl } })}
           onVoice={() => navigate("/recording")}
           placeholder="Type your thoughts..."
         />

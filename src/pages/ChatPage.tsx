@@ -45,6 +45,7 @@ export default function ChatPage() {
   const { session } = useAuth();
   const isNew = id === "new";
   const prefillText = (location.state as any)?.prefillText as string | undefined;
+  const prefillImage = (location.state as any)?.prefillImage as string | undefined;
 
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
@@ -55,6 +56,13 @@ export default function ChatPage() {
   const [explorationMessages, setExplorationMessages] = useState<{ role: "user" | "ai"; content: string }[]>([]);
   const [explorationInput, setExplorationInput] = useState("");
   const [explorationLoading, setExplorationLoading] = useState(false);
+
+  // Auto-process prefilled image from home page
+  useEffect(() => {
+    if (prefillImage && isNew && !loading && !imageValidating && messages.length === 0) {
+      handleImageSelected(prefillImage);
+    }
+  }, [prefillImage]);
   // Load existing entry
   useEffect(() => {
     if (isNew || !id) {

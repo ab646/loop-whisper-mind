@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import { StaticLogo } from "@/components/LoopLogo";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -33,7 +34,8 @@ export default function SignupPage() {
         animate={{ opacity: 1, y: 0 }}
         className="w-full max-w-sm space-y-8"
       >
-        <div className="text-center space-y-3">
+        <div className="flex flex-col items-center space-y-3">
+          <StaticLogo size={80} />
           <h1 className="font-display text-3xl text-on-surface">Loop</h1>
           <p className="font-display text-base text-mint italic">
             A voice journal for overthinkers.

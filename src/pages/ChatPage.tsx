@@ -239,7 +239,7 @@ export default function ChatPage() {
               animate={{ opacity: 1 }}
               className="py-4"
             >
-              <CyclingLoader mode="reflection" size={18} layout="inline" />
+              <CyclingLoader mode="reflection" size={28} layout="inline" />
             </motion.div>
           )}
         </div>

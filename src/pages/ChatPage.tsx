@@ -206,8 +206,7 @@ export default function ChatPage() {
   };
 
   const handleSend = async (text: string) => {
-    if (!text.trim() || disabled) return;
-    const disabled = loading || imageValidating;
+    if (!text.trim() || loading || imageValidating) return;
 
     const userMsg: TextMessage = { id: crypto.randomUUID(), type: "text", content: text };
     setMessages((prev) => [...prev, userMsg]);

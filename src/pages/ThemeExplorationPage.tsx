@@ -156,18 +156,18 @@ export default function ThemeExplorationPage() {
                       return date.toLocaleDateString("en-US", { weekday: "short" }).toUpperCase();
                     }}
                   />
-                  <YAxis
-                    domain={[0, 5]}
-                    ticks={[0, 1, 2, 3, 4, 5]}
-                    tick={{ fill: "hsl(var(--on-surface-variant))", fontSize: 9 }}
-                    tickLine={false}
-                    axisLine={false}
-                    width={46}
-                    tickFormatter={(v: number) => {
-                      const labels: Record<number, string> = { 0: "", 1: "Mild", 2: "Mod", 3: "Elev", 4: "Spiral", 5: "Crisis" };
-                      return labels[v] ?? "";
-                    }}
-                  />
+                   <YAxis
+                     domain={[0, 5]}
+                     ticks={[1, 2, 3, 4, 5]}
+                     tick={{ fill: "hsl(var(--on-surface-variant))", fontSize: 9 }}
+                     tickLine={false}
+                     axisLine={false}
+                     width={36}
+                     tickFormatter={(v: number) => {
+                       const labels: Record<number, string> = { 1: "Mild", 2: "Mod", 3: "Elev", 4: "Sprl", 5: "Crit" };
+                       return labels[v] ?? "";
+                     }}
+                   />
                   <Tooltip
                     contentStyle={{
                       background: "hsl(var(--surface-container))",

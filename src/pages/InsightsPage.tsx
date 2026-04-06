@@ -183,12 +183,8 @@ export default function InsightsPage() {
                 const Icon = triggerIconMap[t.iconType as keyof typeof triggerIconMap] || MessageSquare;
                 return (
                   <div key={t.label} className="rounded-2xl surface-low p-4 flex items-center gap-4">
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                      ["bg-secondary/15", "bg-tertiary/15", "bg-mint/15"][triggers.indexOf(t) % 3]
-                    }`}>
-                      <Icon size={18} className={
-                        ["text-secondary", "text-tertiary", "text-mint"][triggers.indexOf(t) % 3]
-                      } />
+                    <div className="w-10 h-10 rounded-full surface-high flex items-center justify-center">
+                      <Icon size={18} className="text-on-surface-variant" />
                     </div>
                     <div>
                       <p className="text-on-surface text-sm font-semibold">{t.label}</p>

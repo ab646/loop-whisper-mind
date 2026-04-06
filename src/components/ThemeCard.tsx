@@ -1,11 +1,11 @@
 import { motion } from "framer-motion";
-import { Cloud, Heart, Briefcase, AlertCircle } from "lucide-react";
+import { Cloud, Heart, Briefcase, AlertCircle, Brain, Shield } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 interface ThemeCardProps {
   name: string;
   mentions: number;
-  icon?: "cloud" | "heart" | "briefcase" | "alert";
+  icon?: string;
   delay?: number;
 }
 
@@ -14,17 +14,22 @@ const iconMap = {
   heart: Heart,
   briefcase: Briefcase,
   alert: AlertCircle,
+  brain: Brain,
+  shield: Shield,
 };
 
 const iconColorMap = {
-  cloud: "text-pink-300",
-  heart: "text-green-300",
-  briefcase: "text-amber-300",
-  alert: "text-red-300",
+  cloud: "text-on-surface-variant",
+  heart: "text-mint",
+  briefcase: "text-on-surface",
+  alert: "text-destructive",
+  brain: "text-mint",
+  shield: "text-on-surface-variant",
 };
 
 export function ThemeCard({ name, mentions, icon = "cloud", delay = 0 }: ThemeCardProps) {
-  const Icon = iconMap[icon];
+  const safeIcon = icon in iconMap ? (icon as keyof typeof iconMap) : "cloud";
+  const Icon = iconMap[safeIcon];
   const navigate = useNavigate();
 
   return (
@@ -35,7 +40,7 @@ export function ThemeCard({ name, mentions, icon = "cloud", delay = 0 }: ThemeCa
       onClick={() => navigate(`/theme/${name.toLowerCase()}`)}
       className="rounded-2xl surface-low p-4 flex flex-col gap-3 items-start text-left hover:bg-surface-container transition-colors"
     >
-      <Icon size={24} className={iconColorMap[icon]} />
+      <Icon size={24} className={iconColorMap[safeIcon]} />
       <div>
         <p className="text-on-surface font-body font-semibold text-sm">{name}</p>
         <p className="text-on-surface-variant text-xs">{mentions} MENTIONS</p>

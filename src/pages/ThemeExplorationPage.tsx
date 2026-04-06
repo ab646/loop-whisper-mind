@@ -153,7 +153,7 @@ export default function ThemeExplorationPage() {
                     type="natural"
                     dataKey="intensity"
                     stroke="hsl(var(--mint))"
-                    strokeWidth={1.5}
+                    strokeWidth={2.5}
                     fill="url(#intensityGrad)"
                     dot={{ r: 2, fill: "hsl(var(--mint))", strokeWidth: 0 }}
                     activeDot={{ r: 4, fill: "hsl(var(--mint))", strokeWidth: 2, stroke: "hsl(var(--surface-low))" }}

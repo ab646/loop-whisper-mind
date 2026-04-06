@@ -198,12 +198,14 @@ export default function InsightsPage() {
             <div className="space-y-2">
               {triggers.map((t: any, i: number) => {
                 const Icon = getTriggerIcon(t.label);
-                const colorClasses = [
-                  { bg: "bg-secondary/15", text: "text-secondary" },
-                  { bg: "bg-tertiary/20", text: "text-tertiary-foreground" },
-                  { bg: "bg-mint/15", text: "text-mint" },
+                const triggerColors = [
+                  { bg: "bg-mint/20", text: "text-mint" },
+                  { bg: "bg-secondary/20", text: "text-secondary" },
+                  { bg: "bg-[hsl(280,60%,70%)]/15", text: "text-[hsl(280,60%,70%)]" },
+                  { bg: "bg-[hsl(0,65%,60%)]/15", text: "text-[hsl(0,65%,60%)]" },
+                  { bg: "bg-[hsl(45,80%,60%)]/15", text: "text-[hsl(45,80%,60%)]" },
                 ];
-                const color = colorClasses[i % colorClasses.length];
+                const color = triggerColors[i % triggerColors.length];
                 return (
                   <div key={t.label} className="rounded-2xl surface-low p-4 flex items-center gap-4">
                     <div className={`w-10 h-10 rounded-full flex items-center justify-center ${color.bg}`}>

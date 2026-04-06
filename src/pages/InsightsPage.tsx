@@ -199,21 +199,21 @@ export default function InsightsPage() {
               {triggers.map((t: any, i: number) => {
                 const Icon = getTriggerIcon(t.label);
                 const triggerColors = [
+                  { bg: "bg-secondary/25", text: "text-secondary" },
                   { bg: "bg-mint/20", text: "text-mint" },
-                  { bg: "bg-secondary/20", text: "text-secondary" },
                   { bg: "bg-[hsl(280,60%,70%)]/15", text: "text-[hsl(280,60%,70%)]" },
                   { bg: "bg-[hsl(0,65%,60%)]/15", text: "text-[hsl(0,65%,60%)]" },
                   { bg: "bg-[hsl(45,80%,60%)]/15", text: "text-[hsl(45,80%,60%)]" },
                 ];
                 const color = triggerColors[i % triggerColors.length];
                 return (
-                  <div key={t.label} className="rounded-2xl surface-low p-4 flex items-center gap-4">
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center ${color.bg}`}>
-                      <Icon size={18} className={color.text} />
+                  <div key={t.label} className="rounded-2xl surface-low p-4 flex items-center gap-4 border border-border/10">
+                    <div className={`w-11 h-11 rounded-full flex items-center justify-center shrink-0 ${color.bg}`}>
+                      <Icon size={20} className={color.text} />
                     </div>
                     <div>
                       <p className="text-on-surface text-sm font-semibold">{t.label}</p>
-                      <p className="text-on-surface-variant text-[10px] tracking-wider uppercase">{t.detail}</p>
+                      <p className="text-on-surface-variant text-[10px] tracking-wider uppercase mt-0.5">{t.detail}</p>
                     </div>
                   </div>
                 );

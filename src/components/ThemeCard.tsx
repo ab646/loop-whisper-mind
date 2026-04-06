@@ -100,14 +100,12 @@ export function ThemeCard({ name, mentions, icon, delay = 0, colorIndex = 0 }: T
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay, duration: 0.4 }}
       onClick={() => navigate(`/theme/${name.toLowerCase()}`)}
-      className="rounded-2xl glass-panel p-4 flex flex-col gap-3 items-start text-left border border-border/20 hover:bg-surface-container transition-colors"
+      className="rounded-2xl surface-low p-5 flex flex-col gap-4 items-start text-left border border-border/10 hover:border-border/30 transition-colors min-h-[130px]"
     >
-      <div className={`w-10 h-10 rounded-xl ${accent.bg} flex items-center justify-center`}>
-        <Icon size={20} className={accent.icon} />
-      </div>
-      <div>
-        <p className="text-on-surface font-body font-semibold text-sm">{name}</p>
-        <p className="text-on-surface-variant text-[10px] tracking-wider uppercase">{mentions} MENTIONS</p>
+      <Icon size={28} className={accent.icon} />
+      <div className="mt-auto">
+        <p className="text-on-surface font-body font-semibold text-[15px]">{name}</p>
+        <p className="text-on-surface-variant text-[10px] tracking-wider uppercase mt-0.5">{mentions} MENTIONS</p>
       </div>
     </motion.button>
   );

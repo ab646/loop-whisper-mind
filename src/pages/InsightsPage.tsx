@@ -144,6 +144,7 @@ export default function InsightsPage() {
     );
   }
 
+  const [showAllThemes, setShowAllThemes] = useState(false);
   const themes = insights.themes || [];
   const triggers = insights.triggers || [];
   const factPercent = insights.factPercent ?? 50;

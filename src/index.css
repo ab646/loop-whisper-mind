@@ -19,8 +19,8 @@
     --primary: 180 25% 80%;
     --primary-foreground: 180 10% 4%;
 
-    --secondary: 180 8% 9%;
-    --secondary-foreground: 180 6% 90%;
+    --secondary: 213 30% 79%;
+    --secondary-foreground: 180 10% 4%;
 
     --muted: 180 8% 12%;
     --muted-foreground: 180 6% 55%;
@@ -49,6 +49,11 @@
 
     --primary-mint: 180 25% 80%;
     --primary-container: 180 20% 25%;
+
+    --tertiary: 276 100% 96%;
+    --tertiary-foreground: 180 10% 4%;
+
+    --neutral: 210 7% 5%;
 
     --orb-glow: 0 20px 40px rgba(166, 206, 206, 0.15);
     --glass-bg: hsla(180, 10%, 6%, 0.8);

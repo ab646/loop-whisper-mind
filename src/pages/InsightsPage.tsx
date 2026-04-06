@@ -8,7 +8,7 @@ import {
   CloudRain, Cloud, Mail, VolumeX, Calendar, Phone,
   type LucideIcon,
 } from "lucide-react";
-import { CyclingLoader } from "@/components/CyclingLoader";
+import { FullScreenLoader } from "@/components/FullScreenLoader";
 import { AppHeader } from "@/components/AppHeader";
 import { ThemeCard } from "@/components/ThemeCard";
 import { supabase } from "@/integrations/supabase/client";

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Mic } from "lucide-react";
+import { ScribblingLogo } from "@/components/LoopLogo";
 
 const TRANSCRIBED_TEXT =
   "I keep replaying what my manager said in the meeting. She probably thinks I'm not ready for the project lead role...";

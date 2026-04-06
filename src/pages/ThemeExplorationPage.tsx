@@ -105,8 +105,7 @@ export default function ThemeExplorationPage() {
             className="rounded-2xl surface-low p-5 space-y-4"
           >
             <div className="flex items-start justify-between">
-              <div className="space-y-1">
-                <span className="label-uppercase text-mint">ATMOSPHERE</span>
+              <div>
                 <h3 className="font-display text-lg text-on-surface leading-snug">Intensity trends over time</h3>
               </div>
               <button className="text-on-surface-variant text-xs tracking-wide px-3 py-1.5 rounded-lg surface-high border border-border/20">

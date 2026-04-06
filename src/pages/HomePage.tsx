@@ -130,37 +130,42 @@ export default function HomePage() {
               </p>
             </motion.div>
           ) : (
-            entries.map((entry, i) => (
-              <motion.button
-                key={entry.id}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.06 }}
-                onClick={() => navigate(`/chat/${entry.id}`)}
-                className="w-full rounded-2xl surface-low p-4 flex items-start gap-3 text-left hover:bg-surface-container transition-colors"
-              >
-                <div className="flex-1 min-w-0 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-on-surface-variant text-[10px] tracking-wider uppercase font-semibold">
-                      {entry.date} • {entry.time}
-                    </span>
-                  </div>
-                  <p className="text-on-surface text-sm leading-relaxed line-clamp-2 font-body">
-                    {entry.mainLoop}
-                  </p>
-                  <div className="flex gap-1.5 flex-wrap">
-                    {entry.tags.map((tag) => (
-                      <span
-                        key={tag}
-                        className="px-2 py-0.5 rounded-full surface-high text-[9px] text-on-surface-variant tracking-wider uppercase font-semibold"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-                <ChevronRight size={16} className="text-on-surface-variant mt-1 shrink-0" />
-              </motion.button>
+            groupEntries(entries).map(([group, groupItems]) => (
+              <div key={group} className="space-y-2">
+                <span className="label-uppercase text-mint">{group}</span>
+                {groupItems.map((entry, i) => (
+                  <motion.button
+                    key={entry.id}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: i * 0.04 }}
+                    onClick={() => navigate(`/chat/${entry.id}`)}
+                    className="w-full rounded-2xl surface-low p-4 flex items-start gap-3 text-left hover:bg-surface-container transition-colors"
+                  >
+                    <div className="flex-1 min-w-0 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-on-surface-variant text-[10px] tracking-wider uppercase font-semibold">
+                          {entry.date} • {entry.time}
+                        </span>
+                      </div>
+                      <p className="text-on-surface text-sm leading-relaxed line-clamp-2 font-body">
+                        {entry.mainLoop}
+                      </p>
+                      <div className="flex gap-1.5 flex-wrap">
+                        {entry.tags.map((tag) => (
+                          <span
+                            key={tag}
+                            className="px-2 py-0.5 rounded-full surface-high text-[9px] text-on-surface-variant tracking-wider uppercase font-semibold"
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                    <ChevronRight size={16} className="text-on-surface-variant mt-1 shrink-0" />
+                  </motion.button>
+                ))}
+              </div>
             ))
           )}
         </div>

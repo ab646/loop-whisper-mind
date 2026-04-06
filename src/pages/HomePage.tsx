@@ -25,7 +25,7 @@ function getDateGroup(dateStr: string): string {
   const entryDate = new Date(d.getFullYear(), d.getMonth(), d.getDate());
   const diffDays = Math.round((today.getTime() - entryDate.getTime()) / 86400000);
 
-  if (diffDays === 0) return "Today";
+  if (diffDays <= 0) return "Today";
   if (diffDays === 1) return "Yesterday";
   if (diffDays < 7) return "This Week";
   if (diffDays < 14) return "Last Week";

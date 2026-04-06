@@ -124,7 +124,7 @@ Return ONLY a valid JSON object:
   "timeline": "1-2 sentences about how this theme has evolved over the entries. Reference specific shifts if visible.",
   "patternInsight": "Your most valuable observation about this pattern — something the user likely hasn't noticed. 1-2 sentences. Be specific.",
   "protectiveFunction": "What purpose might this loop serve? e.g., 'This worry pattern may be your mind's way of preparing for the worst so you're never caught off guard.' null if you can't identify one.",
-  "followUpQuestions": ["3 specific, non-generic reflective questions about this theme that could deepen the user's self-understanding"],
+  "followUpQuestions": ["3 data-grounded reflection prompts. These should NOT be questions TO the user. Instead, they should be short observations or micro-insights drawn from the user's actual data that invite reflection. Examples of good prompts: 'You mentioned feeling tender right before 3 of these entries — that vulnerability may be the real signal here.', 'This pattern intensifies on weekdays, especially after work interactions.', 'Your entries about rejection overlap heavily with self-worth — they may be the same loop.' Each should reference specific patterns, timing, emotions, or connections visible in the data. Keep each to 1-2 sentences."],
   "answer": ${question ? '"A thoughtful 2-3 sentence answer to their question, grounded in their actual data"' : "null"}
 }
 

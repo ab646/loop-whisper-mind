@@ -326,21 +326,24 @@ export default function ThemeExplorationPage() {
             <div className="w-10 h-10 rounded-full orb-gradient flex items-center justify-center shrink-0">
               <span className="text-primary-foreground text-sm">✦</span>
             </div>
-            <div>
-              <h3 className="text-on-surface font-body font-semibold text-base">Deepen the exploration</h3>
-              <p className="text-on-surface-variant text-sm">Ask a follow-up about how {themeName} manifests.</p>
+          <div>
+              <h3 className="text-on-surface font-body font-semibold text-base">What the data shows</h3>
+              <p className="text-on-surface-variant text-sm">Observations from your entries about {themeName}.</p>
             </div>
           </div>
 
           <div className="rounded-2xl surface-low p-4 space-y-3">
             {/* Suggestion chips — hidden once conversation starts */}
-            {showSuggestions && (analysis?.followUpQuestions || []).map((q: string) => (
+            {showSuggestions && (analysis?.followUpQuestions || []).map((q: string, i: number) => (
               <button
                 key={q}
                 onClick={() => askQuestion(q)}
                 disabled={askingQuestion}
-                className="w-full text-left rounded-xl surface-high px-4 py-3 text-on-surface-variant text-sm font-body hover:text-mint transition-colors border border-border/20 disabled:opacity-50"
+                className="w-full text-left rounded-xl surface-high px-4 py-3 text-on-surface text-sm font-body leading-relaxed hover:border-mint/40 transition-colors border border-border/20 disabled:opacity-50"
               >
+                <span className="text-mint text-[10px] tracking-wider uppercase font-semibold block mb-1">
+                  {["Pattern", "Connection", "Signal"][i] || "Insight"}
+                </span>
                 {q}
               </button>
             ))}

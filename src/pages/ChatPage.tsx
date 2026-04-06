@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Play, Loader2, ArrowLeft, MoreVertical, Trash2 } from "lucide-react";
+import { Play, Loader2, ArrowLeft, MoreVertical, Trash2, ArrowUp } from "lucide-react";
 import { CyclingLoader } from "@/components/CyclingLoader";
 import { ScribblingLogo } from "@/components/LoopLogo";
 import { ChatInput } from "@/components/ChatInput";
@@ -50,7 +50,9 @@ export default function ChatPage() {
   const [loadingImage, setLoadingImage] = useState(false);
   const [loadingEntry, setLoadingEntry] = useState(!isNew);
   const [entryDate, setEntryDate] = useState<string | null>(null);
-
+  const [explorationMessages, setExplorationMessages] = useState<{ role: "user" | "ai"; content: string }[]>([]);
+  const [explorationInput, setExplorationInput] = useState("");
+  const [explorationLoading, setExplorationLoading] = useState(false);
   // Load existing entry
   useEffect(() => {
     if (isNew || !id) {
@@ -207,6 +209,31 @@ export default function ChatPage() {
     setLoading(false);
   };
 
+  const handleExplore = async (question: string) => {
+    if (!question.trim() || explorationLoading) return;
+    setExplorationMessages((prev) => [...prev, { role: "user", content: question }]);
+    setExplorationInput("");
+    setExplorationLoading(true);
+
+    // Get the last reflection's tags for theme context
+    const lastReflection = [...messages].reverse().find((m) => m.type === "reflection");
+    const theme = lastReflection?.type === "reflection" ? (lastReflection.data.tags?.[0] || "reflection") : "reflection";
+
+    try {
+      const { data, error } = await supabase.functions.invoke("explore-theme", {
+        body: { theme: theme.toLowerCase(), question },
+      });
+      if (error) throw error;
+      const answer = data?.answer || data?.connectedBelief || "I couldn't generate a reflection for that.";
+      setExplorationMessages((prev) => [...prev, { role: "ai", content: answer }]);
+    } catch (e) {
+      toast.error("Failed to get answer");
+    }
+    setExplorationLoading(false);
+  };
+
+  const hasReflection = messages.some((m) => m.type === "reflection");
+
   const handleDelete = async () => {
     const currentId = window.location.pathname.split("/chat/")[1];
     if (!currentId || currentId === "new") return;
@@ -323,6 +350,77 @@ export default function ChatPage() {
               )}
             </div>
           ))}
+
+          {/* Inline exploration chat after reflection */}
+          {hasReflection && !loading && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="mt-4 space-y-3"
+            >
+              <div className="flex items-start gap-3">
+                <div className="w-8 h-8 rounded-full orb-gradient flex items-center justify-center shrink-0">
+                  <span className="text-primary-foreground text-xs">✦</span>
+                </div>
+                <div>
+                  <p className="text-on-surface-variant text-sm">Want to go deeper? Ask a follow-up.</p>
+                </div>
+              </div>
+
+              <div className="rounded-2xl surface-low p-4 space-y-3">
+                {explorationMessages.map((msg, i) => (
+                  <motion.div
+                    key={i}
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    {msg.role === "user" ? (
+                      <div className="flex justify-end">
+                        <div className="rounded-2xl surface-high px-4 py-3 max-w-[85%]">
+                          <p className="text-on-surface text-sm leading-relaxed">{msg.content}</p>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="rounded-2xl p-4 space-y-2 border-l-4 border-mint/30 surface-container">
+                        <span className="label-uppercase text-mint">Reflection</span>
+                        <p className="text-on-surface text-sm leading-relaxed font-body">{msg.content}</p>
+                      </div>
+                    )}
+                  </motion.div>
+                ))}
+
+                {explorationLoading && (
+                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="py-2">
+                    <CyclingLoader mode="reflection" size={20} layout="inline" />
+                  </motion.div>
+                )}
+
+                <div className="flex items-center gap-2 rounded-xl surface-high px-4 py-3 border border-border/20">
+                  <input
+                    value={explorationInput}
+                    onChange={(e) => setExplorationInput(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && handleExplore(explorationInput)}
+                    placeholder="Ask a follow-up..."
+                    className="flex-1 bg-transparent text-on-surface placeholder:text-on-surface-variant text-sm outline-none"
+                  />
+                  <button
+                    onClick={() => handleExplore(explorationInput)}
+                    disabled={!explorationInput.trim() || explorationLoading}
+                    className="w-7 h-7 rounded-full orb-gradient flex items-center justify-center disabled:opacity-50"
+                  >
+                    {explorationLoading ? (
+                      <Loader2 size={12} className="animate-spin text-primary-foreground" />
+                    ) : (
+                      <ArrowUp size={14} className="text-primary-foreground" />
+                    )}
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          )}
+
           {loading && (
             <motion.div
               initial={{ opacity: 0 }}
@@ -344,7 +442,7 @@ export default function ChatPage() {
         </div>
       </div>
 
-      {isNew && (
+      {isNew && !hasReflection && (
         <div className="shrink-0 pb-20">
           <ChatInput onSend={handleSend} onVoice={() => navigate("/recording")} placeholder="Type your thoughts..." defaultValue={prefillText} />
         </div>

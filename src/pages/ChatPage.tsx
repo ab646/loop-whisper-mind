@@ -7,6 +7,7 @@ import { FullScreenLoader } from "@/components/FullScreenLoader";
 import { ScribblingLogo } from "@/components/LoopLogo";
 import { ChatInput } from "@/components/ChatInput";
 import { ReflectionCard } from "@/components/ReflectionCard";
+import { FeedbackButtons } from "@/components/FeedbackButtons";
 import { Waveform } from "@/components/Waveform";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";

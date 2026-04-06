@@ -327,7 +327,40 @@ export default function ChatPage() {
               {msg.type === "text" && (
                 <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="flex justify-end">
                   <div className="rounded-2xl surface-high px-4 py-3 max-w-[85%]">
-                    <p className="text-on-surface text-[15px] leading-relaxed">{msg.content}</p>
+                    {msg.content.split(/\n{2,}|\.\s+(?=[A-Z])/).filter(Boolean).length > 1 ? (
+                      <div className="space-y-3">
+                        {msg.content.split(/\n{2,}/).filter(Boolean).map((paragraph, i, arr) => {
+                          // Further split long paragraphs at sentence boundaries for voice transcriptions
+                          const sentences = paragraph.split(/(?<=\.)\s+(?=[A-Z])/);
+                          const chunks: string[][] = [];
+                          let current: string[] = [];
+                          sentences.forEach((s) => {
+                            current.push(s);
+                            if (current.join(" ").length > 150) {
+                              chunks.push(current);
+                              current = [];
+                            }
+                          });
+                          if (current.length) chunks.push(current);
+
+                          return chunks.length > 1 ? (
+                            <div key={i} className="space-y-2.5">
+                              {chunks.map((chunk, j) => (
+                                <p key={j} className="text-on-surface text-[15px] leading-[1.7]">
+                                  {chunk.join(" ")}
+                                </p>
+                              ))}
+                            </div>
+                          ) : (
+                            <p key={i} className="text-on-surface text-[15px] leading-[1.7]">
+                              {paragraph}
+                            </p>
+                          );
+                        })}
+                      </div>
+                    ) : (
+                      <p className="text-on-surface text-[15px] leading-[1.7]">{msg.content}</p>
+                    )}
                   </div>
                 </motion.div>
               )}

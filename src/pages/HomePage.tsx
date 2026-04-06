@@ -16,6 +16,7 @@ interface EntryPreview {
   mainLoop: string;
   tags: string[];
   createdAt: string;
+  hasReflection: boolean;
 }
 
 function getDateGroup(dateStr: string): string {
@@ -86,6 +87,7 @@ export default function HomePage() {
               mainLoop: e.reflection?.mainLoop || e.content?.substring(0, 120) || "",
               tags: e.tags || [],
               createdAt: e.created_at,
+              hasReflection: !!e.reflection,
             };
           })
         );
@@ -147,11 +149,16 @@ export default function HomePage() {
                     onClick={() => navigate(`/chat/${entry.id}`)}
                     className="w-full rounded-2xl surface-low p-4 flex items-start gap-3 text-left hover:bg-surface-container transition-colors"
                   >
-                    <div className="flex-1 min-w-0 space-y-2">
-                      <div className="flex items-center justify-between">
+                     <div className="flex-1 min-w-0 space-y-2">
+                      <div className="flex items-center justify-between gap-2">
                         <span className="text-on-surface-variant text-[10px] tracking-wider uppercase font-semibold">
                           {entry.date} • {entry.time}
                         </span>
+                        {entry.hasReflection && (
+                          <span className="px-2 py-0.5 rounded-full orb-gradient text-[8px] text-primary-foreground tracking-wider uppercase font-bold shrink-0">
+                            Reflected
+                          </span>
+                        )}
                       </div>
                       <p className="text-on-surface text-sm leading-relaxed line-clamp-2 font-body">
                         {entry.mainLoop}
@@ -160,7 +167,7 @@ export default function HomePage() {
                         {entry.tags.map((tag) => (
                           <span
                             key={tag}
-                            className="px-2 py-0.5 rounded-full surface-high text-[9px] text-on-surface-variant tracking-wider uppercase font-semibold"
+                            className="px-2.5 py-1 rounded-full surface-high text-[9px] text-mint tracking-wider uppercase font-semibold border border-mint/20"
                           >
                             {tag}
                           </span>

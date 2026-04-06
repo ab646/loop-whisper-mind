@@ -154,10 +154,18 @@ export default function InsightsPage() {
             <span className="label-uppercase">ECHOES</span>
             <h3 className="font-display text-lg text-on-surface">Top recurring themes</h3>
             <div className="grid grid-cols-2 gap-3">
-              {themes.map((t: any, i: number) => (
+              {themes.slice(0, 4).map((t: any, i: number) => (
                 <ThemeCard key={t.name} name={t.name} mentions={t.mentions} icon={t.icon || "cloud"} delay={i * 0.08} />
               ))}
             </div>
+            {themes.length > 4 && (
+              <button
+                onClick={() => navigate("/themes")}
+                className="text-mint text-sm font-body hover:underline py-2"
+              >
+                See all {themes.length} themes →
+              </button>
+            )}
           </div>
         )}
 

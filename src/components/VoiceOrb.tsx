@@ -1,5 +1,5 @@
 import { Mic } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 
 interface VoiceOrbProps {
   size?: "sm" | "md" | "lg";
@@ -20,11 +20,13 @@ const iconSizes = {
 };
 
 export function VoiceOrb({ size = "lg", onClick, label }: VoiceOrbProps) {
+  const prefersReduced = useReducedMotion();
+
   return (
     <div className="flex flex-col items-center gap-4">
       <motion.button
-        whileTap={{ scale: 0.92 }}
-        whileHover={{ scale: 1.04 }}
+        whileTap={prefersReduced ? undefined : { scale: 0.92 }}
+        whileHover={prefersReduced ? undefined : { scale: 1.04 }}
         onClick={onClick}
         className={`${sizes[size]} rounded-full orb-gradient orb-shadow flex items-center justify-center relative`}
       >

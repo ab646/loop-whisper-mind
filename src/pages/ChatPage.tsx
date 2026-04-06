@@ -45,6 +45,8 @@ export default function ChatPage() {
   const { session } = useAuth();
   const isNew = id === "new";
   const prefillText = (location.state as any)?.prefillText as string | undefined;
+  const autoSendText = (location.state as any)?.autoSendText as string | undefined;
+  const autoSentRef = useRef(false);
 
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);

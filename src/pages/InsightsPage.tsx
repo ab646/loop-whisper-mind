@@ -235,7 +235,7 @@ export default function InsightsPage() {
             <h3 className="font-display text-lg text-on-surface">Common triggers</h3>
             <div className="space-y-2">
               {triggers.map((t: any, i: number) => {
-                const Icon = getTriggerIcon(t.label);
+                const Icon = resolveTriggerIcon(t.iconType, t.label);
                 const triggerColors = [
                   { bg: "bg-secondary/25", text: "text-secondary" },
                   { bg: "bg-mint/20", text: "text-mint" },

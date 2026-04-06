@@ -43,6 +43,7 @@ export default function InsightsPage() {
   const [insights, setInsights] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [entryCount, setEntryCount] = useState(0);
+  const [showAllThemes, setShowAllThemes] = useState(false);
 
   useEffect(() => {
     if (!session) return;
@@ -175,13 +176,13 @@ export default function InsightsPage() {
             <span className="label-uppercase">ECHOES</span>
             <h3 className="font-display text-lg text-on-surface">Top recurring themes</h3>
             <div className="grid grid-cols-2 gap-3">
-              {themes.slice(0, 4).map((t: any, i: number) => (
+              {(showAllThemes ? themes : themes.slice(0, 4)).map((t: any, i: number) => (
                 <ThemeCard key={t.name} name={t.name} mentions={t.mentions} icon={t.icon || "cloud"} delay={i * 0.08} colorIndex={i} />
               ))}
             </div>
-            {themes.length > 4 && (
+            {themes.length > 4 && !showAllThemes && (
               <button
-                onClick={() => navigate("/themes")}
+                onClick={() => setShowAllThemes(true)}
                 className="text-mint text-sm font-body hover:underline py-2"
               >
                 See all {themes.length} themes →

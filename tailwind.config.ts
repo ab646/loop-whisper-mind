@@ -59,6 +59,11 @@ export default {
           highest: "hsl(var(--surface-container-highest))",
         },
         mint: "hsl(var(--primary-mint))",
+        tertiary: {
+          DEFAULT: "hsl(var(--tertiary))",
+          foreground: "hsl(var(--tertiary-foreground))",
+        },
+        neutral: "hsl(var(--neutral))",
         "on-surface": "hsl(var(--on-surface))",
         "on-surface-variant": "hsl(var(--on-surface-variant))",
         sidebar: {

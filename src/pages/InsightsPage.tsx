@@ -290,11 +290,11 @@ export default function InsightsPage() {
             </div>
             <div className="space-y-2">
               <div className="flex items-baseline gap-2">
-                <span className="text-tertiary text-sm font-semibold">Assumptions</span>
-                <span className="text-tertiary text-lg font-bold">{assumptionPercent}%</span>
+                <span className="text-[hsl(276,60%,72%)] text-sm font-semibold">Assumptions</span>
+                <span className="text-[hsl(276,60%,72%)] text-lg font-bold">{assumptionPercent}%</span>
               </div>
               <div className="h-1.5 rounded-full bg-surface-high overflow-hidden">
-                <div className="h-full rounded-full bg-tertiary" style={{ width: `${assumptionPercent}%` }} />
+                <div className="h-full rounded-full bg-[hsl(276,60%,72%)]" style={{ width: `${assumptionPercent}%` }} />
               </div>
               {insights.assumptionExample && (
                 <p className="text-on-surface-variant text-xs italic font-display">"{insights.assumptionExample}"</p>

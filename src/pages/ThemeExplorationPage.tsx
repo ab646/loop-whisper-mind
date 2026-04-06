@@ -96,12 +96,35 @@ export default function ThemeExplorationPage() {
           <div className="w-16 h-1 rounded-full bg-mint" />
         </motion.div>
 
+        {analysis?.connectedBelief && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.05 }}
+            className="rounded-2xl surface-low p-5 space-y-4"
+          >
+            <span className="label-uppercase">CONNECTED BELIEFS</span>
+            <p className="font-display text-lg text-on-surface italic leading-relaxed">
+              "{analysis.connectedBelief}"
+            </p>
+            {analysis.beliefTags?.length > 0 && (
+              <div className="flex gap-2 flex-wrap">
+                {analysis.beliefTags.map((tag: string) => (
+                  <span key={tag} className="px-3 py-1 rounded-full surface-high text-[10px] text-mint tracking-wider uppercase font-semibold">
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            )}
+          </motion.div>
+        )}
+
         {/* Atmosphere Timeline */}
         {analysis?.frequencyData?.length > 0 && analysis.frequencyData.reduce((sum: number, d: any) => sum + d.count, 0) >= 3 && (
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.05 }}
+            transition={{ delay: 0.1 }}
             className="rounded-2xl surface-low p-5 space-y-4"
           >
             <div className="flex items-start justify-between">
@@ -173,29 +196,6 @@ export default function ThemeExplorationPage() {
                 </AreaChart>
               </ResponsiveContainer>
             </div>
-          </motion.div>
-        )}
-
-        {analysis?.connectedBelief && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="rounded-2xl surface-low p-5 space-y-4"
-          >
-            <span className="label-uppercase">CONNECTED BELIEFS</span>
-            <p className="font-display text-lg text-on-surface italic leading-relaxed">
-              "{analysis.connectedBelief}"
-            </p>
-            {analysis.beliefTags?.length > 0 && (
-              <div className="flex gap-2 flex-wrap">
-                {analysis.beliefTags.map((tag: string) => (
-                  <span key={tag} className="px-3 py-1 rounded-full surface-high text-[10px] text-mint tracking-wider uppercase font-semibold">
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            )}
           </motion.div>
         )}
 

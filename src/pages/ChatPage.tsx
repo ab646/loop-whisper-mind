@@ -547,13 +547,13 @@ export default function ChatPage() {
         </div>
       </div>
 
-      {isNew && (
+      {isNew && messages.length === 0 && (
         <div className="shrink-0 pb-20">
           <ChatInput
             onSend={handleSend}
             onImageSelected={handleImageSelected}
             onVoice={() => navigate("/recording")}
-            placeholder={messages.length > 0 ? "Ask a follow-up..." : "Type your thoughts..."}
+            placeholder="Type your thoughts..."
             defaultValue={prefillText}
             disabled={loading}
             imageUploading={imageValidating}

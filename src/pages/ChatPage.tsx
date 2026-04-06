@@ -3,6 +3,7 @@ import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Play, Loader2, ArrowLeft, MoreVertical, Trash2 } from "lucide-react";
 import { CyclingLoader } from "@/components/CyclingLoader";
+import { ScribblingLogo } from "@/components/LoopLogo";
 import { ChatInput } from "@/components/ChatInput";
 import { ReflectionCard } from "@/components/ReflectionCard";
 import { Waveform } from "@/components/Waveform";
@@ -45,6 +46,7 @@ export default function ChatPage() {
 
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
+  const [loadingImage, setLoadingImage] = useState(false);
   const [loadingEntry, setLoadingEntry] = useState(!isNew);
   const [entryDate, setEntryDate] = useState<string | null>(null);
 
@@ -139,6 +141,7 @@ export default function ChatPage() {
       setMessages((prev) => [...prev, userMsg]);
     }
     setLoading(true);
+    setLoadingImage(!!imageUrl);
 
     try {
       const { data, error } = await supabase.functions.invoke("reflect", {
@@ -310,7 +313,16 @@ export default function ChatPage() {
               animate={{ opacity: 1 }}
               className="py-4"
             >
-              <CyclingLoader mode="reflection" size={28} layout="inline" />
+              {loadingImage ? (
+                <div className="flex items-center gap-2">
+                  <ScribblingLogo size={28} />
+                  <span className="text-on-surface-variant text-sm italic font-display">
+                    Reading your image...
+                  </span>
+                </div>
+              ) : (
+                <CyclingLoader mode="reflection" size={28} layout="inline" />
+              )}
             </motion.div>
           )}
         </div>

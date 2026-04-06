@@ -16,6 +16,7 @@ interface EntryPreview {
   mainLoop: string;
   tags: string[];
   createdAt: string;
+  hasReflection: boolean;
 }
 
 function getDateGroup(dateStr: string): string {

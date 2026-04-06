@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Mic, MicOff, Pause, Play, RotateCcw, X } from "lucide-react";
+import { Mic, MicOff, Pause, Play, RotateCcw } from "lucide-react";
 import { Waveform } from "@/components/Waveform";
 import { ScribblingLogo } from "@/components/LoopLogo";
 import { useAudioRecorder } from "@/hooks/useAudioRecorder";

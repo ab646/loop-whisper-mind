@@ -129,7 +129,7 @@ export function ReflectionCard({ mainLoop, feelings, knownVsAssumed, repeatingPa
       {tags && tags.length > 0 && (
         <div className="flex flex-wrap gap-2 pt-2">
           {tags.map((tag) => (
-            <span key={tag} className="px-3 py-1.5 rounded-full surface-high text-xs font-semibold text-on-surface-variant uppercase tracking-wider">
+            <span key={tag} className="px-3 py-1.5 rounded-full bg-secondary/20 border border-secondary/30 text-xs font-semibold text-secondary uppercase tracking-wider">
               {tag}
             </span>
           ))}

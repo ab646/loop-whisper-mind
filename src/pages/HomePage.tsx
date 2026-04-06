@@ -87,6 +87,7 @@ export default function HomePage() {
               mainLoop: e.reflection?.mainLoop || e.content?.substring(0, 120) || "",
               tags: e.tags || [],
               createdAt: e.created_at,
+              hasReflection: !!e.reflection,
             };
           })
         );

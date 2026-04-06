@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown } from "lucide-react";
+import { FeedbackButtons } from "@/components/FeedbackButtons";
 
 interface ReflectionCardProps {
   mainLoop: string;

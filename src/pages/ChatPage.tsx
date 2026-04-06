@@ -49,6 +49,7 @@ export default function ChatPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
   const [loadingImage, setLoadingImage] = useState(false);
+  const [imageValidating, setImageValidating] = useState(false);
   const [loadingEntry, setLoadingEntry] = useState(!isNew);
   const [entryDate, setEntryDate] = useState<string | null>(null);
   const [explorationMessages, setExplorationMessages] = useState<{ role: "user" | "ai"; content: string }[]>([]);

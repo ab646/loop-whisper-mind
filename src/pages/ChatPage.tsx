@@ -270,6 +270,20 @@ export default function ChatPage() {
                   </div>
                 </motion.div>
               )}
+              {msg.type === "image" && (
+                <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="flex justify-end">
+                  <div className="rounded-2xl surface-high p-2 max-w-[85%] space-y-2">
+                    <img
+                      src={msg.imageUrl}
+                      alt="Uploaded"
+                      className="rounded-xl max-h-48 w-auto object-cover"
+                    />
+                    {msg.caption && (
+                      <p className="text-on-surface text-[15px] leading-relaxed px-2 pb-1">{msg.caption}</p>
+                    )}
+                  </div>
+                </motion.div>
+              )}
               {msg.type === "reflection" && (
                 <div className="mt-2"><ReflectionCard {...msg.data} /></div>
               )}

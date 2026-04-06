@@ -312,7 +312,16 @@ export default function ChatPage() {
               animate={{ opacity: 1 }}
               className="py-4"
             >
-              <CyclingLoader mode="reflection" size={28} layout="inline" />
+              {loadingImage ? (
+                <div className="flex items-center gap-2">
+                  <ScribblingLogo size={28} />
+                  <span className="text-on-surface-variant text-sm italic font-display">
+                    Reading your image...
+                  </span>
+                </div>
+              ) : (
+                <CyclingLoader mode="reflection" size={28} layout="inline" />
+              )}
             </motion.div>
           )}
         </div>

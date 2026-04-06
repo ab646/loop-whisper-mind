@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useReducedMotion } from "framer-motion";
 import { ScribblingLogo, ThinkingLogo } from "@/components/LoopLogo";
 
 const REFLECTION_PHRASES = [
@@ -51,11 +52,8 @@ type LoaderMode = "reflection" | "analysis";
 
 interface CyclingLoaderProps {
   mode: LoaderMode;
-  /** Size of the spinner icon in pixels */
   size?: number;
-  /** Additional CSS classes for the container */
   className?: string;
-  /** Show as inline (horizontal) or block (centered vertical) */
   layout?: "inline" | "block";
 }
 
@@ -75,11 +73,13 @@ export function CyclingLoader({
   layout = "block",
 }: CyclingLoaderProps) {
   const phrases = mode === "reflection" ? REFLECTION_PHRASES : ANALYSIS_PHRASES;
+  const prefersReduced = useReducedMotion();
   const [shuffled] = useState(() => shuffle(phrases));
   const [index, setIndex] = useState(0);
   const [fading, setFading] = useState(false);
 
   useEffect(() => {
+    if (prefersReduced) return; // Show static phrase
     const interval = setInterval(() => {
       setFading(true);
       setTimeout(() => {
@@ -89,7 +89,7 @@ export function CyclingLoader({
     }, 2800);
 
     return () => clearInterval(interval);
-  }, [shuffled.length]);
+  }, [shuffled.length, prefersReduced]);
 
   const LogoComponent = mode === "reflection" ? ScribblingLogo : ThinkingLogo;
 

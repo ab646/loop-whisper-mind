@@ -52,7 +52,7 @@ export function ReflectionCard({ mainLoop, feelings, knownVsAssumed, repeatingPa
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, ease: "easeOut" }}
-      className="rounded-2xl surface-low p-6 space-y-4 border-l-4 border-mint/30"
+      className="rounded-2xl glass-panel p-6 space-y-4 border-l-4 border-mint/30 border border-border/20"
     >
       {/* Lead with the One Question — the "aha moment" */}
       <div className="space-y-2">

@@ -11,9 +11,13 @@
  * No code changes needed.
  */
 
+type AIContentPart =
+  | { type: "text"; text: string }
+  | { type: "image_url"; image_url: { url: string } };
+
 interface AIMessage {
   role: "system" | "user" | "assistant";
-  content: string;
+  content: string | AIContentPart[];
 }
 
 interface AIOptions {
@@ -63,11 +67,12 @@ const PROVIDERS: Record<string, () => ProviderConfig> = {
       "anthropic-version": "2023-06-01",
     }),
     buildBody: (model, messages, options) => {
-      const system = messages.find((m) => m.role === "system")?.content || "";
+      const system = messages.find((m) => m.role === "system");
+      const systemContent = typeof system?.content === "string" ? system.content : "";
       const userMessages = messages.filter((m) => m.role !== "system");
       return {
         model,
-        system,
+        system: systemContent,
         messages: userMessages,
         temperature: options.temperature ?? 0.4,
         max_tokens: options.maxTokens ?? 2048,
@@ -103,13 +108,14 @@ const PROVIDERS: Record<string, () => ProviderConfig> = {
       "Content-Type": "application/json",
     }),
     buildBody: (model, messages, options) => {
-      const system = messages.find((m) => m.role === "system")?.content || "";
+      const system = messages.find((m) => m.role === "system");
+      const systemContent = typeof system?.content === "string" ? system.content : "";
       const userMessages = messages.filter((m) => m.role !== "system");
       return {
-        system_instruction: { parts: [{ text: system }] },
+        system_instruction: { parts: [{ text: systemContent }] },
         contents: userMessages.map((m) => ({
           role: m.role === "assistant" ? "model" : "user",
-          parts: [{ text: m.content }],
+          parts: [{ text: typeof m.content === "string" ? m.content : m.content.map(p => p.type === "text" ? p.text : "").join("") }],
         })),
         generationConfig: {
           temperature: options.temperature ?? 0.4,

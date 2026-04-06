@@ -79,15 +79,8 @@ function resolveIcon(icon?: string, name?: string): LucideIcon {
   return Brain;
 }
 
-// Vibrant, distinct accent palettes
-const accentColors = [
-  { icon: "text-mint", bg: "bg-mint/20" },
-  { icon: "text-[hsl(280,60%,70%)]", bg: "bg-[hsl(280,60%,70%)]/15" },   // lavender/purple
-  { icon: "text-secondary", bg: "bg-secondary/20" },
-  { icon: "text-[hsl(0,65%,60%)]", bg: "bg-[hsl(0,65%,60%)]/15" },       // coral/red
-  { icon: "text-[hsl(45,80%,60%)]", bg: "bg-[hsl(45,80%,60%)]/15" },     // amber
-  { icon: "text-tertiary-foreground", bg: "bg-tertiary/25" },
-];
+// Consistent secondary badge style
+const badgeClasses = { icon: "text-secondary", bg: "bg-secondary/15" };
 
 export function ThemeCard({ name, mentions, icon, delay = 0, colorIndex = 0 }: ThemeCardProps) {
   const Icon = resolveIcon(icon, name);

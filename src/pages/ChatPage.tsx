@@ -50,7 +50,9 @@ export default function ChatPage() {
   const [loadingImage, setLoadingImage] = useState(false);
   const [loadingEntry, setLoadingEntry] = useState(!isNew);
   const [entryDate, setEntryDate] = useState<string | null>(null);
-
+  const [explorationMessages, setExplorationMessages] = useState<{ role: "user" | "ai"; content: string }[]>([]);
+  const [explorationInput, setExplorationInput] = useState("");
+  const [explorationLoading, setExplorationLoading] = useState(false);
   // Load existing entry
   useEffect(() => {
     if (isNew || !id) {

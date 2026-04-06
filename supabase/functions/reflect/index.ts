@@ -20,6 +20,7 @@ interface Reflection {
   loopType: "rumination" | "anticipatory" | "decisional" | "self-critical" | "relational" | "existential";
   feelings: string[];
   intensity: "low" | "moderate" | "high";
+  intensityScore: number;
   knownVsAssumed: {
     known: string[];
     assumed: string[];
@@ -36,6 +37,7 @@ const REFLECTION_FALLBACK: Reflection = {
   loopType: "rumination",
   feelings: [],
   intensity: "moderate",
+  intensityScore: 2,
   knownVsAssumed: { known: [], assumed: [] },
   repeatingPattern: null,
   temporalShift: null,
@@ -72,10 +74,22 @@ This is the most important analytical move. Overthinkers treat assumptions as fa
 - **Assumed**: Interpretations, predictions, or mind-reading ("She must be upset with me")
 
 ## INTENSITY READING
-Gauge emotional intensity from language cues:
+Gauge emotional intensity on two scales:
+
+Label (for display):
 - **low**: Reflective, curious, processing calmly
 - **moderate**: Some distress, circular thinking, but still grounded
 - **high**: Spiraling, catastrophizing, strong emotional charge, urgency
+
+Numeric score (for graphing trends over time) — 0 to 5:
+- **0 (none)**: Neutral check-in, no emotional charge
+- **1 (mild)**: Slight unease, gentle curiosity, low-stakes processing
+- **2 (moderate)**: Noticeable worry or frustration, some circular thinking
+- **3 (elevated)**: Clear distress, repetitive thoughts, difficulty letting go
+- **4 (high)**: Spiraling, catastrophizing, strong emotional flooding
+- **5 (severe)**: Crisis-level overwhelm, panic, inability to function
+
+Be precise with scores. Most everyday entries should land between 1-3. Reserve 4-5 for genuine spirals.
 
 ## PATTERN DETECTION
 When history is available, look for:
@@ -100,6 +114,7 @@ Return ONLY a valid JSON object with these exact fields:
   "loopType": "rumination" | "anticipatory" | "decisional" | "self-critical" | "relational" | "existential",
   "feelings": ["2-4 specific emotions — prefer precise words like 'dread' over vague ones like 'bad'"],
   "intensity": "low" | "moderate" | "high",
+  "intensityScore": <0-5 integer matching the numeric scale above>,
   "knownVsAssumed": {
     "known": ["1-2 factual observations from what they said"],
     "assumed": ["1-2 interpretations or predictions they're treating as fact"]
@@ -181,6 +196,12 @@ serve(async (req) => {
     reflection.tags = (reflection.tags || []).map((t: string) =>
       t.toUpperCase().trim()
     );
+
+    // Normalize intensityScore to 0-5 integer
+    const raw = Number(reflection.intensityScore);
+    reflection.intensityScore = Number.isFinite(raw)
+      ? Math.max(0, Math.min(5, Math.round(raw)))
+      : 2;
 
     // Ensure required fields exist
     if (!reflection.mainLoop) reflection.mainLoop = "Processing your thought...";

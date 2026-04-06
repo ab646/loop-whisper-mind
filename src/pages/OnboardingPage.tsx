@@ -1,57 +1,50 @@
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
-import { Play } from "lucide-react";
+import { ExplainScreen1 } from "@/components/onboarding/ExplainScreen1";
+import { ExplainScreen2 } from "@/components/onboarding/ExplainScreen2";
+import { ExplainScreen3 } from "@/components/onboarding/ExplainScreen3";
 
 type StepDef =
+  | { type: "explain"; screen: 1 | 2 | 3 }
   | { type: "text"; title: string; subtitle: string; field: string; placeholder: string }
-  | { type: "choice"; title: string; subtitle: string; field: string; options: { label: string; value: any; desc: string }[] }
-  | { type: "video"; title: string; subtitle: string };
+  | { type: "seed"; title: string; subtitle: string; placeholder: string };
 
 const steps: StepDef[] = [
+  { type: "explain", screen: 1 },
+  { type: "explain", screen: 2 },
+  { type: "explain", screen: 3 },
   {
-    type: "video",
-    title: "How Loop works",
-    subtitle: "A quick look at what happens when you reflect.",
-  },
-  {
+    type: "text",
     title: "What should we call you?",
     subtitle: "Just a first name is perfect.",
-    type: "text",
     field: "display_name",
     placeholder: "Your name",
   },
   {
-    title: "How do you prefer to reflect?",
-    subtitle: "You can always change this later.",
-    type: "choice",
-    field: "voice_first_mode",
-    options: [
-      { label: "🎙 Voice first", value: true, desc: "Talk it out. I'll capture the essence." },
-      { label: "⌨️ Text first", value: false, desc: "Type your thoughts. No pressure." },
-    ],
+    type: "seed",
+    title: "One last thing.",
+    subtitle: "What's been looping in your mind lately? Even a few words is enough.",
+    placeholder: "e.g., I can't stop thinking about whether I should take that new job...",
   },
 ];
 
 export default function OnboardingPage() {
   const [step, setStep] = useState(0);
-  const [answers, setAnswers] = useState<Record<string, any>>({
-    display_name: "",
-    voice_first_mode: false,
-  });
+  const [displayName, setDisplayName] = useState("");
+  const [seedText, setSeedText] = useState("");
   const [loading, setLoading] = useState(false);
-  const [videoPlaying, setVideoPlaying] = useState(false);
-  const videoRef = useRef<HTMLVideoElement>(null);
   const navigate = useNavigate();
   const { user, refreshProfile } = useAuth();
 
   const current = steps[step];
 
   const canProceed = () => {
-    if (current.type === "text") return (answers as any)[(current as any).field]?.trim();
+    if (current.type === "text") return displayName.trim().length > 0;
+    if (current.type === "seed") return seedText.trim().length > 0;
     return true;
   };
 
@@ -61,7 +54,7 @@ export default function OnboardingPage() {
       return;
     }
 
-    // Final step — save profile
+    // Final step — save profile & navigate to first reflection
     setLoading(true);
 
     if (!user?.id) {
@@ -73,8 +66,7 @@ export default function OnboardingPage() {
     const { error } = await supabase
       .from("profiles")
       .update({
-        display_name: answers.display_name,
-        voice_first_mode: answers.voice_first_mode,
+        display_name: displayName,
         onboarding_complete: true,
       })
       .eq("user_id", user.id);
@@ -84,20 +76,22 @@ export default function OnboardingPage() {
       toast.error("Failed to save preferences");
     } else {
       await refreshProfile();
-      navigate("/");
+      navigate("/chat/new", { state: { initialText: seedText } });
     }
   };
 
-  const handlePlayVideo = () => {
-    if (videoRef.current) {
-      videoRef.current.play();
-      setVideoPlaying(true);
+  const handleSwipe = (_: any, { offset, velocity }: any) => {
+    if (current.type !== "explain") return;
+    if (offset.x < -50 || velocity.x < -500) {
+      setStep((s) => Math.min(s + 1, steps.length - 1));
+    } else if ((offset.x > 50 || velocity.x > 500) && step > 0) {
+      setStep((s) => Math.max(s - 1, 0));
     }
   };
 
   return (
     <div className="min-h-screen mesh-gradient-bg flex flex-col px-6">
-      {/* Progress */}
+      {/* Progress dots */}
       <div className="pt-8 pb-4 flex gap-2">
         {steps.map((_, i) => (
           <div
@@ -117,31 +111,17 @@ export default function OnboardingPage() {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -30 }}
             transition={{ duration: 0.3 }}
-            className="space-y-6"
+            drag={current.type === "explain" ? "x" : false}
+            dragConstraints={{ left: 0, right: 0 }}
+            dragElastic={0.2}
+            onDragEnd={handleSwipe}
           >
-            {current.type === "video" && (
-              <div className="fixed inset-0 z-10 flex flex-col mesh-gradient-bg">
-                <video
-                  ref={videoRef}
-                  src="/videos/onboarding-explainer.mp4"
-                  playsInline
-                  muted
-                  autoPlay
-                  onEnded={() => handleNext()}
-                  className="w-full h-full object-cover"
-                />
-                {/* Skip button */}
-                <button
-                  onClick={handleNext}
-                  className="absolute bottom-10 right-6 text-on-surface-variant text-sm font-body hover:text-mint z-20"
-                >
-                  Skip →
-                </button>
-              </div>
-            )}
+            {current.type === "explain" && current.screen === 1 && <ExplainScreen1 />}
+            {current.type === "explain" && current.screen === 2 && <ExplainScreen2 />}
+            {current.type === "explain" && current.screen === 3 && <ExplainScreen3 />}
 
             {current.type === "text" && (
-              <>
+              <div className="space-y-6">
                 <div className="space-y-2">
                   <h1 className="font-display text-2xl text-on-surface leading-tight">
                     {current.title}
@@ -150,51 +130,31 @@ export default function OnboardingPage() {
                 </div>
                 <input
                   autoFocus
-                  value={answers[current.field] || ""}
-                  onChange={(e) =>
-                    setAnswers({ ...answers, [current.field]: e.target.value })
-                  }
+                  value={displayName}
+                  onChange={(e) => setDisplayName(e.target.value)}
                   placeholder={current.placeholder}
                   className="w-full rounded-xl surface-high px-4 py-4 text-on-surface text-lg font-body outline-none focus:ring-1 focus:ring-mint placeholder:text-on-surface-variant"
                 />
-              </>
+              </div>
             )}
 
-            {current.type === "choice" && (
-              <>
+            {current.type === "seed" && (
+              <div className="space-y-6">
                 <div className="space-y-2">
                   <h1 className="font-display text-2xl text-on-surface leading-tight">
                     {current.title}
                   </h1>
                   <p className="text-on-surface-variant text-sm">{current.subtitle}</p>
                 </div>
-                <div className="space-y-3">
-                  {current.options.map((opt) => {
-                    const isSelected = answers[current.field] === opt.value;
-                    return (
-                      <motion.button
-                        key={String(opt.value)}
-                        whileTap={{ scale: 0.97 }}
-                        onClick={() =>
-                          setAnswers({ ...answers, [current.field]: opt.value })
-                        }
-                        className={`w-full rounded-xl p-4 text-left transition-colors ${
-                          isSelected
-                            ? "surface-container border border-mint/30"
-                            : "surface-low border border-transparent"
-                        }`}
-                      >
-                        <p className={`font-body font-semibold text-base ${isSelected ? "text-mint" : "text-on-surface"}`}>
-                          {opt.label}
-                        </p>
-                        {opt.desc && (
-                          <p className="text-on-surface-variant text-sm mt-1">{opt.desc}</p>
-                        )}
-                      </motion.button>
-                    );
-                  })}
-                </div>
-              </>
+                <textarea
+                  autoFocus
+                  rows={3}
+                  value={seedText}
+                  onChange={(e) => setSeedText(e.target.value)}
+                  placeholder={current.placeholder}
+                  className="w-full rounded-xl surface-high px-4 py-4 text-on-surface text-base font-body outline-none focus:ring-1 focus:ring-mint placeholder:text-on-surface-variant resize-none"
+                />
+              </div>
             )}
           </motion.div>
         </AnimatePresence>
@@ -211,7 +171,7 @@ export default function OnboardingPage() {
           {loading
             ? "Saving..."
             : step === steps.length - 1
-            ? "Start Reflecting"
+            ? "Start reflecting"
             : "Continue"}
         </motion.button>
 

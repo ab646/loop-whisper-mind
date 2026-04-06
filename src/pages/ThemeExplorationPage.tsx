@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { Heart, HeartCrack, Briefcase, Calendar, ArrowUp, Users, Clock, MessageCircle, Shield, Brain, Eye, Flame, AlertTriangle, CloudRain, Zap, Target, Lock, Phone, Moon, BatteryLow, Scale, HandHeart, Ghost, VolumeX, Compass, Hourglass, AlarmClock } from "lucide-react";
 import { ScribblingLogo } from "@/components/LoopLogo";
 import { CyclingLoader } from "@/components/CyclingLoader";
+import { FullScreenLoader } from "@/components/FullScreenLoader";
 import { AppHeader } from "@/components/AppHeader";
 import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -147,11 +148,7 @@ export default function ThemeExplorationPage() {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen mesh-gradient-bg flex items-center justify-center">
-        <CyclingLoader mode="analysis" size={60} />
-      </div>
-    );
+    return <FullScreenLoader mode="analysis" />;
   }
 
   const themeName = theme ? theme.charAt(0).toUpperCase() + theme.slice(1) : "Theme";

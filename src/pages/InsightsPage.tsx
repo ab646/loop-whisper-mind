@@ -8,7 +8,7 @@ import {
   CloudRain, Cloud, Mail, VolumeX, Calendar, Phone,
   type LucideIcon,
 } from "lucide-react";
-import { CyclingLoader } from "@/components/CyclingLoader";
+import { FullScreenLoader } from "@/components/FullScreenLoader";
 import { AppHeader } from "@/components/AppHeader";
 import { ThemeCard } from "@/components/ThemeCard";
 import { supabase } from "@/integrations/supabase/client";
@@ -112,9 +112,7 @@ export default function InsightsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen mesh-gradient-bg flex items-center justify-center">
-        <CyclingLoader mode="analysis" size={108} />
-      </div>
+      <FullScreenLoader mode="analysis" />
     );
   }
 

@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Mic, MicOff, Pause, Play, RotateCcw } from "lucide-react";
 import { Waveform } from "@/components/Waveform";
-import { ScribblingLogo } from "@/components/LoopLogo";
+import { FullScreenLoader } from "@/components/FullScreenLoader";
 import { useAudioRecorder } from "@/hooks/useAudioRecorder";
 import { toast } from "sonner";
 
@@ -125,18 +125,11 @@ export default function RecordingPage() {
   if (processing) {
     const activeStep = STEPS.find((s) => s.key === currentStep);
     return (
-      <div className="flex flex-col min-h-screen mesh-gradient-bg items-center justify-center gap-6 px-8">
-        <ScribblingLogo size={108} />
-
-        <div className="flex items-center gap-2 mt-2">
-          <span className="font-body text-sm text-on-surface-variant uppercase tracking-widest">
-            {activeStep?.label}
-          </span>
-          <span className="font-body text-sm text-on-surface-variant/50 tabular-nums">
-            {Math.round(fakePercent)}%
-          </span>
-        </div>
-      </div>
+      <FullScreenLoader
+        mode="transcription"
+        label={activeStep?.label}
+        progress={fakePercent}
+      />
     );
   }
 

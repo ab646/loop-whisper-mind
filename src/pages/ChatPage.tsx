@@ -109,57 +109,57 @@ export default function ChatPage() {
     }
   }, [messages]);
 
-  const handleSend = async (text: string, imageDataUrl?: string) => {
-    let imageUrl: string | undefined;
-
-    // Upload image to storage if provided
-    if (imageDataUrl) {
-      try {
-        const base64 = imageDataUrl.split(",")[1];
-        const mimeMatch = imageDataUrl.match(/data:(.*?);/);
-        const mime = mimeMatch?.[1] || "image/jpeg";
-        const ext = mime.split("/")[1] || "jpg";
-        const byteString = atob(base64);
-        const ab = new ArrayBuffer(byteString.length);
-        const ia = new Uint8Array(ab);
-        for (let i = 0; i < byteString.length; i++) ia[i] = byteString.charCodeAt(i);
-        const blob = new Blob([ab], { type: mime });
-
-        const filePath = `${session?.user?.id}/${crypto.randomUUID()}.${ext}`;
-        const { error: uploadError } = await supabase.storage
-          .from("chat-images")
-          .upload(filePath, blob, { contentType: mime });
-
-        if (uploadError) throw uploadError;
-
-        const { data: urlData } = supabase.storage
-          .from("chat-images")
-          .getPublicUrl(filePath);
-        imageUrl = urlData.publicUrl;
-      } catch (e) {
-        console.error("Image upload failed:", e);
-        toast.error("Failed to upload image");
-        return;
-      }
-    }
-
-    // Add user messages to chat
-    if (imageUrl) {
-      const imgMsg: ImageMessage = { id: crypto.randomUUID(), type: "image", imageUrl, caption: text || undefined };
-      setMessages((prev) => [...prev, imgMsg]);
-    }
-    if (text) {
-      const userMsg: TextMessage = { id: crypto.randomUUID(), type: "text", content: text };
-      setMessages((prev) => [...prev, userMsg]);
-    }
-    setLoading(true);
-    setLoadingImage(!!imageUrl);
+  const handleImageSelected = async (imageDataUrl: string) => {
+    setImageValidating(true);
 
     try {
+      // Upload image to storage
+      const base64 = imageDataUrl.split(",")[1];
+      const mimeMatch = imageDataUrl.match(/data:(.*?);/);
+      const mime = mimeMatch?.[1] || "image/jpeg";
+      const ext = mime.split("/")[1] || "jpg";
+      const byteString = atob(base64);
+      const ab = new ArrayBuffer(byteString.length);
+      const ia = new Uint8Array(ab);
+      for (let i = 0; i < byteString.length; i++) ia[i] = byteString.charCodeAt(i);
+      const blob = new Blob([ab], { type: mime });
+
+      const filePath = `${session?.user?.id}/${crypto.randomUUID()}.${ext}`;
+      const { error: uploadError } = await supabase.storage
+        .from("chat-images")
+        .upload(filePath, blob, { contentType: mime });
+
+      if (uploadError) throw uploadError;
+
+      const { data: urlData } = supabase.storage
+        .from("chat-images")
+        .getPublicUrl(filePath);
+      const imageUrl = urlData.publicUrl;
+
+      // Validate image content
+      const { data: validation, error: valError } = await supabase.functions.invoke("validate-image", {
+        body: { imageUrl },
+      });
+
+      if (valError) throw valError;
+
+      if (!validation?.valid) {
+        toast.error(validation?.reason || "This image doesn't seem suitable for reflection. Try sharing something that reflects your thoughts or feelings.");
+        setImageValidating(false);
+        return;
+      }
+
+      // Image is valid — add to chat and proceed to reflect
+      setImageValidating(false);
+      const imgMsg: ImageMessage = { id: crypto.randomUUID(), type: "image", imageUrl };
+      setMessages((prev) => [...prev, imgMsg]);
+      setLoading(true);
+      setLoadingImage(true);
+
       const { data, error } = await supabase.functions.invoke("reflect", {
         body: {
-          content: text || "",
-          entryType: imageUrl ? "image" : "text",
+          content: "",
+          entryType: "image",
           imageUrl,
           previousMessages: messages
             .filter((m) => m.type === "text")
@@ -192,7 +192,64 @@ export default function ChatPage() {
         },
       ]);
 
-      // If new chat, update URL
+      if (isNew && data.entryId) {
+        window.history.replaceState(null, "", `/chat/${data.entryId}`);
+      }
+
+      setLoading(false);
+    } catch (e: any) {
+      console.error(e);
+      toast.error("Failed to process image");
+      setImageValidating(false);
+      setLoading(false);
+    }
+  };
+
+  const handleSend = async (text: string) => {
+    if (!text.trim() || disabled) return;
+    const disabled = loading || imageValidating;
+
+    const userMsg: TextMessage = { id: crypto.randomUUID(), type: "text", content: text };
+    setMessages((prev) => [...prev, userMsg]);
+    setLoading(true);
+    setLoadingImage(false);
+
+    try {
+      const { data, error } = await supabase.functions.invoke("reflect", {
+        body: {
+          content: text,
+          entryType: "text",
+          previousMessages: messages
+            .filter((m) => m.type === "text")
+            .map((m) => ({ role: "user", content: (m as TextMessage).content })),
+        },
+      });
+
+      if (error) throw error;
+      if (data?.error) {
+        toast.error(data.error);
+        setLoading(false);
+        return;
+      }
+
+      const reflection = data.reflection;
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: crypto.randomUUID(),
+          type: "reflection",
+          data: {
+            mainLoop: reflection.mainLoop || "",
+            feelings: reflection.feelings || [],
+            knownVsAssumed: reflection.knownVsAssumed || { known: [], assumed: [] },
+            repeatingPattern: reflection.repeatingPattern,
+            oneQuestion: reflection.oneQuestion || "",
+            nextStep: reflection.nextStep,
+            tags: reflection.tags || [],
+          },
+        },
+      ]);
+
       if (isNew && data.entryId) {
         window.history.replaceState(null, "", `/chat/${data.entryId}`);
       }

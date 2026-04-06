@@ -117,13 +117,8 @@ export default function ThemeExplorationPage() {
                 <AreaChart data={analysis.frequencyData} margin={{ top: 4, right: 4, bottom: 0, left: 4 }}>
                   <defs>
                     <linearGradient id="intensityGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="hsl(var(--mint))" stopOpacity={0.4} />
-                      <stop offset="100%" stopColor="hsl(var(--mint))" stopOpacity={0.05} />
-                    </linearGradient>
-                    <linearGradient id="lineGrad" x1="0" y1="0" x2="1" y2="0">
-                      <stop offset="0%" stopColor="hsl(var(--mint))" stopOpacity={0.6} />
-                      <stop offset="50%" stopColor="hsl(var(--mint))" stopOpacity={1} />
-                      <stop offset="100%" stopColor="hsl(var(--mint))" stopOpacity={0.8} />
+                      <stop offset="0%" stopColor="hsl(180, 25%, 80%)" stopOpacity={0.35} />
+                      <stop offset="100%" stopColor="hsl(180, 25%, 80%)" stopOpacity={0.05} />
                     </linearGradient>
                   </defs>
                   <XAxis
@@ -157,11 +152,11 @@ export default function ThemeExplorationPage() {
                   <Area
                     type="natural"
                     dataKey="intensity"
-                    stroke="hsl(var(--mint))"
-                    strokeWidth={2.5}
+                    stroke="hsl(180, 25%, 80%)"
+                    strokeWidth={3}
                     fill="url(#intensityGrad)"
-                    dot={{ r: 3, fill: "hsl(var(--mint))", strokeWidth: 0 }}
-                    activeDot={{ r: 5, fill: "hsl(var(--mint))", strokeWidth: 2, stroke: "hsl(var(--surface-low))" }}
+                    dot={{ r: 3, fill: "hsl(180, 25%, 80%)", strokeWidth: 0 }}
+                    activeDot={{ r: 5, fill: "hsl(180, 25%, 80%)", strokeWidth: 2, stroke: "hsl(var(--surface-low))" }}
                   />
                 </AreaChart>
               </ResponsiveContainer>

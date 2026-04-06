@@ -5,6 +5,7 @@ import { ScribblingLogo } from "@/components/LoopLogo";
 import { CyclingLoader } from "@/components/CyclingLoader";
 import { FullScreenLoader } from "@/components/FullScreenLoader";
 import { AppHeader } from "@/components/AppHeader";
+import { FeedbackButtons } from "@/components/FeedbackButtons";
 import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -177,12 +178,28 @@ export default function ThemeExplorationPage() {
               "{analysis.connectedBelief}"
             </p>
             {analysis.beliefTags?.length > 0 && (
-              <div className="flex gap-2 flex-wrap">
-                {analysis.beliefTags.map((tag: string) => (
-                  <span key={tag} className="tag-pill">
-                    {tag.replace(/_/g, " ").trim().toLowerCase().replace(/^\w/, (char) => char.toUpperCase())}
-                  </span>
-                ))}
+              <div className="flex items-center justify-between">
+                <div className="flex gap-2 flex-wrap">
+                  {analysis.beliefTags.map((tag: string) => (
+                    <span key={tag} className="tag-pill">
+                      {tag.replace(/_/g, " ").trim().toLowerCase().replace(/^\w/, (char) => char.toUpperCase())}
+                    </span>
+                  ))}
+                </div>
+                <FeedbackButtons
+                  contentType="connected-belief"
+                  contentId={`belief-${theme}`}
+                  contentPreview={analysis.connectedBelief}
+                />
+              </div>
+            )}
+            {!analysis.beliefTags?.length && (
+              <div className="flex justify-end">
+                <FeedbackButtons
+                  contentType="connected-belief"
+                  contentId={`belief-${theme}`}
+                  contentPreview={analysis.connectedBelief}
+                />
               </div>
             )}
           </motion.div>
@@ -311,6 +328,13 @@ export default function ThemeExplorationPage() {
               <p className="font-display text-lg text-on-surface leading-relaxed">
                 {analysis.patternInsight}
               </p>
+              <div className="flex justify-end">
+                <FeedbackButtons
+                  contentType="pattern-insight"
+                  contentId={`pattern-${theme}`}
+                  contentPreview={analysis.patternInsight}
+                />
+              </div>
             </div>
           </motion.div>
         )}
@@ -365,6 +389,13 @@ export default function ThemeExplorationPage() {
                       <div className="rounded-2xl p-4 space-y-2 border-l-4 border-mint/30 surface-container">
                         <span className="label-uppercase text-mint">Reflection</span>
                         <p className="text-on-surface text-sm leading-relaxed font-body">{msg.content}</p>
+                        <div className="flex justify-end">
+                          <FeedbackButtons
+                            contentType="exploration-answer"
+                            contentId={`explore-${theme}-${i}`}
+                            contentPreview={msg.content}
+                          />
+                        </div>
                       </div>
                     )}
                   </motion.div>

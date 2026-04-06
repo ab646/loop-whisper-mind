@@ -47,6 +47,36 @@ export type Database = {
         }
         Relationships: []
       }
+      feedback: {
+        Row: {
+          content_id: string
+          content_preview: string | null
+          content_type: string
+          created_at: string
+          id: string
+          rating: number
+          user_id: string
+        }
+        Insert: {
+          content_id: string
+          content_preview?: string | null
+          content_type: string
+          created_at?: string
+          id?: string
+          rating: number
+          user_id: string
+        }
+        Update: {
+          content_id?: string
+          content_preview?: string | null
+          content_type?: string
+          created_at?: string
+          id?: string
+          rating?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null

@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown } from "lucide-react";
+import { FeedbackButtons } from "@/components/FeedbackButtons";
 
 interface ReflectionCardProps {
   mainLoop: string;
@@ -48,6 +49,13 @@ function CollapsibleSection({ title, children, defaultOpen = false }: { title: s
 }
 
 export function ReflectionCard({ mainLoop, feelings, knownVsAssumed, repeatingPattern, oneQuestion, nextStep, tags, themeAnswer }: ReflectionCardProps) {
+  const feedbackId = useMemo(() => {
+    const text = (oneQuestion + mainLoop).substring(0, 50);
+    let hash = 0;
+    for (let i = 0; i < text.length; i++) hash = ((hash << 5) - hash + text.charCodeAt(i)) | 0;
+    return `reflection-${Math.abs(hash)}`;
+  }, [oneQuestion, mainLoop]);
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -125,16 +133,21 @@ export function ReflectionCard({ mainLoop, feelings, knownVsAssumed, repeatingPa
         </CollapsibleSection>
       )}
 
-      {/* Tags always visible */}
-      {tags && tags.length > 0 && (
-        <div className="flex flex-wrap gap-2 pt-2">
-          {tags.map((tag) => (
+      {/* Tags + Feedback */}
+      <div className="flex items-center justify-between pt-2">
+        <div className="flex flex-wrap gap-2">
+          {tags && tags.length > 0 && tags.map((tag) => (
             <span key={tag} className="tag-pill">
               {tag.replace(/_/g, " ").trim().toLowerCase().replace(/^\w/, (char) => char.toUpperCase())}
             </span>
           ))}
         </div>
-      )}
+        <FeedbackButtons
+          contentType="reflection"
+          contentId={feedbackId}
+          contentPreview={oneQuestion}
+        />
+      </div>
     </motion.div>
   );
 }

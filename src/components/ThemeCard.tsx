@@ -1,5 +1,10 @@
 import { motion } from "framer-motion";
-import { Cloud, Heart, Briefcase, AlertCircle, Brain, Shield } from "lucide-react";
+import {
+  Heart, Briefcase, Brain, Shield, Users, Home, Clock,
+  Flame, Target, Eye, Zap, Compass, Leaf, Moon, Sun,
+  MessageCircle, TrendingUp, Lock, Lightbulb, Frown,
+  type LucideIcon,
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 interface ThemeCardProps {
@@ -10,26 +15,48 @@ interface ThemeCardProps {
   colorIndex?: number;
 }
 
-const iconMap = {
-  cloud: Cloud,
-  heart: Heart,
-  briefcase: Briefcase,
-  alert: AlertCircle,
-  brain: Brain,
-  shield: Shield,
-};
+// Keyword-to-icon mapping for semantic matching
+const keywordIconMap: [string[], LucideIcon][] = [
+  [["love", "relationship", "partner", "romance", "dating", "intimacy"], Heart],
+  [["work", "job", "career", "boss", "office", "professional", "business"], Briefcase],
+  [["family", "parent", "mother", "father", "child", "sibling", "home"], Home],
+  [["friend", "social", "people", "community", "connection", "loneliness", "lonely"], Users],
+  [["anxiety", "worry", "stress", "overwhelm", "pressure", "tension", "nervous"], Flame],
+  [["identity", "self", "worth", "esteem", "confidence", "ego", "image"], Eye],
+  [["control", "power", "autonomy", "freedom", "independence"], Shield],
+  [["time", "deadline", "rush", "busy", "waiting", "patience"], Clock],
+  [["goal", "ambition", "purpose", "direction", "success", "achievement"], Target],
+  [["change", "growth", "transition", "evolving", "progress"], TrendingUp],
+  [["fear", "scared", "afraid", "dread", "phobia"], Frown],
+  [["energy", "motivation", "drive", "passion", "excitement"], Zap],
+  [["meaning", "spiritual", "belief", "faith", "values"], Compass],
+  [["rest", "sleep", "fatigue", "burnout", "exhaustion"], Moon],
+  [["health", "body", "wellness", "healing", "nature"], Leaf],
+  [["joy", "happiness", "gratitude", "optimism", "hope"], Sun],
+  [["communication", "conflict", "conversation", "expression"], MessageCircle],
+  [["boundary", "trust", "safety", "vulnerability", "secret"], Lock],
+  [["creativity", "idea", "inspiration", "curiosity", "learning"], Lightbulb],
+  [["mind", "thought", "thinking", "overthinking", "decision", "pattern"], Brain],
+];
+
+function getSemanticIcon(name: string): LucideIcon {
+  const lower = name.toLowerCase();
+  for (const [keywords, icon] of keywordIconMap) {
+    if (keywords.some((kw) => lower.includes(kw))) return icon;
+  }
+  return Brain; // default fallback
+}
 
 // Rotating accent colors using design tokens
 const accentColors = [
   { icon: "text-mint", bg: "bg-mint/15" },
   { icon: "text-secondary", bg: "bg-secondary/15" },
-  { icon: "text-tertiary", bg: "bg-tertiary/20" },
-  { icon: "text-destructive", bg: "bg-destructive/15" },
+  { icon: "text-tertiary-foreground", bg: "bg-tertiary/20" },
+  { icon: "text-primary", bg: "bg-primary/15" },
 ];
 
-export function ThemeCard({ name, mentions, icon = "cloud", delay = 0, colorIndex = 0 }: ThemeCardProps) {
-  const safeIcon = icon in iconMap ? (icon as keyof typeof iconMap) : "cloud";
-  const Icon = iconMap[safeIcon];
+export function ThemeCard({ name, mentions, delay = 0, colorIndex = 0 }: ThemeCardProps) {
+  const Icon = getSemanticIcon(name);
   const navigate = useNavigate();
   const accent = accentColors[colorIndex % accentColors.length];
 

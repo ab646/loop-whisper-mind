@@ -1,7 +1,11 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { MessageSquare, Mail, VolumeX, Mic } from "lucide-react";
+import {
+  Mic, Heart, Briefcase, Brain, Users, Home, Clock,
+  Flame, Target, Eye, Zap, Compass, MessageCircle, Shield,
+  type LucideIcon,
+} from "lucide-react";
 import { CyclingLoader } from "@/components/CyclingLoader";
 import { AppHeader } from "@/components/AppHeader";
 import { ThemeCard } from "@/components/ThemeCard";
@@ -9,17 +13,29 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 
-const iconTypeMap: Record<string, "message" | "mail" | "silence"> = {
-  message: "message",
-  mail: "mail",
-  silence: "silence",
-};
+const triggerKeywords: [string[], LucideIcon][] = [
+  [["conflict", "argument", "disagree", "fight", "tension"], Flame],
+  [["deadline", "time", "rush", "late", "waiting"], Clock],
+  [["rejection", "dismiss", "ignore", "abandon"], Heart],
+  [["work", "job", "boss", "meeting", "office"], Briefcase],
+  [["family", "parent", "child", "home"], Home],
+  [["social", "people", "friend", "group", "crowd"], Users],
+  [["decision", "choice", "uncertain", "doubt"], Brain],
+  [["control", "power", "helpless", "boundary"], Shield],
+  [["comparison", "jealous", "envy", "compete"], Eye],
+  [["change", "transition", "unknown", "new"], Compass],
+  [["message", "text", "email", "call", "notification"], MessageCircle],
+  [["goal", "expect", "fail", "success", "pressure"], Target],
+  [["energy", "overwhelm", "exhaust", "stress"], Zap],
+];
 
-const triggerIconMap = {
-  message: MessageSquare,
-  mail: Mail,
-  silence: VolumeX,
-};
+function getTriggerIcon(label: string): LucideIcon {
+  const lower = label.toLowerCase();
+  for (const [keywords, icon] of triggerKeywords) {
+    if (keywords.some((kw) => lower.includes(kw))) return icon;
+  }
+  return Brain;
+}
 
 export default function InsightsPage() {
   const { session } = useAuth();
@@ -179,16 +195,18 @@ export default function InsightsPage() {
             <span className="label-uppercase">CATALYSTS</span>
             <h3 className="font-display text-lg text-on-surface">Common triggers</h3>
             <div className="space-y-2">
-              {triggers.map((t: any) => {
-                const Icon = triggerIconMap[t.iconType as keyof typeof triggerIconMap] || MessageSquare;
+              {triggers.map((t: any, i: number) => {
+                const Icon = getTriggerIcon(t.label);
+                const colorClasses = [
+                  { bg: "bg-secondary/15", text: "text-secondary" },
+                  { bg: "bg-tertiary/20", text: "text-tertiary-foreground" },
+                  { bg: "bg-mint/15", text: "text-mint" },
+                ];
+                const color = colorClasses[i % colorClasses.length];
                 return (
                   <div key={t.label} className="rounded-2xl surface-low p-4 flex items-center gap-4">
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                      ["bg-secondary/15", "bg-tertiary/15", "bg-mint/15"][triggers.indexOf(t) % 3]
-                    }`}>
-                      <Icon size={18} className={
-                        ["text-secondary", "text-tertiary", "text-mint"][triggers.indexOf(t) % 3]
-                      } />
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center ${color.bg}`}>
+                      <Icon size={18} className={color.text} />
                     </div>
                     <div>
                       <p className="text-on-surface text-sm font-semibold">{t.label}</p>

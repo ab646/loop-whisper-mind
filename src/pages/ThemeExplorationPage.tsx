@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { Heart, HeartCrack, Briefcase, Calendar, ArrowUp, Users, Clock, MessageCircle, Shield, Brain, Eye, Flame, AlertTriangle, CloudRain, Zap, Target, Lock, Phone, Moon, BatteryLow, Scale, HandHeart, Ghost, VolumeX, Compass, Hourglass, AlarmClock } from "lucide-react";
 import { ScribblingLogo } from "@/components/LoopLogo";
 import { CyclingLoader } from "@/components/CyclingLoader";
+import { FullScreenLoader } from "@/components/FullScreenLoader";
 import { AppHeader } from "@/components/AppHeader";
 import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";

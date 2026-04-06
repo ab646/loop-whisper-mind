@@ -117,10 +117,10 @@ For each theme:
 Return ONLY a valid JSON object:
 {
   "themes": [
-    {"name": "Theme Name", "mentions": <count>, "trend": "rising"|"stable"|"declining", "icon": "cloud"|"heart"|"briefcase"|"alert"|"shield"|"brain"}
+    {"name": "Theme Name", "mentions": <count>, "trend": "rising"|"stable"|"declining", "icon": "<pick the SINGLE most fitting icon from this list: cloud, cloud-rain, heart, heart-crack, briefcase, brain, shield, users, user-x, home, clock, flame, target, eye, zap, compass, leaf, moon, sun, ghost, message-circle, trending-up, lock, lightbulb, frown, battery-low, alert-circle, help-circle>"}
   ] (top 4-6 themes, sorted by current relevance not just count),
   "triggers": [
-    {"label": "Trigger description", "detail": "Brief correlation note", "iconType": "message"|"mail"|"silence"|"calendar"|"clock"|"people"}
+    {"label": "Trigger description", "detail": "Brief correlation note", "iconType": "<pick the SINGLE most fitting icon from: message-circle, mail, volume-x, calendar, clock, users, flame, heart, briefcase, home, brain, shield, eye, compass, target, zap, ghost, lock, phone, moon, battery-low, alert-circle>"}
   ] (top 3 triggers),
   "factPercent": <0-100, percentage of concerns grounded in fact vs assumption across all entries>,
   "factExample": "A representative factual observation from their entries",

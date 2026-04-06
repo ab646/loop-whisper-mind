@@ -2,8 +2,10 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
-  Mic, Heart, Briefcase, Brain, Users, Home, Clock,
+  Mic, Heart, HeartCrack, Briefcase, Brain, Users, Home, Clock,
   Flame, Target, Eye, Zap, Compass, MessageCircle, Shield,
+  Ghost, Moon, Lock, Leaf, Sun, BatteryLow, AlertCircle,
+  CloudRain, Cloud, Mail, VolumeX, Calendar, Phone,
   type LucideIcon,
 } from "lucide-react";
 import { CyclingLoader } from "@/components/CyclingLoader";
@@ -13,26 +15,62 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 
-const triggerKeywords: [string[], LucideIcon][] = [
-  [["conflict", "argument", "disagree", "fight", "tension"], Flame],
-  [["deadline", "time", "rush", "late", "waiting"], Clock],
-  [["rejection", "dismiss", "ignore", "abandon"], Heart],
-  [["work", "job", "boss", "meeting", "office"], Briefcase],
-  [["family", "parent", "child", "home"], Home],
-  [["social", "people", "friend", "group", "crowd"], Users],
-  [["decision", "choice", "uncertain", "doubt"], Brain],
-  [["control", "power", "helpless", "boundary"], Shield],
-  [["comparison", "jealous", "envy", "compete"], Eye],
-  [["change", "transition", "unknown", "new"], Compass],
-  [["message", "text", "email", "call", "notification"], MessageCircle],
-  [["goal", "expect", "fail", "success", "pressure"], Target],
-  [["energy", "overwhelm", "exhaust", "stress"], Zap],
-];
+const triggerIconMap: Record<string, LucideIcon> = {
+  "message-circle": MessageCircle,
+  message: MessageCircle,
+  mail: Mail,
+  "volume-x": VolumeX,
+  silence: VolumeX,
+  calendar: Calendar,
+  clock: Clock,
+  users: Users,
+  people: Users,
+  flame: Flame,
+  heart: Heart,
+  "heart-crack": HeartCrack,
+  briefcase: Briefcase,
+  home: Home,
+  brain: Brain,
+  shield: Shield,
+  eye: Eye,
+  compass: Compass,
+  target: Target,
+  zap: Zap,
+  ghost: Ghost,
+  lock: Lock,
+  phone: Phone,
+  moon: Moon,
+  "battery-low": BatteryLow,
+  "alert-circle": AlertCircle,
+  cloud: Cloud,
+  "cloud-rain": CloudRain,
+  leaf: Leaf,
+  sun: Sun,
+};
 
-function getTriggerIcon(label: string): LucideIcon {
-  const lower = label.toLowerCase();
-  for (const [keywords, icon] of triggerKeywords) {
-    if (keywords.some((kw) => lower.includes(kw))) return icon;
+function resolveTriggerIcon(iconType?: string, label?: string): LucideIcon {
+  if (iconType && triggerIconMap[iconType]) return triggerIconMap[iconType];
+  // keyword fallback
+  if (label) {
+    const lower = label.toLowerCase();
+    const kwMap: [string[], LucideIcon][] = [
+      [["text", "message", "chat", "notification"], MessageCircle],
+      [["email", "mail"], Mail],
+      [["silence", "quiet", "mute", "ghost"], VolumeX],
+      [["deadline", "time", "late", "night"], Clock],
+      [["work", "job", "boss", "meeting", "office"], Briefcase],
+      [["reject", "dismiss", "ignore", "abandon"], HeartCrack],
+      [["family", "parent", "child", "home"], Home],
+      [["social", "people", "friend", "crowd"], Users],
+      [["decision", "uncertain", "doubt", "ambig"], Brain],
+      [["control", "power", "boundary"], Shield],
+      [["conflict", "argument", "fight", "tension"], Flame],
+      [["goal", "expect", "fail", "pressure"], Target],
+      [["energy", "overwhelm", "exhaust", "stress", "burnout"], Zap],
+    ];
+    for (const [kws, ic] of kwMap) {
+      if (kws.some((kw) => lower.includes(kw))) return ic;
+    }
   }
   return Brain;
 }
@@ -197,7 +235,7 @@ export default function InsightsPage() {
             <h3 className="font-display text-lg text-on-surface">Common triggers</h3>
             <div className="space-y-2">
               {triggers.map((t: any, i: number) => {
-                const Icon = getTriggerIcon(t.label);
+                const Icon = resolveTriggerIcon(t.iconType, t.label);
                 const triggerColors = [
                   { bg: "bg-secondary/25", text: "text-secondary" },
                   { bg: "bg-mint/20", text: "text-mint" },

@@ -205,34 +205,14 @@ export default function ProfilePage() {
             </div>
             <span className="text-on-surface-variant">›</span>
           </motion.button>
-
-          {showDeleteConfirm && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              className="rounded-2xl surface-low p-5 space-y-3"
-            >
-              <p className="text-on-surface-variant text-sm">
-                This will permanently delete all your entries and profile data. This action cannot be undone.
-              </p>
-              <div className="flex gap-3">
-                <button
-                  onClick={() => setShowDeleteConfirm(false)}
-                  className="flex-1 rounded-xl surface-high py-3 text-sm font-semibold text-on-surface"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleDeleteAccount}
-                  disabled={deleting}
-                  className="flex-1 rounded-xl bg-destructive text-destructive-foreground py-3 text-sm font-semibold disabled:opacity-50"
-                >
-                  {deleting ? "Deleting..." : "Delete"}
-                </button>
-              </div>
-            </motion.div>
-          )}
         </div>
+
+        <DeleteAccountDialog
+          open={showDeleteConfirm}
+          onOpenChange={setShowDeleteConfirm}
+          onConfirmDelete={handleDeleteAccount}
+          deleting={deleting}
+        />
 
         {/* Sign out */}
         <div className="flex flex-col items-center gap-2 py-6">

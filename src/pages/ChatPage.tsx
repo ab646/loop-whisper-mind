@@ -503,6 +503,21 @@ export default function ChatPage() {
             </motion.div>
           )}
 
+          {imageValidating && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="py-4"
+            >
+              <div className="flex items-center gap-2">
+                <ScribblingLogo size={28} />
+                <span className="text-on-surface-variant text-sm italic font-display">
+                  Checking your image...
+                </span>
+              </div>
+            </motion.div>
+          )}
+
           {loading && (
             <motion.div
               initial={{ opacity: 0 }}
@@ -526,7 +541,15 @@ export default function ChatPage() {
 
       {isNew && (
         <div className="shrink-0 pb-20">
-          <ChatInput onSend={handleSend} onVoice={() => navigate("/recording")} placeholder="Type your thoughts..." defaultValue={prefillText} disabled={loading} />
+          <ChatInput
+            onSend={handleSend}
+            onImageSelected={handleImageSelected}
+            onVoice={() => navigate("/recording")}
+            placeholder="Type your thoughts..."
+            defaultValue={prefillText}
+            disabled={loading}
+            imageUploading={imageValidating}
+          />
         </div>
       )}
     </div>

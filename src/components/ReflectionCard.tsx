@@ -77,20 +77,27 @@ export function ReflectionCard({ mainLoop, feelings, knownVsAssumed, repeatingPa
 
       {/* Collapsible: Fact vs Story — Loop's differentiator */}
       <CollapsibleSection title="Fact vs Story" defaultOpen>
-        <ul className="space-y-2">
-          {knownVsAssumed.known.map((item, i) => (
-            <li key={`k-${i}`} className="flex items-start gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-mint mt-2 shrink-0" />
-              <span className="text-on-surface text-base">{item}</span>
-            </li>
-          ))}
-          {knownVsAssumed.assumed.map((item, i) => (
-            <li key={`a-${i}`} className="flex items-start gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-on-surface-variant mt-2 shrink-0" />
-              <span className="text-on-surface-variant text-base italic">{item}</span>
-            </li>
-          ))}
-        </ul>
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <span className="label-uppercase text-mint text-[10px]">Fact</span>
+            <ul className="space-y-2">
+              {knownVsAssumed.known.map((item, i) => (
+                <li key={`k-${i}`} className="flex items-start gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-mint mt-2 shrink-0" />
+                  <span className="text-on-surface text-base">{item}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div className="space-y-2">
+            <span className="label-uppercase text-on-surface-variant text-[10px]">Story</span>
+            <div className="border-l-2 border-on-surface-variant/30 pl-3 space-y-2">
+              {knownVsAssumed.assumed.map((item, i) => (
+                <p key={`a-${i}`} className="text-on-surface-variant text-base italic">{item}</p>
+              ))}
+            </div>
+          </div>
+        </div>
       </CollapsibleSection>
 
       {/* Collapsible: Pattern */}

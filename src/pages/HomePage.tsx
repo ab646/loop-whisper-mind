@@ -111,8 +111,9 @@ export default function HomePage() {
     })();
   }, [session, retryCount]);
 
-  const loadMore = async () => {
-    if (!session) return;
+  const loadMore = useCallback(async () => {
+    if (!session || loadingMore || !hasMore) return;
+    setLoadingMore(true);
     const { data } = await supabase
       .from("entries")
       .select("id, content, reflection, tags, created_at, entry_type")
@@ -146,7 +147,22 @@ export default function HomePage() {
       ]);
       setHasMore(data.length === 20);
     }
-  };
+    setLoadingMore(false);
+  }, [session, loadingMore, hasMore, entries.length]);
+
+  // Infinite scroll via IntersectionObserver
+  useEffect(() => {
+    const sentinel = sentinelRef.current;
+    if (!sentinel) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) loadMore();
+      },
+      { rootMargin: "200px" }
+    );
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [loadMore]);
 
   return (
     <div className="flex flex-col h-screen mesh-gradient-bg relative overflow-hidden">

@@ -114,7 +114,7 @@ export default function ThemeExplorationPage() {
             </div>
             <div className="h-44">
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={analysis.frequencyData} margin={{ top: 4, right: 4, bottom: 0, left: 0 }}>
+                <AreaChart data={analysis.frequencyData} margin={{ top: 10, right: 4, bottom: 0, left: 0 }}>
                   <defs>
                     <linearGradient id="intensityGrad" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="0%" stopColor="hsl(180, 25%, 80%)" stopOpacity={0.35} />

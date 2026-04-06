@@ -11,6 +11,7 @@ import {
 import { FullScreenLoader } from "@/components/FullScreenLoader";
 import { AppHeader } from "@/components/AppHeader";
 import { ThemeCard } from "@/components/ThemeCard";
+import { FeedbackButtons } from "@/components/FeedbackButtons";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";

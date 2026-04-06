@@ -95,16 +95,57 @@ export default function ChatPage() {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
   }, [messages]);
 
-  const handleSend = async (text: string) => {
-    const userMsg: TextMessage = { id: crypto.randomUUID(), type: "text", content: text };
-    setMessages((prev) => [...prev, userMsg]);
+  const handleSend = async (text: string, imageDataUrl?: string) => {
+    let imageUrl: string | undefined;
+
+    // Upload image to storage if provided
+    if (imageDataUrl) {
+      try {
+        const base64 = imageDataUrl.split(",")[1];
+        const mimeMatch = imageDataUrl.match(/data:(.*?);/);
+        const mime = mimeMatch?.[1] || "image/jpeg";
+        const ext = mime.split("/")[1] || "jpg";
+        const byteString = atob(base64);
+        const ab = new ArrayBuffer(byteString.length);
+        const ia = new Uint8Array(ab);
+        for (let i = 0; i < byteString.length; i++) ia[i] = byteString.charCodeAt(i);
+        const blob = new Blob([ab], { type: mime });
+
+        const filePath = `${session?.user?.id}/${crypto.randomUUID()}.${ext}`;
+        const { error: uploadError } = await supabase.storage
+          .from("chat-images")
+          .upload(filePath, blob, { contentType: mime });
+
+        if (uploadError) throw uploadError;
+
+        const { data: urlData } = supabase.storage
+          .from("chat-images")
+          .getPublicUrl(filePath);
+        imageUrl = urlData.publicUrl;
+      } catch (e) {
+        console.error("Image upload failed:", e);
+        toast.error("Failed to upload image");
+        return;
+      }
+    }
+
+    // Add user messages to chat
+    if (imageUrl) {
+      const imgMsg: ImageMessage = { id: crypto.randomUUID(), type: "image", imageUrl, caption: text || undefined };
+      setMessages((prev) => [...prev, imgMsg]);
+    }
+    if (text) {
+      const userMsg: TextMessage = { id: crypto.randomUUID(), type: "text", content: text };
+      setMessages((prev) => [...prev, userMsg]);
+    }
     setLoading(true);
 
     try {
       const { data, error } = await supabase.functions.invoke("reflect", {
         body: {
-          content: text,
-          entryType: "text",
+          content: text || "",
+          entryType: imageUrl ? "image" : "text",
+          imageUrl,
           previousMessages: messages
             .filter((m) => m.type === "text")
             .map((m) => ({ role: "user", content: (m as TextMessage).content })),

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { MessageSquare, Mail, VolumeX, Loader2 } from "lucide-react";
+import { MessageSquare, Mail, VolumeX } from "lucide-react";
+import { CyclingLoader } from "@/components/CyclingLoader";
 import { AppHeader } from "@/components/AppHeader";
 import { ThemeCard } from "@/components/ThemeCard";
 import { supabase } from "@/integrations/supabase/client";
@@ -47,10 +48,7 @@ export default function InsightsPage() {
   if (loading) {
     return (
       <div className="min-h-screen mesh-gradient-bg flex items-center justify-center">
-        <div className="flex items-center gap-3">
-          <Loader2 className="animate-spin text-mint" size={20} />
-          <span className="text-on-surface-variant text-sm italic font-display">Analyzing patterns...</span>
-        </div>
+        <CyclingLoader mode="analysis" size={20} />
       </div>
     );
   }

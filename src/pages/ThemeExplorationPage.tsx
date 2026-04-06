@@ -1,6 +1,7 @@
 import { useParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Heart, HeartCrack, Briefcase, Calendar, Loader2, ArrowUp, Users, Clock, MessageCircle, Shield, Brain, Eye, Flame, AlertTriangle, CloudRain, Zap, Target, Lock, Phone, Moon, BatteryLow, Scale, HandHeart, Ghost, VolumeX, Compass, Hourglass, AlarmClock } from "lucide-react";
+import { CyclingLoader } from "@/components/CyclingLoader";
 import { AppHeader } from "@/components/AppHeader";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -124,10 +125,7 @@ export default function ThemeExplorationPage() {
   if (loading) {
     return (
       <div className="min-h-screen mesh-gradient-bg flex items-center justify-center">
-        <div className="flex items-center gap-3">
-          <Loader2 className="animate-spin text-mint" size={20} />
-          <span className="text-on-surface-variant text-sm italic font-display">Exploring {theme}...</span>
-        </div>
+        <CyclingLoader mode="analysis" size={20} />
       </div>
     );
   }

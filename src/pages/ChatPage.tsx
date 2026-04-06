@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Play, Loader2, ArrowLeft, MoreVertical, Trash2 } from "lucide-react";
+import { CyclingLoader } from "@/components/CyclingLoader";
 import { ChatInput } from "@/components/ChatInput";
 import { ReflectionCard } from "@/components/ReflectionCard";
 import { Waveform } from "@/components/Waveform";
@@ -236,10 +237,9 @@ export default function ChatPage() {
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="flex items-center gap-3 py-4"
+              className="py-4"
             >
-              <Loader2 className="animate-spin text-mint" size={18} />
-              <span className="text-on-surface-variant text-sm italic font-display">Reflecting...</span>
+              <CyclingLoader mode="reflection" size={18} layout="inline" />
             </motion.div>
           )}
         </div>

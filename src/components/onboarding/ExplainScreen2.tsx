@@ -18,34 +18,51 @@ export function ExplainScreen2() {
         </motion.p>
       </div>
 
-      {/* Mini reflection card */}
+      {/* Mini reflection card — mirrors real ReflectionCard structure */}
       <motion.div
         {...fade(1)}
-        className="rounded-2xl surface-low p-5 border-l-4 border-mint/30 space-y-4"
+        className="rounded-2xl glass-panel p-5 space-y-4 border-l-4 border-mint/30 border border-border/20"
       >
         {/* One Question */}
-        <motion.div {...fade(1.5)} className="space-y-1">
-          <p className="label-uppercase text-[10px]">One Question</p>
-          <p className="font-display text-lg text-mint italic leading-snug">
+        <motion.div {...fade(1.5)} className="space-y-1.5">
+          <span className="label-uppercase text-mint">One Question</span>
+          <p className="font-display text-lg text-mint italic leading-relaxed">
             "Is she evaluating you, or are you evaluating yourself?"
           </p>
         </motion.div>
 
-        {/* Fact vs Story */}
-        <motion.div {...fade(2.5)} className="space-y-2">
-          <p className="label-uppercase text-[10px]">Fact vs Story</p>
-          <motion.div {...fade(2.8)} className="flex items-start gap-2">
-            <span className="mt-1.5 w-2 h-2 rounded-full bg-mint shrink-0" />
-            <span className="text-on-surface text-sm">Your manager gave feedback in a meeting</span>
+        {/* Main Loop */}
+        <motion.div {...fade(2.2)} className="space-y-1.5">
+          <span className="label-uppercase">Main Loop</span>
+          <p className="text-on-surface text-sm leading-relaxed font-body">
+            Replaying a manager's feedback and interpreting it as a judgment on your readiness.
+          </p>
+        </motion.div>
+
+        {/* Fact vs Story — matching real card style */}
+        <motion.div {...fade(2.8)} className="border-t border-border/20 pt-3 space-y-3">
+          <span className="label-uppercase">Fact vs Story</span>
+
+          {/* Fact */}
+          <motion.div {...fade(3.1)} className="space-y-1.5">
+            <span className="label-uppercase text-mint text-[10px]">Fact</span>
+            <div className="flex items-start gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-mint mt-1.5 shrink-0" />
+              <span className="text-on-surface text-sm">Your manager gave feedback in a meeting</span>
+            </div>
           </motion.div>
-          <motion.div {...fade(3.1)} className="flex items-start gap-2">
-            <span className="mt-1.5 w-2 h-2 rounded-full bg-on-surface-variant/40 shrink-0" />
-            <span className="text-on-surface-variant text-sm italic">She thinks you're not ready</span>
+
+          {/* Story — left border, no bullet, italic */}
+          <motion.div {...fade(3.5)} className="space-y-1.5">
+            <span className="label-uppercase text-on-surface-variant text-[10px]">Story</span>
+            <div className="border-l-2 border-on-surface-variant/30 pl-3">
+              <p className="text-on-surface-variant text-sm italic">She thinks you're not ready</p>
+            </div>
           </motion.div>
         </motion.div>
 
         {/* Tag */}
-        <motion.div {...fade(4)}>
+        <motion.div {...fade(4)} className="pt-1">
           <span className="inline-block px-3 py-1.5 rounded-full surface-high text-xs font-semibold text-on-surface-variant uppercase tracking-wider">
             Self-doubt
           </span>

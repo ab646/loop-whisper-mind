@@ -22,12 +22,6 @@ export default function RecordingPage() {
   const { isRecording, isPaused, duration, start, stop, pause, resume, reset } =
     useAudioRecorder();
   const startedRef = useRef(false);
-  const prefersReduced = useReducedMotion();
-
-  // Cycling phrases
-  const [shuffledPhrases] = useState(() => shuffle(TRANSCRIPTION_PHRASES));
-  const [phraseIndex, setPhraseIndex] = useState(0);
-  const [phraseFading, setPhraseFading] = useState(false);
 
   // Fake progress percentage
   const [fakePercent, setFakePercent] = useState(0);

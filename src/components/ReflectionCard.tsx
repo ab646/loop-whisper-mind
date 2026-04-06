@@ -133,15 +133,19 @@ export function ReflectionCard({ mainLoop, feelings, knownVsAssumed, repeatingPa
         </CollapsibleSection>
       )}
 
-      {/* Tags + Feedback */}
-      <div className="flex items-center justify-between pt-2">
-        <div className="flex flex-wrap gap-2">
-          {tags && tags.length > 0 && tags.map((tag) => (
+      {/* Tags */}
+      {tags && tags.length > 0 && (
+        <div className="flex flex-wrap gap-2 pt-2">
+          {tags.map((tag) => (
             <span key={tag} className="tag-pill">
               {tag.replace(/_/g, " ").trim().toLowerCase().replace(/^\w/, (char) => char.toUpperCase())}
             </span>
           ))}
         </div>
+      )}
+
+      {/* Feedback */}
+      <div className="flex justify-end pt-1">
         <FeedbackButtons
           contentType="reflection"
           contentId={feedbackId}

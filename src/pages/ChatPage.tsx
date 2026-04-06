@@ -110,6 +110,14 @@ export default function ChatPage() {
     }
   }, [messages]);
 
+  // Auto-send transcribed voice text immediately
+  useEffect(() => {
+    if (autoSendText && isNew && !autoSentRef.current) {
+      autoSentRef.current = true;
+      handleSend(autoSendText);
+    }
+  }, [autoSendText, isNew]);
+
   const handleSend = async (text: string, imageDataUrl?: string) => {
     let imageUrl: string | undefined;
 

@@ -142,8 +142,13 @@ export default function RecordingPage() {
 
   // Recording screen
   return (
-    <div className="flex flex-col min-h-screen mesh-gradient-bg">
-      <div className="flex-1 flex flex-col items-center justify-center gap-8 px-8">
+    <div className="flex flex-col min-h-screen mesh-gradient-bg relative overflow-hidden">
+      {/* Background haze */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full bg-primary/[0.07] blur-[120px]" />
+        <div className="absolute top-[45%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] rounded-full bg-mint/[0.05] blur-[80px]" />
+      </div>
+      <div className="flex-1 flex flex-col items-center justify-center gap-8 px-8 relative z-10">
         <div className="text-center space-y-2">
           <span className="label-uppercase">VOICE INPUT</span>
           <h1 className="font-display text-2xl text-on-surface italic">

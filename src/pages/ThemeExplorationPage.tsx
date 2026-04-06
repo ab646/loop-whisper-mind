@@ -108,7 +108,7 @@ export default function ThemeExplorationPage() {
   }, [chatMessages, askingQuestion]);
 
   const askQuestion = async (question: string) => {
-    if (!question.trim()) return;
+    if (!question.trim() || !session?.user?.id) return;
     setChatMessages((prev) => [...prev, { role: "user", content: question }]);
     setShowSuggestions(false);
     setAskingQuestion(true);
@@ -120,6 +120,25 @@ export default function ThemeExplorationPage() {
       if (error) throw error;
       const answer = data?.answer || data?.connectedBelief || "I couldn't generate a reflection for that.";
       setChatMessages((prev) => [...prev, { role: "ai", content: answer }]);
+
+      // Save as an entry in the main chat
+      const themeName = theme ? theme.charAt(0).toUpperCase() + theme.slice(1) : "Theme";
+      await supabase.from("entries").insert({
+        user_id: session.user.id,
+        content: question,
+        entry_type: "theme-exploration",
+        tags: [themeName.toUpperCase()],
+        reflection: {
+          mainLoop: `Exploring the theme: ${themeName}`,
+          oneQuestion: question,
+          knownVsAssumed: { known: [], assumed: [] },
+          feelings: [],
+          repeatingPattern: null,
+          nextStep: null,
+          tags: [themeName.toUpperCase()],
+          themeAnswer: answer,
+        },
+      });
     } catch (e) {
       toast.error("Failed to get answer");
     }

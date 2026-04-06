@@ -112,9 +112,9 @@ export default function ThemeExplorationPage() {
                 Last 7 Days
               </button>
             </div>
-            <div className="h-36">
+            <div className="h-44">
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={analysis.frequencyData} margin={{ top: 4, right: 4, bottom: 0, left: 4 }}>
+                <AreaChart data={analysis.frequencyData} margin={{ top: 4, right: 4, bottom: 0, left: -10 }}>
                   <defs>
                     <linearGradient id="intensityGrad" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="0%" stopColor="hsl(180, 25%, 80%)" stopOpacity={0.35} />
@@ -123,15 +123,27 @@ export default function ThemeExplorationPage() {
                   </defs>
                   <XAxis
                     dataKey="date"
-                    tick={{ fill: "hsl(var(--on-surface-variant))", fontSize: 10, textTransform: "uppercase" } as any}
+                    tick={{ fill: "hsl(var(--on-surface-variant))", fontSize: 10 }}
                     tickLine={false}
                     axisLine={false}
+                    interval={0}
                     tickFormatter={(v: string) => {
                       const d = new Date(v);
                       return d.toLocaleDateString("en-US", { weekday: "short" }).toUpperCase();
                     }}
                   />
-                  <YAxis hide domain={[0, 3]} />
+                  <YAxis
+                    domain={[0, 5]}
+                    ticks={[0, 1, 2, 3, 4, 5]}
+                    tick={{ fill: "hsl(var(--on-surface-variant))", fontSize: 9 }}
+                    tickLine={false}
+                    axisLine={false}
+                    width={32}
+                    tickFormatter={(v: number) => {
+                      const labels: Record<number, string> = { 0: "None", 1: "Low", 2: "", 3: "Mid", 4: "", 5: "High" };
+                      return labels[v] ?? "";
+                    }}
+                  />
                   <Tooltip
                     contentStyle={{
                       background: "hsl(var(--surface-container))",
@@ -145,7 +157,7 @@ export default function ThemeExplorationPage() {
                       return d.toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" });
                     }}
                     formatter={(value: number) => {
-                      const labels = ["—", "Low", "Moderate", "High"];
+                      const labels: Record<number, string> = { 0: "None", 1: "Low", 2: "Mild", 3: "Moderate", 4: "Strong", 5: "Extreme" };
                       return [labels[Math.round(value)] || `${value}`, "Intensity"];
                     }}
                   />

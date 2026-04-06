@@ -63,11 +63,21 @@ export function ReflectionCard({ mainLoop, feelings, knownVsAssumed, repeatingPa
         </p>
       </div>
 
+      {/* Theme exploration answer */}
+      {themeAnswer && (
+        <div className="space-y-1.5">
+          <span className="label-uppercase text-mint">Reflection</span>
+          <p className="text-on-surface text-base leading-relaxed font-body">{themeAnswer}</p>
+        </div>
+      )}
+
       {/* Main Loop as context label */}
-      <div className="space-y-1.5">
-        <span className="label-uppercase">Main Loop</span>
-        <p className="text-on-surface text-base leading-relaxed font-body">{mainLoop}</p>
-      </div>
+      {!themeAnswer && (
+        <div className="space-y-1.5">
+          <span className="label-uppercase">Main Loop</span>
+          <p className="text-on-surface text-base leading-relaxed font-body">{mainLoop}</p>
+        </div>
+      )}
 
       {/* Collapsible: Feelings */}
       {feelings && feelings.length > 0 && (

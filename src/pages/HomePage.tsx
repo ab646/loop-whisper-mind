@@ -98,7 +98,13 @@ export default function HomePage() {
   }, [session]);
 
   return (
-    <div className="flex flex-col h-screen mesh-gradient-bg">
+    <div className="flex flex-col h-screen mesh-gradient-bg relative overflow-hidden">
+      {/* Background haze */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-[20%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full bg-primary/[0.07] blur-[120px]" />
+        <div className="absolute top-[35%] left-[30%] -translate-x-1/2 w-[300px] h-[300px] rounded-full bg-mint/[0.04] blur-[100px]" />
+        <div className="absolute top-[70%] left-[60%] w-[400px] h-[400px] rounded-full bg-primary/[0.05] blur-[110px]" />
+      </div>
       
 
       <div className="flex-1 overflow-y-auto px-5 pt-16 flex flex-col">

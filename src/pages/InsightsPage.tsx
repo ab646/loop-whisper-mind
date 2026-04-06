@@ -196,16 +196,26 @@ export default function InsightsPage() {
       </div>
 
       <div className="px-5 space-y-8 relative z-10">
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-2">
-          <h2 className="font-display text-2xl text-on-surface leading-tight">
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-1">
+          <span className="label-uppercase text-mint">PATTERNS</span>
+          <h2 className="font-display text-3xl text-on-surface leading-tight tracking-tight">
             Patterns in the quiet.
           </h2>
-          {insights.weeklyInsight && (
-            <p className="text-on-surface-variant text-sm leading-relaxed">
+        </motion.div>
+
+        {insights.weeklyInsight && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="rounded-2xl surface-low p-5 space-y-2 border border-border/10"
+          >
+            <span className="label-uppercase">WEEKLY SUMMARY</span>
+            <p className="text-on-surface text-[15px] leading-relaxed font-display">
               {insights.weeklyInsight}
             </p>
-          )}
-        </motion.div>
+          </motion.div>
+        )}
 
         {themes.length > 0 && (
           <div className="space-y-3">

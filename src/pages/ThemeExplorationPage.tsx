@@ -157,7 +157,7 @@ export default function ThemeExplorationPage() {
                   <Area
                     type="natural"
                     dataKey="intensity"
-                    stroke="url(#lineGrad)"
+                    stroke="hsl(var(--mint))"
                     strokeWidth={2.5}
                     fill="url(#intensityGrad)"
                     dot={{ r: 3, fill: "hsl(var(--mint))", strokeWidth: 0 }}

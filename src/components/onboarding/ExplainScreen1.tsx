@@ -54,7 +54,7 @@ export function ExplainScreen1() {
         </motion.p>
       </div>
 
-      <div className="flex flex-col items-center gap-5 py-4">
+      <div className="flex flex-col items-center gap-5 py-4 min-h-[220px]">
         {/* Orb / Mic */}
         <AnimatePresence mode="wait">
           {(phase === "idle" || phase === "recording") && (

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion } from "framer-motion";
 import { Mic, MicOff, Pause, Play, RotateCcw } from "lucide-react";
 import { Waveform } from "@/components/Waveform";
 import { ScribblingLogo } from "@/components/LoopLogo";
@@ -14,27 +14,6 @@ const STEPS: { key: ProcessingStep; label: string }[] = [
   { key: "deleting", label: "Deleting recording" },
 ];
 
-const TRANSCRIPTION_PHRASES = [
-  "Listening closely",
-  "Catching every word",
-  "Tuning in",
-  "Parsing the signal",
-  "Decoding your voice",
-  "Translating thought to text",
-  "Hearing what matters",
-  "Following the thread",
-  "Picking up the nuance",
-  "Processing your words",
-];
-
-function shuffle<T>(arr: T[]): T[] {
-  const copy = [...arr];
-  for (let i = copy.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [copy[i], copy[j]] = [copy[j], copy[i]];
-  }
-  return copy;
-}
 
 export default function RecordingPage() {
   const navigate = useNavigate();
@@ -43,12 +22,6 @@ export default function RecordingPage() {
   const { isRecording, isPaused, duration, start, stop, pause, resume, reset } =
     useAudioRecorder();
   const startedRef = useRef(false);
-  const prefersReduced = useReducedMotion();
-
-  // Cycling phrases
-  const [shuffledPhrases] = useState(() => shuffle(TRANSCRIPTION_PHRASES));
-  const [phraseIndex, setPhraseIndex] = useState(0);
-  const [phraseFading, setPhraseFading] = useState(false);
 
   // Fake progress percentage
   const [fakePercent, setFakePercent] = useState(0);
@@ -60,18 +33,6 @@ export default function RecordingPage() {
     start().catch(() => toast.error("Microphone permission denied"));
   }, []);
 
-  // Cycle phrases during processing
-  useEffect(() => {
-    if (!processing || prefersReduced) return;
-    const interval = setInterval(() => {
-      setPhraseFading(true);
-      setTimeout(() => {
-        setPhraseIndex((prev) => (prev + 1) % shuffledPhrases.length);
-        setPhraseFading(false);
-      }, 300);
-    }, 2800);
-    return () => clearInterval(interval);
-  }, [processing, shuffledPhrases.length, prefersReduced]);
 
   // Fake progress that eases toward ~90% then jumps to 100% on "deleting"
   useEffect(() => {
@@ -167,19 +128,11 @@ export default function RecordingPage() {
       <div className="flex flex-col min-h-screen mesh-gradient-bg items-center justify-center gap-6 px-8">
         <ScribblingLogo size={108} />
 
-        <span
-          className={`font-display text-base text-on-surface italic transition-opacity duration-300 ${
-            phraseFading ? "opacity-0" : "opacity-100"
-          }`}
-        >
-          {shuffledPhrases[phraseIndex]}...
-        </span>
-
         <div className="flex items-center gap-2 mt-2">
-          <span className="font-body text-xs text-on-surface-variant/60 uppercase tracking-widest">
+          <span className="font-body text-sm text-on-surface-variant uppercase tracking-widest">
             {activeStep?.label}
           </span>
-          <span className="font-body text-xs text-on-surface-variant/40 tabular-nums">
+          <span className="font-body text-sm text-on-surface-variant/50 tabular-nums">
             {Math.round(fakePercent)}%
           </span>
         </div>

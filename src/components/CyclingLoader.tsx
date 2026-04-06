@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Loader2 } from "lucide-react";
+import { ScribblingLogo, ThinkingLogo } from "@/components/LoopLogo";
 
 const REFLECTION_PHRASES = [
   "Sitting with this",

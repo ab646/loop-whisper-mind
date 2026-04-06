@@ -95,7 +95,22 @@ export default function ChatPage() {
   }, []);
 
   useEffect(() => {
-    if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    if (!scrollRef.current) return;
+    const lastMsg = messages[messages.length - 1];
+    if (lastMsg?.type === "reflection") {
+      // Scroll to the start of the reflection card
+      requestAnimationFrame(() => {
+        const cards = scrollRef.current?.querySelectorAll("[data-reflection]");
+        const lastCard = cards?.[cards.length - 1];
+        if (lastCard) {
+          lastCard.scrollIntoView({ behavior: "smooth", block: "start" });
+        } else {
+          scrollRef.current!.scrollTop = scrollRef.current!.scrollHeight;
+        }
+      });
+    } else {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
   }, [messages]);
 
   const handleSend = async (text: string, imageDataUrl?: string) => {

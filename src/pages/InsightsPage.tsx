@@ -195,16 +195,18 @@ export default function InsightsPage() {
             <span className="label-uppercase">CATALYSTS</span>
             <h3 className="font-display text-lg text-on-surface">Common triggers</h3>
             <div className="space-y-2">
-              {triggers.map((t: any) => {
-                const Icon = triggerIconMap[t.iconType as keyof typeof triggerIconMap] || MessageSquare;
+              {triggers.map((t: any, i: number) => {
+                const Icon = getTriggerIcon(t.label);
+                const colorClasses = [
+                  { bg: "bg-secondary/15", text: "text-secondary" },
+                  { bg: "bg-tertiary/20", text: "text-tertiary-foreground" },
+                  { bg: "bg-mint/15", text: "text-mint" },
+                ];
+                const color = colorClasses[i % colorClasses.length];
                 return (
                   <div key={t.label} className="rounded-2xl surface-low p-4 flex items-center gap-4">
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                      ["bg-secondary/15", "bg-tertiary/15", "bg-mint/15"][triggers.indexOf(t) % 3]
-                    }`}>
-                      <Icon size={18} className={
-                        ["text-secondary", "text-tertiary", "text-mint"][triggers.indexOf(t) % 3]
-                      } />
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center ${color.bg}`}>
+                      <Icon size={18} className={color.text} />
                     </div>
                     <div>
                       <p className="text-on-surface text-sm font-semibold">{t.label}</p>

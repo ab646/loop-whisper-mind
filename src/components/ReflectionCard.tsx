@@ -129,8 +129,8 @@ export function ReflectionCard({ mainLoop, feelings, knownVsAssumed, repeatingPa
       {tags && tags.length > 0 && (
         <div className="flex flex-wrap gap-2 pt-2">
           {tags.map((tag) => (
-            <span key={tag} className="px-4 py-1.5 rounded-full bg-[hsl(var(--muted))] border border-[hsl(var(--border))] text-[11px] text-[hsl(var(--muted-foreground))] tracking-wider uppercase font-medium">
-              {tag}
+            <span key={tag} className="tag-pill">
+              {tag.replace(/_/g, " ").trim().toLowerCase().replace(/^\w/, (char) => char.toUpperCase())}
             </span>
           ))}
         </div>

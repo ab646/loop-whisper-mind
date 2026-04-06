@@ -165,13 +165,13 @@ export default function HomePage() {
                       <p className="text-on-surface text-sm leading-relaxed line-clamp-2 font-body">
                         {entry.mainLoop}
                       </p>
-                      <div className="flex gap-1.5 flex-wrap">
+                      <div className="flex gap-2 flex-wrap">
                         {entry.tags.map((tag) => (
                           <span
                             key={tag}
-                            className="px-4 py-1.5 rounded-full bg-[hsl(var(--muted))] border border-[hsl(var(--border))] text-[11px] text-[hsl(var(--muted-foreground))] tracking-wider uppercase font-medium"
+                            className="tag-pill"
                           >
-                            {tag}
+                            {tag.replace(/_/g, " ").trim().toLowerCase().replace(/^\w/, (char) => char.toUpperCase())}
                           </span>
                         ))}
                       </div>

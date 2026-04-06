@@ -144,7 +144,7 @@ Return ONLY valid JSON. No markdown, no explanation.`;
 
     // Build frequency + intensity timeline from ALL entries (theme names from
     // insights are AI-generated and don't always match stored tags exactly)
-    const intensityScore: Record<string, number> = { low: 1, moderate: 2, high: 3 };
+    const intensityScore: Record<string, number> = { low: 1, moderate: 3, high: 5 };
     const dayMap: Record<string, { count: number; intensitySum: number }> = {};
 
     for (const e of allEntries || []) {

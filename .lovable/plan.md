@@ -1,40 +1,55 @@
 
 
-## Make Fact vs Story More Visually Distinct
+## Record-then-Transcribe with Processing Screen
 
-Right now both "known" (facts) and "assumed" (stories) items use the same bullet list with only a subtle color/italic difference. The screenshot confirms they blend together.
+Replace live speech recognition with audio recording + server-side transcription. After stopping, show a full-screen processing view with the scribbling logo animation and sequential progress steps.
 
-### Changes to `src/components/ReflectionCard.tsx`
-
-Split the list into two labeled groups with clear visual separation:
-
-1. **Add sub-headers** — a small "FACT" label (mint colored) before the known items and a "STORY" label (muted) before the assumed items
-2. **Stronger visual differentiation for stories** — wrap assumed items in a subtle bordered/dimmed container or use a distinct left-border accent to set them apart from facts
-3. **Keep facts as solid white text with mint bullet, keep stories italic + muted with a gray bullet** (already exists, just reinforce with grouping)
-
-Layout would become:
+### Processing Screen UX
 
 ```text
-FACT VS STORY                              ^
-┌─────────────────────────────────────────┐
-│  FACT                                   │
-│  • You feel physically raw and tired    │
-│  • Specific social interactions felt... │
-│                                         │
-│  STORY                                  │
-│  ┃ These small shifts mean people...    │
-│  ┃ You are 'too much' or 'hard to...'  │
-└─────────────────────────────────────────┘
+┌─────────────────────────────┐
+│                             │
+│        [Scribble Logo]      │
+│          (large, ~108px)    │
+│                             │
+│   ✓ Recording saved         │
+│   ✓ Uploading audio         │
+│   ● Transcribing...         │
+│   ○ Deleting recording      │
+│                             │
+└─────────────────────────────┘
 ```
 
-Specifically:
-- Add `<span className="label-uppercase text-mint text-[10px] mb-1">Fact</span>` before known items
-- Add `<span className="label-uppercase text-on-surface-variant text-[10px] mb-1 mt-3">Story</span>` before assumed items
-- Wrap story items in a container with `border-l-2 border-on-surface-variant/30 pl-3` to visually separate them as "less solid"
-- Change story bullets from dots to no bullet (the left border serves as the marker)
+Steps appear sequentially with checkmarks as they complete. The current step shows a pulsing dot. Future steps are dimmed circles. "Deleting recording" confirms the audio is not stored.
 
-This makes it immediately obvious which items are grounded facts and which are narratives/assumptions.
+### Changes
+
+**1. New `src/hooks/useAudioRecorder.ts`**
+- `MediaRecorder` API capturing webm/opus
+- Exposes: `isRecording`, `isPaused`, `duration`, `start()`, `stop() → Blob`, `pause()`, `resume()`, `reset()`
+- Internal timer for duration tracking
+
+**2. New `supabase/functions/transcribe/index.ts`**
+- Accepts audio blob via FormData
+- Converts to base64, sends to Lovable AI gateway (`google/gemini-2.5-flash`) with multimodal content: audio inline data + "Transcribe this audio verbatim" system prompt
+- Returns `{ text: string }`
+
+**3. Update `src/pages/RecordingPage.tsx`**
+- Replace `useSpeechRecognition` with `useAudioRecorder`
+- Remove live transcript preview
+- Add `processing` state after stop: show full-screen processing view with `ScribblingLogo` at size 108 and a step list that progresses through:
+  1. "Recording saved" (instant)
+  2. "Uploading audio" (while sending to edge function)
+  3. "Transcribing" (while waiting for response)
+  4. "Deleting recording" (brief pause after response, then navigate)
+- Each step: checkmark when done, pulsing dot when active, hollow circle when pending
+- On completion, navigate to `/chat/new` with transcribed text
+
+**4. Delete `src/hooks/useSpeechRecognition.ts`**
 
 ### Files
-- `src/components/ReflectionCard.tsx` — update the Fact vs Story collapsible section
+- Create `src/hooks/useAudioRecorder.ts`
+- Create `supabase/functions/transcribe/index.ts`
+- Edit `src/pages/RecordingPage.tsx`
+- Delete `src/hooks/useSpeechRecognition.ts`
 

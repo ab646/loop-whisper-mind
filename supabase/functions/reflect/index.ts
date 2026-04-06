@@ -225,8 +225,8 @@ serve(async (req) => {
       .from("entries")
       .insert({
         user_id: userId,
-        entry_type: entryType || "text",
-        content,
+        entry_type: imageUrl ? "image" : (entryType || "text"),
+        content: content || "[Image]",
         reflection,
         tags: reflection.tags,
       })

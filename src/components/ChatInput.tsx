@@ -109,11 +109,11 @@ export function ChatInput({ onSend, onVoice, placeholder = "Type your thoughts..
           <Image size={20} />
         </button>
         <textarea
+          ref={textareaRef}
           value={text}
           onChange={(e) => {
             setText(e.target.value);
-            e.target.style.height = "auto";
-            e.target.style.height = Math.min(e.target.scrollHeight, 120) + "px";
+            autoResize(e.target);
           }}
           onKeyDown={(e) => {
             if (e.key === "Enter" && !e.shiftKey) {

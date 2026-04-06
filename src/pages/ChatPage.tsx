@@ -45,6 +45,8 @@ export default function ChatPage() {
   const { session } = useAuth();
   const isNew = id === "new";
   const prefillText = (location.state as any)?.prefillText as string | undefined;
+  const autoSendText = (location.state as any)?.autoSendText as string | undefined;
+  const autoSentRef = useRef(false);
 
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
@@ -107,6 +109,14 @@ export default function ChatPage() {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages]);
+
+  // Auto-send transcribed voice text immediately
+  useEffect(() => {
+    if (autoSendText && isNew && !autoSentRef.current) {
+      autoSentRef.current = true;
+      handleSend(autoSendText);
+    }
+  }, [autoSendText, isNew]);
 
   const handleSend = async (text: string, imageDataUrl?: string) => {
     let imageUrl: string | undefined;

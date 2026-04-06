@@ -1,6 +1,7 @@
 import { useParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Heart, HeartCrack, Briefcase, Calendar, Loader2, ArrowUp, Users, Clock, MessageCircle, Shield, Brain, Eye, Flame, AlertTriangle, CloudRain, Zap, Target, Lock, Phone, Moon, BatteryLow, Scale, HandHeart, Ghost, VolumeX, Compass, Hourglass, AlarmClock } from "lucide-react";
+import { Heart, HeartCrack, Briefcase, Calendar, ArrowUp, Users, Clock, MessageCircle, Shield, Brain, Eye, Flame, AlertTriangle, CloudRain, Zap, Target, Lock, Phone, Moon, BatteryLow, Scale, HandHeart, Ghost, VolumeX, Compass, Hourglass, AlarmClock } from "lucide-react";
+import { ScribblingLogo } from "@/components/LoopLogo";
 import { CyclingLoader } from "@/components/CyclingLoader";
 import { AppHeader } from "@/components/AppHeader";
 import { useState, useEffect, useRef } from "react";

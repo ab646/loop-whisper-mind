@@ -367,12 +367,6 @@ export default function ThemeExplorationPage() {
               </div>
             )}
 
-            {/* Loading for first question (no messages yet) */}
-            {askingQuestion && chatMessages.length <= 1 && (
-              <div className="flex items-center gap-2 py-2">
-                <CyclingLoader mode="reflection" size={20} layout="inline" />
-              </div>
-            )}
 
             {/* Input */}
             <div className="flex items-center gap-2 rounded-xl surface-high px-4 py-3 border border-border/20">

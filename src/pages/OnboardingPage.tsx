@@ -127,7 +127,7 @@ export default function OnboardingPage() {
         ))}
       </div>
 
-      <div className="flex-1 flex flex-col justify-center overflow-y-auto">
+      <div className="flex-1 flex flex-col justify-center overflow-y-auto px-1">
         <AnimatePresence mode="wait">
           <motion.div
             key={step}

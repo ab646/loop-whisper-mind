@@ -7,11 +7,9 @@ import { ScribblingLogo } from "@/components/LoopLogo";
 import { useAudioRecorder } from "@/hooks/useAudioRecorder";
 import { toast } from "sonner";
 
-type ProcessingStep = "saved" | "uploading" | "transcribing" | "deleting";
+type ProcessingStep = "transcribing" | "deleting";
 
 const STEPS: { key: ProcessingStep; label: string }[] = [
-  { key: "saved", label: "Recording saved" },
-  { key: "uploading", label: "Uploading audio" },
   { key: "transcribing", label: "Transcribing" },
   { key: "deleting", label: "Deleting recording" },
 ];

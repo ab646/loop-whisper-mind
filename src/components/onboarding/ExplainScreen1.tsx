@@ -126,13 +126,7 @@ export function ExplainScreen1() {
               transition={{ duration: 0.3 }}
               className="flex flex-col items-center gap-3 py-4"
             >
-              <motion.div
-                className="w-10 h-10 rounded-full surface-high flex items-center justify-center"
-                animate={{ rotate: 360 }}
-                transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
-              >
-                <div className="w-5 h-5 rounded-full border-2 border-mint border-t-transparent" />
-              </motion.div>
+              <ScribblingLogo size={40} />
               <p className="text-on-surface-variant text-xs font-body uppercase tracking-widest">
                 Transcribing
               </p>

@@ -403,7 +403,7 @@ export default function ThemeExplorationPage() {
                 className="w-7 h-7 rounded-full orb-gradient flex items-center justify-center disabled:opacity-50"
               >
                 {askingQuestion ? (
-                  <Loader2 size={12} className="animate-spin text-primary-foreground" />
+                  <ScribblingLogo size={14} />
                 ) : (
                   <ArrowUp size={14} className="text-primary-foreground" />
                 )}

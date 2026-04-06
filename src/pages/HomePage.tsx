@@ -124,7 +124,7 @@ export default function HomePage() {
           <span className="label-uppercase">RECENT LOOPS</span>
           {loading ? (
             <div className="flex justify-center py-8">
-              <Loader2 className="animate-spin text-mint" size={20} />
+              <ScribblingLogo size={24} />
             </div>
           ) : entries.length === 0 ? (
             <motion.div

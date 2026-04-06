@@ -12,6 +12,11 @@ dist
 dist-ssr
 *.local
 
+# iOS - Capacitor managed (keep ios/ tracked, but ignore build artifacts)
+ios/App/App/public
+ios/App/Pods
+ios/capacitor-cordova-ios-plugins
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

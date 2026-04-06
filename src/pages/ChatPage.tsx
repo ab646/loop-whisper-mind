@@ -350,6 +350,77 @@ export default function ChatPage() {
               )}
             </div>
           ))}
+
+          {/* Inline exploration chat after reflection */}
+          {hasReflection && !loading && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="mt-4 space-y-3"
+            >
+              <div className="flex items-start gap-3">
+                <div className="w-8 h-8 rounded-full orb-gradient flex items-center justify-center shrink-0">
+                  <span className="text-primary-foreground text-xs">✦</span>
+                </div>
+                <div>
+                  <p className="text-on-surface-variant text-sm">Want to go deeper? Ask a follow-up.</p>
+                </div>
+              </div>
+
+              <div className="rounded-2xl surface-low p-4 space-y-3">
+                {explorationMessages.map((msg, i) => (
+                  <motion.div
+                    key={i}
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    {msg.role === "user" ? (
+                      <div className="flex justify-end">
+                        <div className="rounded-2xl surface-high px-4 py-3 max-w-[85%]">
+                          <p className="text-on-surface text-sm leading-relaxed">{msg.content}</p>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="rounded-2xl p-4 space-y-2 border-l-4 border-mint/30 surface-container">
+                        <span className="label-uppercase text-mint">Reflection</span>
+                        <p className="text-on-surface text-sm leading-relaxed font-body">{msg.content}</p>
+                      </div>
+                    )}
+                  </motion.div>
+                ))}
+
+                {explorationLoading && (
+                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="py-2">
+                    <CyclingLoader mode="reflection" size={20} layout="inline" />
+                  </motion.div>
+                )}
+
+                <div className="flex items-center gap-2 rounded-xl surface-high px-4 py-3 border border-border/20">
+                  <input
+                    value={explorationInput}
+                    onChange={(e) => setExplorationInput(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && handleExplore(explorationInput)}
+                    placeholder="Ask a follow-up..."
+                    className="flex-1 bg-transparent text-on-surface placeholder:text-on-surface-variant text-sm outline-none"
+                  />
+                  <button
+                    onClick={() => handleExplore(explorationInput)}
+                    disabled={!explorationInput.trim() || explorationLoading}
+                    className="w-7 h-7 rounded-full orb-gradient flex items-center justify-center disabled:opacity-50"
+                  >
+                    {explorationLoading ? (
+                      <Loader2 size={12} className="animate-spin text-primary-foreground" />
+                    ) : (
+                      <ArrowUp size={14} className="text-primary-foreground" />
+                    )}
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          )}
+
           {loading && (
             <motion.div
               initial={{ opacity: 0 }}
@@ -371,7 +442,7 @@ export default function ChatPage() {
         </div>
       </div>
 
-      {isNew && (
+      {isNew && !hasReflection && (
         <div className="shrink-0 pb-20">
           <ChatInput onSend={handleSend} onVoice={() => navigate("/recording")} placeholder="Type your thoughts..." defaultValue={prefillText} />
         </div>

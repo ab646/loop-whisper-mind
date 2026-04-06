@@ -128,19 +128,11 @@ export default function RecordingPage() {
       <div className="flex flex-col min-h-screen mesh-gradient-bg items-center justify-center gap-6 px-8">
         <ScribblingLogo size={108} />
 
-        <span
-          className={`font-display text-base text-on-surface italic transition-opacity duration-300 ${
-            phraseFading ? "opacity-0" : "opacity-100"
-          }`}
-        >
-          {shuffledPhrases[phraseIndex]}...
-        </span>
-
         <div className="flex items-center gap-2 mt-2">
-          <span className="font-body text-xs text-on-surface-variant/60 uppercase tracking-widest">
+          <span className="font-body text-sm text-on-surface-variant uppercase tracking-widest">
             {activeStep?.label}
           </span>
-          <span className="font-body text-xs text-on-surface-variant/40 tabular-nums">
+          <span className="font-body text-sm text-on-surface-variant/50 tabular-nums">
             {Math.round(fakePercent)}%
           </span>
         </div>

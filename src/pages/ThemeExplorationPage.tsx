@@ -97,7 +97,7 @@ export default function ThemeExplorationPage() {
         </motion.div>
 
         {/* Frequency Timeline */}
-        {analysis?.frequencyData?.length > 0 && (
+        {analysis?.frequencyData?.length > 0 && analysis.frequencyData.reduce((sum: number, d: any) => sum + d.count, 0) >= 3 && (
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}

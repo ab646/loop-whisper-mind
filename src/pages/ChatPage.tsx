@@ -331,7 +331,7 @@ export default function ChatPage() {
 
       {isNew && (
         <div className="shrink-0 pb-20">
-          <ChatInput onSend={handleSend} onVoice={() => navigate("/recording")} placeholder="Type your thoughts..." />
+          <ChatInput onSend={handleSend} onVoice={() => navigate("/recording")} placeholder="Type your thoughts..." defaultValue={prefillText} />
         </div>
       )}
     </div>

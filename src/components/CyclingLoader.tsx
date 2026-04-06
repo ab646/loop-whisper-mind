@@ -91,10 +91,12 @@ export function CyclingLoader({
     return () => clearInterval(interval);
   }, [shuffled.length]);
 
+  const LogoComponent = mode === "reflection" ? ScribblingLogo : ThinkingLogo;
+
   if (layout === "inline") {
     return (
       <div className={`flex items-center gap-2 ${className}`}>
-        <Loader2 className="animate-spin text-on-surface-variant" style={{ width: size, height: size }} />
+        <LogoComponent size={size} />
         <span
           className={`text-on-surface-variant text-sm italic font-display transition-opacity duration-300 ${
             fading ? "opacity-0" : "opacity-100"
@@ -108,7 +110,7 @@ export function CyclingLoader({
 
   return (
     <div className={`flex flex-col items-center justify-center gap-3 ${className}`}>
-      <Loader2 className="animate-spin text-on-surface-variant" style={{ width: size, height: size }} />
+      <LogoComponent size={size} />
       <span
         className={`text-on-surface-variant text-sm italic font-display transition-opacity duration-300 ${
           fading ? "opacity-0" : "opacity-100"

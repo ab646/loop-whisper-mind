@@ -125,7 +125,7 @@ export default function ThemeExplorationPage() {
   if (loading) {
     return (
       <div className="min-h-screen mesh-gradient-bg flex items-center justify-center">
-        <CyclingLoader mode="analysis" size={20} />
+        <CyclingLoader mode="analysis" size={60} />
       </div>
     );
   }

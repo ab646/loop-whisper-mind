@@ -328,6 +328,13 @@ export default function ThemeExplorationPage() {
               <p className="font-display text-lg text-on-surface leading-relaxed">
                 {analysis.patternInsight}
               </p>
+              <div className="flex justify-end">
+                <FeedbackButtons
+                  contentType="pattern-insight"
+                  contentId={`pattern-${theme}`}
+                  contentPreview={analysis.patternInsight}
+                />
+              </div>
             </div>
           </motion.div>
         )}

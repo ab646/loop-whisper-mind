@@ -135,9 +135,9 @@ serve(async (req) => {
   try {
     const { userId, adminClient } = await authenticateRequest(req);
 
-    const { content, entryType, previousMessages } = await req.json();
-    if (!content?.trim()) {
-      return errorResponse(req, "Content required", 400);
+    const { content, entryType, previousMessages, imageUrl } = await req.json();
+    if (!content?.trim() && !imageUrl) {
+      return errorResponse(req, "Content or image required", 400);
     }
 
     // Fetch recent entries for pattern detection

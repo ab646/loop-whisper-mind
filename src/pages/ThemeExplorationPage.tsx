@@ -178,12 +178,28 @@ export default function ThemeExplorationPage() {
               "{analysis.connectedBelief}"
             </p>
             {analysis.beliefTags?.length > 0 && (
-              <div className="flex gap-2 flex-wrap">
-                {analysis.beliefTags.map((tag: string) => (
-                  <span key={tag} className="tag-pill">
-                    {tag.replace(/_/g, " ").trim().toLowerCase().replace(/^\w/, (char) => char.toUpperCase())}
-                  </span>
-                ))}
+              <div className="flex items-center justify-between">
+                <div className="flex gap-2 flex-wrap">
+                  {analysis.beliefTags.map((tag: string) => (
+                    <span key={tag} className="tag-pill">
+                      {tag.replace(/_/g, " ").trim().toLowerCase().replace(/^\w/, (char) => char.toUpperCase())}
+                    </span>
+                  ))}
+                </div>
+                <FeedbackButtons
+                  contentType="connected-belief"
+                  contentId={`belief-${theme}`}
+                  contentPreview={analysis.connectedBelief}
+                />
+              </div>
+            )}
+            {!analysis.beliefTags?.length && (
+              <div className="flex justify-end">
+                <FeedbackButtons
+                  contentType="connected-belief"
+                  contentId={`belief-${theme}`}
+                  contentPreview={analysis.connectedBelief}
+                />
               </div>
             )}
           </motion.div>

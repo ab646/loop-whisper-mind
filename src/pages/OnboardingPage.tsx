@@ -8,10 +8,17 @@ import { ExplainScreen1 } from "@/components/onboarding/ExplainScreen1";
 import { ExplainScreen2 } from "@/components/onboarding/ExplainScreen2";
 import { ExplainScreen3 } from "@/components/onboarding/ExplainScreen3";
 
+const SEED_OPTIONS = [
+  { label: "Work stuff I can't stop replaying", initialText: "I keep replaying something that happened at work." },
+  { label: "A relationship that's eating at me", initialText: "There's something going on in a relationship that I can't stop thinking about." },
+  { label: "A decision I keep going back and forth on", initialText: "I'm stuck on a decision and I keep going back and forth." },
+  { label: "Just... everything, all at once", initialText: "I feel overwhelmed — everything is hitting me at once and I can't sort through it." },
+];
+
 type StepDef =
   | { type: "explain"; screen: 1 | 2 | 3 }
   | { type: "text"; title: string; subtitle: string; field: string; placeholder: string }
-  | { type: "seed"; title: string; subtitle: string; placeholder: string };
+  | { type: "seed"; title: string; subtitle: string };
 
 const steps: StepDef[] = [
   { type: "explain", screen: 1 },
@@ -26,16 +33,16 @@ const steps: StepDef[] = [
   },
   {
     type: "seed",
-    title: "One last thing.",
-    subtitle: "What's been looping in your mind lately? Even a few words is enough.",
-    placeholder: "e.g., I can't stop thinking about whether I should take that new job...",
+    title: "What's been on your mind?",
+    subtitle: "Pick one, or tell us in your own words.",
   },
 ];
 
 export default function OnboardingPage() {
   const [step, setStep] = useState(0);
   const [displayName, setDisplayName] = useState("");
-  const [seedText, setSeedText] = useState("");
+  const [selectedSeed, setSelectedSeed] = useState<number | null>(null);
+  const [customSeedText, setCustomSeedText] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { user, refreshProfile } = useAuth();
@@ -44,7 +51,11 @@ export default function OnboardingPage() {
 
   const canProceed = () => {
     if (current.type === "text") return displayName.trim().length > 0;
-    if (current.type === "seed") return seedText.trim().length > 0;
+    if (current.type === "seed") {
+      if (selectedSeed !== null && selectedSeed < SEED_OPTIONS.length) return true;
+      if (selectedSeed === SEED_OPTIONS.length) return customSeedText.trim().length > 0;
+      return false;
+    }
     return true;
   };
 
@@ -74,10 +85,19 @@ export default function OnboardingPage() {
     setLoading(false);
     if (error) {
       toast.error("Failed to save preferences");
-    } else {
-      await refreshProfile();
-      navigate("/chat/new", { state: { initialText: seedText } });
+      return;
     }
+
+    // Resolve initial text
+    let initialText = "";
+    if (selectedSeed !== null && selectedSeed < SEED_OPTIONS.length) {
+      initialText = SEED_OPTIONS[selectedSeed].initialText;
+    } else if (selectedSeed === SEED_OPTIONS.length) {
+      initialText = customSeedText;
+    }
+
+    await refreshProfile();
+    navigate("/chat/new", { state: { initialText } });
   };
 
   const handleSwipe = (_: any, { offset, velocity }: any) => {
@@ -87,6 +107,10 @@ export default function OnboardingPage() {
     } else if ((offset.x > 50 || velocity.x > 500) && step > 0) {
       setStep((s) => Math.max(s - 1, 0));
     }
+  };
+
+  const handleSelectSeed = (index: number) => {
+    setSelectedSeed(index === selectedSeed ? null : index);
   };
 
   return (
@@ -103,7 +127,7 @@ export default function OnboardingPage() {
         ))}
       </div>
 
-      <div className="flex-1 flex flex-col justify-center">
+      <div className="flex-1 flex flex-col justify-center overflow-y-auto">
         <AnimatePresence mode="wait">
           <motion.div
             key={step}
@@ -139,21 +163,64 @@ export default function OnboardingPage() {
             )}
 
             {current.type === "seed" && (
-              <div className="space-y-6">
+              <div className="space-y-5">
                 <div className="space-y-2">
                   <h1 className="font-display text-2xl text-on-surface leading-tight">
                     {current.title}
                   </h1>
                   <p className="text-on-surface-variant text-sm">{current.subtitle}</p>
                 </div>
-                <textarea
-                  autoFocus
-                  rows={3}
-                  value={seedText}
-                  onChange={(e) => setSeedText(e.target.value)}
-                  placeholder={current.placeholder}
-                  className="w-full rounded-xl surface-high px-4 py-4 text-on-surface text-base font-body outline-none focus:ring-1 focus:ring-mint placeholder:text-on-surface-variant resize-none"
-                />
+
+                <div className="space-y-3">
+                  {SEED_OPTIONS.map((opt, i) => (
+                    <motion.button
+                      key={i}
+                      whileTap={{ scale: 0.97 }}
+                      onClick={() => handleSelectSeed(i)}
+                      className={`w-full rounded-xl px-4 py-3 text-left text-sm font-body transition-all ${
+                        selectedSeed === i
+                          ? "surface-container ring-1 ring-mint/40 text-on-surface"
+                          : "surface-high text-on-surface border border-transparent"
+                      }`}
+                    >
+                      {opt.label}
+                    </motion.button>
+                  ))}
+
+                  {/* Something else */}
+                  <motion.button
+                    whileTap={{ scale: 0.97 }}
+                    onClick={() => handleSelectSeed(SEED_OPTIONS.length)}
+                    className={`w-full rounded-xl px-4 py-3 text-left text-sm font-body transition-all ${
+                      selectedSeed === SEED_OPTIONS.length
+                        ? "surface-container ring-1 ring-mint/40 text-on-surface"
+                        : "surface-high text-on-surface border border-transparent"
+                    }`}
+                  >
+                    Something else
+                  </motion.button>
+
+                  <AnimatePresence>
+                    {selectedSeed === SEED_OPTIONS.length && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.25, ease: "easeInOut" }}
+                        className="overflow-hidden"
+                      >
+                        <textarea
+                          autoFocus
+                          rows={3}
+                          value={customSeedText}
+                          onChange={(e) => setCustomSeedText(e.target.value)}
+                          placeholder="What's been looping?"
+                          className="w-full rounded-xl surface-high px-4 py-4 text-on-surface text-base font-body outline-none focus:ring-1 focus:ring-mint placeholder:text-on-surface-variant resize-none"
+                        />
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
               </div>
             )}
           </motion.div>

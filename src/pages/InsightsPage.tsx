@@ -43,6 +43,7 @@ export default function InsightsPage() {
   const [insights, setInsights] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [entryCount, setEntryCount] = useState(0);
+  const [showAllThemes, setShowAllThemes] = useState(false);
 
   useEffect(() => {
     if (!session) return;

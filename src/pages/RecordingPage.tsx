@@ -41,7 +41,7 @@ function StepIndicator({
 export default function RecordingPage() {
   const navigate = useNavigate();
   const [processing, setProcessing] = useState(false);
-  const [currentStep, setCurrentStep] = useState<ProcessingStep>("saved");
+  const [currentStep, setCurrentStep] = useState<ProcessingStep>("transcribing");
   const { isRecording, isPaused, duration, start, stop, pause, resume, reset } =
     useAudioRecorder();
   const startedRef = useRef(false);

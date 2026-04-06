@@ -105,18 +105,14 @@ export default function ThemeExplorationPage() {
             className="rounded-2xl surface-low p-5 space-y-3"
           >
             <span className="label-uppercase">TIMELINE</span>
-            <h3 className="font-display text-lg text-on-surface">Activity & intensity</h3>
-            <div className="h-40">
+            <h3 className="font-display text-lg text-on-surface">Intensity over time</h3>
+            <div className="h-44">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={analysis.frequencyData} margin={{ top: 4, right: 4, bottom: 0, left: -20 }}>
                   <defs>
-                    <linearGradient id="mintGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="hsl(var(--mint))" stopOpacity={0.4} />
-                      <stop offset="100%" stopColor="hsl(var(--mint))" stopOpacity={0} />
-                    </linearGradient>
                     <linearGradient id="intensityGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="hsl(var(--destructive))" stopOpacity={0.3} />
-                      <stop offset="100%" stopColor="hsl(var(--destructive))" stopOpacity={0} />
+                      <stop offset="0%" stopColor="hsl(var(--mint))" stopOpacity={0.35} />
+                      <stop offset="100%" stopColor="hsl(var(--mint))" stopOpacity={0.05} />
                     </linearGradient>
                   </defs>
                   <XAxis
@@ -126,14 +122,21 @@ export default function ThemeExplorationPage() {
                     axisLine={false}
                     tickFormatter={(v: string) => {
                       const d = new Date(v);
-                      return `${d.getMonth() + 1}/${d.getDate()}`;
+                      const day = d.toLocaleDateString("en-US", { weekday: "short" });
+                      return `${day} ${d.getDate()}/${d.getMonth() + 1}`;
                     }}
                   />
                   <YAxis
+                    domain={[0, 3]}
+                    ticks={[1, 2, 3]}
                     allowDecimals={false}
                     tick={{ fill: "hsl(var(--on-surface-variant))", fontSize: 10 }}
                     tickLine={false}
                     axisLine={false}
+                    tickFormatter={(v: number) => {
+                      const labels: Record<number, string> = { 1: "Low", 2: "Mid", 3: "High" };
+                      return labels[v] || "";
+                    }}
                   />
                   <Tooltip
                     contentStyle={{
@@ -143,35 +146,33 @@ export default function ThemeExplorationPage() {
                       fontSize: "12px",
                       color: "hsl(var(--on-surface))",
                     }}
-                    labelFormatter={(v: string) => new Date(v).toLocaleDateString()}
+                    labelFormatter={(v: string) => {
+                      const d = new Date(v);
+                      return d.toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" });
+                    }}
                     formatter={(value: number, name: string) => {
-                      if (name === "count") return [`${value} entries`, "Entries"];
-                      const labels = ["—", "Low", "Moderate", "High"];
-                      return [labels[Math.round(value)] || `${value}`, "Intensity"];
+                      if (name === "intensity") {
+                        const labels = ["—", "Low", "Moderate", "High"];
+                        return [labels[Math.round(value)] || `${value}`, "Intensity"];
+                      }
+                      return [`${value}`, name];
                     }}
                   />
                   <Area
                     type="monotone"
-                    dataKey="count"
+                    dataKey="intensity"
                     stroke="hsl(var(--mint))"
                     strokeWidth={2}
-                    fill="url(#mintGrad)"
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="intensity"
-                    stroke="hsl(var(--destructive))"
-                    strokeWidth={1.5}
                     fill="url(#intensityGrad)"
-                    strokeDasharray="4 2"
+                    dot={{ r: 3, fill: "hsl(var(--mint))", strokeWidth: 0 }}
+                    activeDot={{ r: 5, fill: "hsl(var(--mint))", strokeWidth: 2, stroke: "hsl(var(--surface-low))" }}
                   />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
-            <div className="flex items-center gap-4 text-[10px] tracking-wider uppercase font-semibold">
-              <span className="flex items-center gap-1.5"><span className="w-3 h-0.5 rounded-full bg-mint inline-block" /> Entries</span>
-              <span className="flex items-center gap-1.5"><span className="w-3 h-0.5 rounded-full bg-destructive inline-block opacity-60" style={{ borderTop: "1px dashed" }} /> Intensity</span>
-            </div>
+            <p className="text-on-surface-variant text-[10px] tracking-wider">
+              {analysis.frequencyData.reduce((s: number, d: any) => s + d.count, 0)} entries across {analysis.frequencyData.length} days
+            </p>
           </motion.div>
         )}
 

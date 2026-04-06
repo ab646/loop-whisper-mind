@@ -84,11 +84,13 @@ export default function ProfilePage() {
   };
 
   // Fix #14: Delete account via edge function (removes auth user too)
-  const handleDeleteAccount = async () => {
+  const handleDeleteAccount = async (reason: string, details: string) => {
     if (!user) return;
     setDeleting(true);
     try {
-      const { error } = await supabase.functions.invoke("delete-account");
+      const { error } = await supabase.functions.invoke("delete-account", {
+        body: { reason, details },
+      });
       if (error) throw error;
       await signOut();
       toast.success("Account deleted");

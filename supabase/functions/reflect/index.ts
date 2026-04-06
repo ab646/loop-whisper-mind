@@ -1,177 +1,195 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "npm:@supabase/supabase-js@2.101.1";
+import { corsResponse, jsonResponse, errorResponse } from "../_shared/cors.ts";
+import { authenticateRequest, AuthError } from "../_shared/auth.ts";
+import { chatCompletionJSON, AIError } from "../_shared/ai.ts";
 
-const ALLOWED_ORIGINS = [
-  "https://3600c0cf-3277-4366-8026-9dd38615e329.lovable.app",
-  "http://localhost:5173",
-  "http://localhost:8080",
-];
+/**
+ * Loop Reflection Engine
+ *
+ * This is the core intelligence of Loop. When a user shares a thought,
+ * this function mirrors it back with psychological structure — identifying
+ * the cognitive loop, separating fact from assumption, and detecting
+ * patterns across their history.
+ *
+ * It is NOT therapy. It's a structured mirror that helps overthinkers
+ * see their own patterns more clearly.
+ */
 
-function getCorsHeaders(req: Request) {
-  const origin = req.headers.get("Origin") || "";
-  const allowedOrigin = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
-  return {
-    "Access-Control-Allow-Origin": allowedOrigin,
-    "Access-Control-Allow-Headers":
-      "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
+interface Reflection {
+  mainLoop: string;
+  loopType: "rumination" | "anticipatory" | "decisional" | "self-critical" | "relational" | "existential";
+  feelings: string[];
+  intensity: "low" | "moderate" | "high";
+  knownVsAssumed: {
+    known: string[];
+    assumed: string[];
   };
+  repeatingPattern: string | null;
+  temporalShift: string | null;
+  oneQuestion: string;
+  nextStep: string;
+  tags: string[];
+}
+
+const REFLECTION_FALLBACK: Reflection = {
+  mainLoop: "",
+  loopType: "rumination",
+  feelings: [],
+  intensity: "moderate",
+  knownVsAssumed: { known: [], assumed: [] },
+  repeatingPattern: null,
+  temporalShift: null,
+  oneQuestion: "What would help you feel grounded right now?",
+  nextStep: "Take three slow breaths and notice one thing you can see.",
+  tags: [],
+};
+
+function buildSystemPrompt(
+  historyContext: string,
+  conversationContext: string
+): string {
+  return `You are Loop, a reflective journal companion for people with anxious or ADHD-style thinking patterns. You are NOT a therapist or counselor. You are a psychologically literate mirror — you help people see the shape of their own thoughts.
+
+## YOUR VOICE
+- Calm, precise, grounded. Like a thoughtful friend who studied psychology.
+- Use: "Here's what I'm noticing", "It sounds like", "There may be", "This seems connected to"
+- NEVER use: diagnostic labels, clinical certainty, therapy-speak ("how does that make you feel"), patronizing advice, or hollow reassurance
+- Keep language concrete. Name specific thoughts and feelings, not abstractions.
+- Be warm but not soft. Clarity is kindness.
+
+## COGNITIVE LOOP DETECTION
+Identify which type of loop the person is in:
+- **rumination**: Replaying a past event, stuck in "what happened" or "what I should have done"
+- **anticipatory**: Future-focused worry, catastrophizing what might happen
+- **decisional**: Stuck between options, paralyzed by what-ifs
+- **self-critical**: Inner critic loop, harsh self-judgment, shame spiral
+- **relational**: Anxiety about what others think, reading into social signals
+- **existential**: Questioning meaning, purpose, identity, or direction
+
+## FACT vs. ASSUMPTION
+This is the most important analytical move. Overthinkers treat assumptions as facts. Your job is to gently separate:
+- **Known**: Things that are directly observable or confirmed ("My boss didn't reply to my email")
+- **Assumed**: Interpretations, predictions, or mind-reading ("She must be upset with me")
+
+## INTENSITY READING
+Gauge emotional intensity from language cues:
+- **low**: Reflective, curious, processing calmly
+- **moderate**: Some distress, circular thinking, but still grounded
+- **high**: Spiraling, catastrophizing, strong emotional charge, urgency
+
+## PATTERN DETECTION
+When history is available, look for:
+- Recurring triggers (time of day, specific people, situations)
+- Emotional cycles (does this theme come and go?)
+- Growth signals (is the person handling this differently than before?)
+
+## TEMPORAL SHIFT
+If the person is stuck in the past or future, note it:
+- "You're replaying a conversation from yesterday as if you could change the outcome"
+- "You're rehearsing a future confrontation that may never happen"
+- null if they're present-focused
+
+## TAGS
+Assign 1-3 UPPERCASE tags from this taxonomy (use exactly these when applicable):
+AMBIGUITY, REJECTION, SELF-DOUBT, CONTROL, DECISION PARALYSIS, SAFETY, VALIDATION, OVERWHELM, SHAME, LONELINESS, AVOIDANCE, REASSURANCE, ATTACHMENT, STUCKNESS, LONGING, WORK ANXIETY, PERFECTIONISM, PEOPLE-PLEASING, BOUNDARIES, IMPOSTER, COMPARISON, BURNOUT, GRIEF, IDENTITY, CHANGE
+
+## OUTPUT FORMAT
+Return ONLY a valid JSON object with these exact fields:
+{
+  "mainLoop": "A 1-2 sentence description of the specific cognitive loop, written in second person. Be precise, not generic.",
+  "loopType": "rumination" | "anticipatory" | "decisional" | "self-critical" | "relational" | "existential",
+  "feelings": ["2-4 specific emotions — prefer precise words like 'dread' over vague ones like 'bad'"],
+  "intensity": "low" | "moderate" | "high",
+  "knownVsAssumed": {
+    "known": ["1-2 factual observations from what they said"],
+    "assumed": ["1-2 interpretations or predictions they're treating as fact"]
+  },
+  "repeatingPattern": "If you see a pattern from their history, describe it in 1 sentence. Otherwise null.",
+  "temporalShift": "If they're stuck in past or future, name it in 1 sentence. Otherwise null.",
+  "oneQuestion": "A single reflective question that could crack the loop open. Not generic. Specific to what they said.",
+  "nextStep": "One concrete grounding micro-action (not advice, not 'talk to someone'). Something they can do in the next 60 seconds.",
+  "tags": ["1-3 UPPERCASE tags from the taxonomy above"]
+}
+
+Return ONLY valid JSON. No markdown fences, no explanation, no preamble.${historyContext}${conversationContext}`;
 }
 
 serve(async (req) => {
-  if (req.method === "OPTIONS") {
-    return new Response(null, { headers: getCorsHeaders(req) });
-  }
+  if (req.method === "OPTIONS") return corsResponse(req);
 
   try {
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader?.startsWith("Bearer ")) {
-      return new Response(JSON.stringify({ error: "No auth" }), {
-        status: 401,
-        headers: { ...getCorsHeaders(req), "Content-Type": "application/json" },
-      });
-    }
-
-    const token = authHeader.replace("Bearer ", "").trim();
-    const supabaseUrl = Deno.env.get("SUPABASE_URL");
-    const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-    const anonKey = Deno.env.get("SUPABASE_ANON_KEY");
-
-    if (!supabaseUrl || !serviceRoleKey || !anonKey) {
-      throw new Error("Supabase environment is not configured correctly");
-    }
-
-    const authClient = createClient(supabaseUrl, anonKey, {
-      global: { headers: { Authorization: authHeader } },
-    });
-
-    const { data: claimsData, error: claimsError } = await authClient.auth.getClaims(token);
-    const userId = claimsData?.claims?.sub;
-
-    if (claimsError || !userId) {
-      console.error("Auth claims error:", claimsError?.message ?? "Missing sub claim");
-      return new Response(JSON.stringify({ error: "Unauthorized" }), {
-        status: 401,
-        headers: { ...getCorsHeaders(req), "Content-Type": "application/json" },
-      });
-    }
-
-    const adminClient = createClient(supabaseUrl, serviceRoleKey);
+    const { userId, adminClient } = await authenticateRequest(req);
 
     const { content, entryType, previousMessages } = await req.json();
     if (!content?.trim()) {
-      return new Response(JSON.stringify({ error: "Content required" }), {
-        status: 400,
-        headers: { ...getCorsHeaders(req), "Content-Type": "application/json" },
-      });
+      return errorResponse(req, "Content required", 400);
     }
 
+    // Fetch recent entries for pattern detection
     const { data: recentEntries } = await adminClient
       .from("entries")
       .select("content, reflection, tags, created_at")
       .eq("user_id", userId)
       .order("created_at", { ascending: false })
-      .limit(10);
+      .limit(15);
 
-    const historyContext = recentEntries?.length
-      ? `\n\nPrevious journal entries for pattern context:\n${recentEntries
-          .map(
-            (e: any) =>
-              `- "${e.content.substring(0, 200)}" [tags: ${(e.tags || []).join(", ")}]`
-          )
-          .join("\n")}`
-      : "";
-
-    const conversationContext = previousMessages?.length
-      ? `\n\nConversation so far in this session:\n${previousMessages
-          .map((m: any) => `${m.role}: ${m.content.substring(0, 300)}`)
-          .join("\n")}`
-      : "";
-
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) {
-      throw new Error("LOVABLE_API_KEY not configured");
-    }
-
-    const systemPrompt = `You are Loop, a reflective voice journal companion for overthinkers and people with anxious or ADHD-style rumination. You are NOT a therapist. You are a calm, psychologically literate mirror.
-
-Your tone: calm, concise, grounded, non-authoritative, emotionally clear. Use phrases like "Here's what I'm noticing", "It sounds like", "You may be", "This seems connected to".
-
-NEVER use: diagnostic language, certainty where there is ambiguity, therapy-role language, patronizing advice, excessive verbosity.
-
-When a user shares a thought, return a structured reflection as a JSON object with these exact fields:
-{
-  "mainLoop": "A 1-2 sentence description of the cognitive/emotional loop the user seems stuck in",
-  "feelings": ["array of 2-4 emotions you detect"],
-  "knownVsAssumed": {
-    "known": ["1-2 things that are factual based on what they said"],
-    "assumed": ["1-2 things they may be assuming without evidence"]
-  },
-  "repeatingPattern": "Optional — if you notice a pattern from their history, describe it in 1 sentence. null if no pattern detected.",
-  "oneQuestion": "A single reflective question that could help them see the loop differently",
-  "nextStep": "One gentle, concrete grounding action (not advice)",
-  "tags": ["1-3 UPPERCASE theme tags like AMBIGUITY, REJECTION, SELF-DOUBT, CONTROL, DECISION PARALYSIS, SAFETY, VALIDATION, OVERWHELM, SHAME, LONELINESS, AVOIDANCE, REASSURANCE, ATTACHMENT, STUCKNESS, LONGING, WORK ANXIETY"]
-}
-
-Return ONLY valid JSON. No markdown, no explanation.${historyContext}${conversationContext}`;
-
-    const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "google/gemini-3-flash-preview",
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content },
-        ],
-      }),
-    });
-
-    if (!aiResponse.ok) {
-      if (aiResponse.status === 429) {
-        return new Response(
-          JSON.stringify({ error: "Rate limited, please try again shortly." }),
-          {
-            status: 429,
-            headers: { ...getCorsHeaders(req), "Content-Type": "application/json" },
-          }
+    // Build richer history context with temporal markers
+    let historyContext = "";
+    if (recentEntries?.length) {
+      const now = new Date();
+      const enriched = recentEntries.map((e: any) => {
+        const age = Math.round(
+          (now.getTime() - new Date(e.created_at).getTime()) / (1000 * 60 * 60)
         );
-      }
+        const timeLabel =
+          age < 1 ? "just now" :
+          age < 24 ? `${age}h ago` :
+          age < 168 ? `${Math.round(age / 24)}d ago` :
+          `${Math.round(age / 168)}w ago`;
 
-      if (aiResponse.status === 402) {
-        return new Response(JSON.stringify({ error: "AI credits exhausted." }), {
-          status: 402,
-          headers: { ...getCorsHeaders(req), "Content-Type": "application/json" },
-        });
-      }
+        const reflection = e.reflection || {};
+        const loopType = reflection.loopType || "unknown";
+        const intensity = reflection.intensity || "unknown";
 
-      throw new Error(`AI gateway error: ${aiResponse.status}`);
+        return `- [${timeLabel}] "${e.content.substring(0, 250)}" | loop: ${loopType} | intensity: ${intensity} | tags: ${(e.tags || []).join(", ")}`;
+      });
+
+      historyContext = `\n\n## PREVIOUS ENTRIES (most recent first — use for pattern detection)\n${enriched.join("\n")}`;
     }
 
-    const aiData = await aiResponse.json();
-    const rawContent = aiData.choices?.[0]?.message?.content || "";
-
-    let reflection;
-    try {
-      const cleaned = rawContent
-        .replace(/```json\n?/g, "")
-        .replace(/```\n?/g, "")
-        .trim();
-      reflection = JSON.parse(cleaned);
-    } catch {
-      reflection = {
-        mainLoop: rawContent,
-        feelings: [],
-        knownVsAssumed: { known: [], assumed: [] },
-        repeatingPattern: null,
-        oneQuestion: "What would help you feel grounded right now?",
-        nextStep: "Take three slow breaths.",
-        tags: [],
-      };
+    // Build conversation context for multi-turn sessions
+    let conversationContext = "";
+    if (previousMessages?.length) {
+      const messages = previousMessages.slice(-6); // Keep last 6 turns max
+      conversationContext = `\n\n## CURRENT SESSION CONVERSATION\n${messages
+        .map((m: any) => `${m.role === "user" ? "User" : "Loop"}: ${m.content.substring(0, 400)}`)
+        .join("\n")}`;
     }
 
+    const systemPrompt = buildSystemPrompt(historyContext, conversationContext);
+
+    const reflection = await chatCompletionJSON<Reflection>(
+      [
+        { role: "system", content: systemPrompt },
+        { role: "user", content },
+      ],
+      { ...REFLECTION_FALLBACK, mainLoop: content.substring(0, 200) },
+      { temperature: 0.4, maxTokens: 1024 }
+    );
+
+    // Validate and normalize tags
+    reflection.tags = (reflection.tags || []).map((t: string) =>
+      t.toUpperCase().trim()
+    );
+
+    // Ensure required fields exist
+    if (!reflection.mainLoop) reflection.mainLoop = "Processing your thought...";
+    if (!reflection.feelings?.length) reflection.feelings = ["uncertain"];
+    if (!reflection.knownVsAssumed) {
+      reflection.knownVsAssumed = { known: [], assumed: [] };
+    }
+
+    // Store entry
     const { data: entry, error: insertError } = await adminClient
       .from("entries")
       .insert({
@@ -179,7 +197,7 @@ Return ONLY valid JSON. No markdown, no explanation.${historyContext}${conversat
         entry_type: entryType || "text",
         content,
         reflection,
-        tags: reflection.tags || [],
+        tags: reflection.tags,
       })
       .select()
       .single();
@@ -188,19 +206,18 @@ Return ONLY valid JSON. No markdown, no explanation.${historyContext}${conversat
       console.error("Insert error:", insertError);
     }
 
-    return new Response(JSON.stringify({ reflection, entryId: entry?.id }), {
-      headers: { ...getCorsHeaders(req), "Content-Type": "application/json" },
-    });
+    return jsonResponse(req, { reflection, entryId: entry?.id });
   } catch (e) {
+    if (e instanceof AuthError) {
+      return errorResponse(req, e.message, e.status);
+    }
+    if (e instanceof AIError) {
+      return errorResponse(req, e.message, e.status);
+    }
     console.error("reflect error:", e);
-    return new Response(
-      JSON.stringify({
-        error: e instanceof Error ? e.message : "Unknown error",
-      }),
-      {
-        status: 500,
-        headers: { ...getCorsHeaders(req), "Content-Type": "application/json" },
-      }
+    return errorResponse(
+      req,
+      e instanceof Error ? e.message : "Unknown error"
     );
   }
 });

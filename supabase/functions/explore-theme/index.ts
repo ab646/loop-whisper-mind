@@ -1,64 +1,60 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "npm:@supabase/supabase-js@2.101.1";
+import { corsResponse, jsonResponse, errorResponse } from "../_shared/cors.ts";
+import { authenticateRequest, AuthError } from "../_shared/auth.ts";
+import { chatCompletionJSON, AIError } from "../_shared/ai.ts";
 
-const ALLOWED_ORIGINS = [
-  "https://3600c0cf-3277-4366-8026-9dd38615e329.lovable.app",
-  "http://localhost:5173",
-  "http://localhost:8080",
-];
+/**
+ * Loop Theme Explorer
+ *
+ * Deep-dives into a single recurring theme from the user's entries.
+ * Unlike insights (which gives a bird's-eye view), this function
+ * zooms into one pattern and traces it: what beliefs fuel it,
+ * what triggers it, how it's evolved, and what questions could
+ * help the user see it differently.
+ *
+ * Also supports follow-up questions where the user can "talk to"
+ * a theme — asking Loop to explain connections they're curious about.
+ */
 
-function getCorsHeaders(req: Request) {
-  const origin = req.headers.get("Origin") || "";
-  const allowedOrigin = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
-  return {
-    "Access-Control-Allow-Origin": allowedOrigin,
-    "Access-Control-Allow-Headers":
-      "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
-  };
+interface ThemeAnalysis {
+  connectedBelief: string;
+  beliefTags: string[];
+  triggers: Array<{
+    label: string;
+    iconType: string;
+  }>;
+  entriesThisWeek: number;
+  timeline: string;
+  patternInsight: string;
+  protectiveFunction: string | null;
+  followUpQuestions: string[];
+  answer: string | null;
 }
 
+const THEME_FALLBACK: ThemeAnalysis = {
+  connectedBelief: "",
+  beliefTags: [],
+  triggers: [],
+  entriesThisWeek: 0,
+  timeline: "",
+  patternInsight: "",
+  protectiveFunction: null,
+  followUpQuestions: [],
+  answer: null,
+};
+
 serve(async (req) => {
-  if (req.method === "OPTIONS")
-    return new Response(null, { headers: getCorsHeaders(req) });
+  if (req.method === "OPTIONS") return corsResponse(req);
 
   try {
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader?.startsWith("Bearer "))
-      return new Response(JSON.stringify({ error: "No auth" }), {
-        status: 401,
-        headers: { ...getCorsHeaders(req), "Content-Type": "application/json" },
-      });
-
-    const token = authHeader.replace("Bearer ", "").trim();
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
-    const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-
-    const authClient = createClient(supabaseUrl, anonKey, {
-      global: { headers: { Authorization: authHeader } },
-    });
-
-    const { data: claimsData, error: claimsError } = await authClient.auth.getClaims(token);
-    const userId = claimsData?.claims?.sub;
-
-    if (claimsError || !userId)
-      return new Response(JSON.stringify({ error: "Unauthorized" }), {
-        status: 401,
-        headers: { ...getCorsHeaders(req), "Content-Type": "application/json" },
-      });
-
-    const adminClient = createClient(supabaseUrl, serviceRoleKey);
+    const { userId, adminClient } = await authenticateRequest(req);
 
     const { theme, question } = await req.json();
-    if (!theme)
-      return new Response(JSON.stringify({ error: "Theme required" }), {
-        status: 400,
-        headers: { ...getCorsHeaders(req), "Content-Type": "application/json" },
-      });
+    if (!theme) return errorResponse(req, "Theme required", 400);
 
     const normalizedTheme = theme.toUpperCase().trim();
 
-    // Fetch entries related to this theme
+    // Fetch entries tagged with this theme
     const { data: entries } = await adminClient
       .from("entries")
       .select("content, reflection, tags, created_at")
@@ -67,7 +63,7 @@ serve(async (req) => {
       .order("created_at", { ascending: false })
       .limit(20);
 
-    // Also fetch all entries for broader context
+    // Broader context from all entries
     const { data: allEntries } = await adminClient
       .from("entries")
       .select("content, reflection, tags, created_at")
@@ -75,106 +71,83 @@ serve(async (req) => {
       .order("created_at", { ascending: false })
       .limit(30);
 
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
+    const now = new Date();
 
     const themeEntries = (entries || [])
+      .map((e: any) => {
+        const ageHours =
+          (now.getTime() - new Date(e.created_at).getTime()) / (1000 * 60 * 60);
+        const timeLabel =
+          ageHours < 24 ? "today" :
+          ageHours < 168 ? `${Math.round(ageHours / 24)}d ago` :
+          `${Math.round(ageHours / 168)}w ago`;
+
+        const reflection = e.reflection || {};
+        return `[${timeLabel}] "${e.content.substring(0, 300)}" | loop: ${reflection.loopType || "?"} | intensity: ${reflection.intensity || "?"} | feelings: ${(reflection.feelings || []).join(", ")}`;
+      })
+      .join("\n");
+
+    const otherEntries = (allEntries || [])
+      .filter((e: any) => !(e.tags || []).includes(normalizedTheme))
+      .slice(0, 10)
       .map(
         (e: any) =>
-          `[${e.created_at}] "${e.content.substring(0, 300)}" | reflection: ${JSON.stringify(e.reflection || {}).substring(0, 200)}`
+          `[${new Date(e.created_at).toLocaleDateString()}] tags: ${(e.tags || []).join(", ")} | "${e.content.substring(0, 100)}"`
       )
       .join("\n");
 
-    const allEntriesSummary = (allEntries || [])
-      .map(
-        (e: any) =>
-          `[${e.created_at}] tags: ${(e.tags || []).join(", ")} | "${e.content.substring(0, 100)}"`
-      )
-      .join("\n");
+    const weekCount = (entries || []).filter((e: any) => {
+      const age = (now.getTime() - new Date(e.created_at).getTime()) / (1000 * 60 * 60);
+      return age < 168;
+    }).length;
 
-    const userQuestion = question
-      ? `The user is asking about this theme: "${question}". Answer their question based on the data.`
-      : `Provide a deep analysis of this theme.`;
+    const systemPrompt = `You are Loop's theme analyst. The user wants to understand their recurring "${normalizedTheme}" pattern at a deeper level. You are psychologically literate but NOT a therapist. Your job is to help them see the architecture of this pattern.
 
-    const aiResponse = await fetch(
-      "https://ai.gateway.lovable.dev/v1/chat/completions",
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${LOVABLE_API_KEY}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          model: "google/gemini-3-flash-preview",
-          messages: [
-            {
-              role: "system",
-              content: `You analyze a user's recurring theme "${normalizedTheme}" from their journal entries. You are psychologically literate but NOT a therapist. Be warm, insightful, and grounded.
+## WHAT TO ANALYZE
+1. **Core belief**: What underlying belief drives this theme? Write it as something the user might say to themselves (e.g., "If I don't get this right, people will see I'm not good enough")
+2. **Triggers**: What specific situations or contexts activate this pattern?
+3. **Timeline**: Has this theme intensified, softened, or stayed constant? Any notable shifts?
+4. **Protective function**: Many recurring loops serve an unconscious purpose (e.g., perfectionism protects against criticism; avoidance protects against rejection). If you can identify one, name it. This is one of the most valuable insights you can offer.
+5. **Cross-theme connections**: Does this theme appear alongside other tags? What does that combination suggest?
 
-${question ? "The user asked a specific question. Answer it thoughtfully based on their data." : "Provide a deep theme analysis."}
+${question ? `## USER'S QUESTION\nThe user specifically asked: "${question}"\nAnswer this thoughtfully based on their data. Be specific, not generic.` : "## MODE\nProvide a deep unprompted analysis of this theme."}
 
-Return a JSON object:
+## OUTPUT FORMAT
+Return ONLY a valid JSON object:
 {
-  "connectedBelief": "A core belief that seems connected to this theme (1-2 sentences, written as a quote the user might say)",
-  "beliefTags": ["1-2 tags like Safety-seeking, Control, Perfectionism"],
-  "triggers": [{"label": "Trigger name", "iconType": "heart"|"briefcase"|"calendar"}] (top 3 triggers for this theme),
-  "entriesThisWeek": number,
-  "patternInsight": "One insight about when/how this theme manifests (1-2 sentences)",
-  "followUpQuestions": ["3 reflective questions the user could explore about this theme"],
-  "answer": ${question ? '"A thoughtful 2-3 sentence answer to their specific question"' : "null"}
+  "connectedBelief": "The core belief driving this pattern, written as an inner-voice quote (1-2 sentences)",
+  "beliefTags": ["1-2 psychological labels like 'Safety-seeking', 'Control', 'Perfectionism', 'Attachment anxiety', 'Avoidance'"],
+  "triggers": [{"label": "Specific trigger", "iconType": "heart"|"briefcase"|"calendar"|"people"|"clock"|"message"}] (top 3),
+  "entriesThisWeek": ${weekCount},
+  "timeline": "1-2 sentences about how this theme has evolved over the entries. Reference specific shifts if visible.",
+  "patternInsight": "Your most valuable observation about this pattern — something the user likely hasn't noticed. 1-2 sentences. Be specific.",
+  "protectiveFunction": "What purpose might this loop serve? e.g., 'This worry pattern may be your mind's way of preparing for the worst so you're never caught off guard.' null if you can't identify one.",
+  "followUpQuestions": ["3 specific, non-generic reflective questions about this theme that could deepen the user's self-understanding"],
+  "answer": ${question ? '"A thoughtful 2-3 sentence answer to their question, grounded in their actual data"' : "null"}
 }
 
-Return ONLY valid JSON.`,
-            },
-            {
-              role: "user",
-              content: `Theme: ${normalizedTheme}\n\nEntries tagged with this theme:\n${themeEntries || "No entries yet"}\n\nAll recent entries for context:\n${allEntriesSummary}`,
-            },
-          ],
-        }),
-      }
+Return ONLY valid JSON. No markdown, no explanation.`;
+
+    const analysis = await chatCompletionJSON<ThemeAnalysis>(
+      [
+        { role: "system", content: systemPrompt },
+        {
+          role: "user",
+          content: `Theme: ${normalizedTheme}\n\nEntries with this tag (${(entries || []).length} total, ${weekCount} this week):\n${themeEntries || "No entries yet"}\n\nOther recent entries for cross-reference:\n${otherEntries || "None"}`,
+        },
+      ],
+      THEME_FALLBACK,
+      { temperature: 0.4, maxTokens: 1536 }
     );
 
-    if (!aiResponse.ok) {
-      if (aiResponse.status === 429)
-        return new Response(JSON.stringify({ error: "Rate limited" }), {
-          status: 429,
-          headers: { ...getCorsHeaders(req), "Content-Type": "application/json" },
-        });
-      if (aiResponse.status === 402)
-        return new Response(JSON.stringify({ error: "Credits exhausted" }), {
-          status: 402,
-          headers: { ...getCorsHeaders(req), "Content-Type": "application/json" },
-        });
-      throw new Error(`AI gateway error: ${aiResponse.status}`);
-    }
+    // Ensure entriesThisWeek is accurate from data, not AI guess
+    analysis.entriesThisWeek = weekCount;
 
-    const aiData = await aiResponse.json();
-    const raw = aiData.choices?.[0]?.message?.content || "{}";
-    let analysis;
-    try {
-      const cleaned = raw.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
-      analysis = JSON.parse(cleaned);
-    } catch {
-      analysis = {
-        connectedBelief: raw,
-        beliefTags: [],
-        triggers: [],
-        entriesThisWeek: 0,
-        patternInsight: "",
-        followUpQuestions: [],
-        answer: null,
-      };
-    }
-
-    return new Response(JSON.stringify(analysis), {
-      headers: { ...getCorsHeaders(req), "Content-Type": "application/json" },
-    });
+    return jsonResponse(req, analysis);
   } catch (e) {
+    if (e instanceof AuthError) return errorResponse(req, e.message, e.status);
+    if (e instanceof AIError) return errorResponse(req, e.message, e.status);
     console.error("explore-theme error:", e);
-    return new Response(
-      JSON.stringify({ error: e instanceof Error ? e.message : "Unknown error" }),
-      { status: 500, headers: { ...getCorsHeaders(req), "Content-Type": "application/json" } }
-    );
+    return errorResponse(req, e instanceof Error ? e.message : "Unknown error");
   }
 });

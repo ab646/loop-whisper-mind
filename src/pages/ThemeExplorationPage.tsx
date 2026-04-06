@@ -326,9 +326,9 @@ export default function ThemeExplorationPage() {
             <div className="w-10 h-10 rounded-full orb-gradient flex items-center justify-center shrink-0">
               <span className="text-primary-foreground text-sm">✦</span>
             </div>
-            <div>
-              <h3 className="text-on-surface font-body font-semibold text-base">Deepen the exploration</h3>
-              <p className="text-on-surface-variant text-sm">Ask a follow-up about how {themeName} manifests.</p>
+          <div>
+              <h3 className="text-on-surface font-body font-semibold text-base">What the data shows</h3>
+              <p className="text-on-surface-variant text-sm">Observations from your entries about {themeName}.</p>
             </div>
           </div>
 

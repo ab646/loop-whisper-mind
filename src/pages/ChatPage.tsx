@@ -43,6 +43,7 @@ export default function ChatPage() {
   const { session } = useAuth();
   const isNew = id === "new";
   const initialText = (location.state as any)?.initialText as string | undefined;
+  const prefillText = (location.state as any)?.prefillText as string | undefined;
 
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
@@ -330,7 +331,7 @@ export default function ChatPage() {
 
       {isNew && (
         <div className="shrink-0 pb-20">
-          <ChatInput onSend={handleSend} onVoice={() => navigate("/recording")} placeholder="Type your thoughts..." />
+          <ChatInput onSend={handleSend} onVoice={() => navigate("/recording")} placeholder="Type your thoughts..." defaultValue={prefillText} />
         </div>
       )}
     </div>

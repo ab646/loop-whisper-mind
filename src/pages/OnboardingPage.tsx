@@ -97,7 +97,7 @@ export default function OnboardingPage() {
     }
 
     await refreshProfile();
-    navigate("/chat/new", { state: { initialText } });
+    navigate("/chat/new", { state: { prefillText: initialText } });
   };
 
   const handleSwipe = (_: any, { offset, velocity }: any) => {

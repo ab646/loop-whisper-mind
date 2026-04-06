@@ -6,10 +6,11 @@ interface ChatInputProps {
   onSend: (text: string, imageUrl?: string) => void;
   onVoice: () => void;
   placeholder?: string;
+  defaultValue?: string;
 }
 
-export function ChatInput({ onSend, onVoice, placeholder = "Type your thoughts..." }: ChatInputProps) {
-  const [text, setText] = useState("");
+export function ChatInput({ onSend, onVoice, placeholder = "Type your thoughts...", defaultValue = "" }: ChatInputProps) {
+  const [text, setText] = useState(defaultValue);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);

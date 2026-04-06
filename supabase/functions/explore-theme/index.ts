@@ -151,9 +151,10 @@ Return ONLY valid JSON. No markdown, no explanation.`;
     for (const e of allEntries || []) {
       const day = new Date(e.created_at).toISOString().split("T")[0];
       const reflection = (e.reflection || {}) as Record<string, any>;
+      const oldMap: Record<string, number> = { low: 1, moderate: 3, high: 5 };
       const score = typeof reflection.intensityScore === "number"
         ? Math.max(0, Math.min(5, reflection.intensityScore))
-        : 2; // fallback for older entries without intensityScore
+        : (oldMap[reflection.intensity as string] ?? 2);
       if (!dayMap[day]) dayMap[day] = { count: 0, intensitySum: 0 };
       dayMap[day].count += 1;
       dayMap[day].intensitySum += score;

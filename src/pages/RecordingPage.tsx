@@ -81,11 +81,7 @@ export default function RecordingPage() {
     }
 
     setProcessing(true);
-    setCurrentStep("saved");
-
-    // Brief pause to show "saved"
-    await new Promise((r) => setTimeout(r, 600));
-    setCurrentStep("uploading");
+    setCurrentStep("transcribing");
 
     try {
       const formData = new FormData();

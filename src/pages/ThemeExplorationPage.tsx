@@ -1,6 +1,6 @@
 import { useParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Heart, Briefcase, Calendar, Loader2, ArrowUp } from "lucide-react";
+import { Heart, Briefcase, Calendar, Loader2, ArrowUp, Users, Clock, MessageCircle, Shield, Brain, Eye, Flame, AlertTriangle } from "lucide-react";
 import { AppHeader } from "@/components/AppHeader";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -12,11 +12,27 @@ const triggerIcons: Record<string, any> = {
   heart: Heart,
   briefcase: Briefcase,
   calendar: Calendar,
+  people: Users,
+  clock: Clock,
+  message: MessageCircle,
+  shield: Shield,
+  brain: Brain,
+  eye: Eye,
+  flame: Flame,
+  alert: AlertTriangle,
 };
 const triggerColors: Record<string, string> = {
   heart: "text-pink-300",
   briefcase: "text-amber-300",
   calendar: "text-on-surface-variant",
+  people: "text-blue-300",
+  clock: "text-orange-300",
+  message: "text-teal-300",
+  shield: "text-emerald-300",
+  brain: "text-purple-300",
+  eye: "text-cyan-300",
+  flame: "text-red-300",
+  alert: "text-yellow-300",
 };
 
 export default function ThemeExplorationPage() {

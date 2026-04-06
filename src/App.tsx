@@ -48,6 +48,14 @@ function PublicRoute({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+// Fix #3: Guard onboarding route — require auth but NOT onboarding_complete
+function OnboardingRoute({ children }: { children: React.ReactNode }) {
+  const { session, loading } = useAuth();
+  if (loading) return null;
+  if (!session) return <Navigate to="/login" replace />;
+  return <>{children}</>;
+}
+
 function AppRoutes() {
   return (
     <div className="max-w-md mx-auto relative min-h-screen">
@@ -58,8 +66,8 @@ function AppRoutes() {
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
 
-        {/* Onboarding */}
-        <Route path="/onboarding" element={<OnboardingPage />} />
+        {/* Onboarding — guarded */}
+        <Route path="/onboarding" element={<OnboardingRoute><OnboardingPage /></OnboardingRoute>} />
 
         {/* Protected */}
         <Route path="/" element={<ProtectedRoute><HomePage /></ProtectedRoute>} />

@@ -25,6 +25,9 @@ export function FeedbackButtons({ contentType, contentId, contentPreview }: Feed
       .maybeSingle()
       .then(({ data }: any) => {
         if (data?.rating) setRating(data.rating);
+      })
+      .catch(() => {
+        // feedback table may not exist yet — silently ignore
       });
   }, [session, contentType, contentId]);
 

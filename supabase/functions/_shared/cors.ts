@@ -5,6 +5,7 @@
 const ALLOWED_ORIGINS = [
   "http://localhost:5173",
   "http://localhost:8080",
+  ...(Deno.env.get("CUSTOM_ORIGIN") ? [Deno.env.get("CUSTOM_ORIGIN")!] : []),
 ];
 
 const ALLOWED_HOST_SUFFIXES = [".lovable.app", ".lovableproject.com"];

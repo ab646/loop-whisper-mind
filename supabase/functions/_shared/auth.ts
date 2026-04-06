@@ -8,6 +8,9 @@ export interface AuthResult {
 /**
  * Validates the JWT from the Authorization header and returns
  * the authenticated user ID + an admin Supabase client.
+ *
+ * NOTE: getClaims() requires @supabase/supabase-js >= 2.101.1
+ * The import pins this version. If upgrading, verify getClaims() still exists.
  */
 export async function authenticateRequest(
   req: Request

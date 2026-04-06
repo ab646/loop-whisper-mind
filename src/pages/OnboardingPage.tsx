@@ -113,18 +113,31 @@ export default function OnboardingPage() {
     setSelectedSeed(index === selectedSeed ? null : index);
   };
 
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    navigate("/login");
+  };
+
   return (
     <div className="min-h-screen mesh-gradient-bg flex flex-col px-6">
-      {/* Progress dots */}
-      <div className="pt-8 pb-4 flex gap-2">
-        {steps.map((_, i) => (
-          <div
-            key={i}
-            className={`h-1 flex-1 rounded-full transition-colors ${
-              i <= step ? "bg-mint" : "bg-surface-high"
-            }`}
-          />
-        ))}
+      {/* Progress dots + sign out */}
+      <div className="pt-8 pb-4 flex items-center justify-between">
+        <div className="flex gap-2 flex-1">
+          {steps.map((_, i) => (
+            <div
+              key={i}
+              className={`h-1 flex-1 rounded-full transition-colors ${
+                i <= step ? "bg-mint" : "bg-surface-high"
+              }`}
+            />
+          ))}
+        </div>
+        <button
+          onClick={handleSignOut}
+          className="text-on-surface-variant text-xs ml-4 hover:text-mint"
+        >
+          Sign out
+        </button>
       </div>
 
       <div className="flex-1 flex flex-col justify-center overflow-y-auto px-1">

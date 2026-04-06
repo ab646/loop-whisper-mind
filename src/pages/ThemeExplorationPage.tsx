@@ -124,24 +124,7 @@ export default function ThemeExplorationPage() {
       const answer = data?.answer || data?.connectedBelief || "I couldn't generate a reflection for that.";
       setChatMessages((prev) => [...prev, { role: "ai", content: answer }]);
 
-      // Save as an entry in the main chat
-      const themeName = theme ? theme.charAt(0).toUpperCase() + theme.slice(1) : "Theme";
-      await supabase.from("entries").insert({
-        user_id: session.user.id,
-        content: question,
-        entry_type: "theme-exploration",
-        tags: [themeName.toUpperCase()],
-        reflection: {
-          mainLoop: `Exploring the theme: ${themeName}`,
-          oneQuestion: question,
-          knownVsAssumed: { known: [], assumed: [] },
-          feelings: [],
-          repeatingPattern: null,
-          nextStep: null,
-          tags: [themeName.toUpperCase()],
-          themeAnswer: answer,
-        },
-      });
+      // Fix #11: Removed entry creation — exploration chat stays in component state only
     } catch (e) {
       toast.error("Failed to get answer");
     }
@@ -205,7 +188,7 @@ export default function ThemeExplorationPage() {
           </motion.div>
         )}
 
-        {/* Atmosphere Timeline */}
+        {/* Atmosphere Timeline — Fix #10: removed "Last 7 Days" button */}
         {analysis?.frequencyData?.length > 0 && analysis.frequencyData.reduce((sum: number, d: any) => sum + d.count, 0) >= 3 && (
           <motion.div
             initial={{ opacity: 0, y: 10 }}
@@ -213,13 +196,8 @@ export default function ThemeExplorationPage() {
             transition={{ delay: 0.1 }}
             className="rounded-2xl surface-low p-5 space-y-4"
           >
-            <div className="flex items-start justify-between">
-              <div>
-                <h3 className="font-display text-lg text-on-surface leading-snug">Intensity trends over time</h3>
-              </div>
-              <button className="text-on-surface-variant text-xs tracking-wide px-3 py-1.5 rounded-lg surface-high border border-border/20">
-                Last 7 Days
-              </button>
+            <div>
+              <h3 className="font-display text-lg text-on-surface leading-snug">Intensity trends over time</h3>
             </div>
             <div className="h-52">
               <ResponsiveContainer width="100%" height="100%">
@@ -357,7 +335,7 @@ export default function ThemeExplorationPage() {
           </div>
 
           <div className="rounded-2xl surface-low p-4 space-y-3">
-            {/* Suggestion chips — hidden once conversation starts */}
+            {/* Suggestion chips */}
             {showSuggestions && (analysis?.followUpQuestions || []).map((q: string) => (
               <button
                 key={q}

@@ -134,10 +134,15 @@ export default function InsightsPage() {
   const assumptionPercent = 100 - factPercent;
 
   return (
-    <div className="min-h-screen mesh-gradient-bg pb-24 pt-6">
-      
+    <div className="min-h-screen mesh-gradient-bg pb-24 pt-6 relative overflow-hidden">
+      {/* Background haze */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-[10%] left-1/2 -translate-x-1/2 w-[500px] h-[400px] rounded-full bg-primary/[0.06] blur-[120px]" />
+        <div className="absolute top-[45%] left-[25%] w-[350px] h-[350px] rounded-full bg-secondary/[0.04] blur-[100px]" />
+        <div className="absolute top-[75%] left-[65%] w-[300px] h-[300px] rounded-full bg-tertiary/[0.03] blur-[110px]" />
+      </div>
 
-      <div className="px-5 space-y-8">
+      <div className="px-5 space-y-8 relative z-10">
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-2">
           <h2 className="font-display text-2xl text-on-surface leading-tight">
             Patterns in the quiet.

@@ -319,7 +319,7 @@ export default function ChatPage() {
                 </motion.div>
               )}
               {msg.type === "reflection" && (
-                <div className="mt-2"><ReflectionCard {...msg.data} /></div>
+                <div className="mt-2" data-reflection><ReflectionCard {...msg.data} /></div>
               )}
             </div>
           ))}

@@ -263,11 +263,7 @@ export default function ChatPage() {
   };
 
   if (loadingEntry) {
-    return (
-      <div className="flex flex-col h-screen mesh-gradient-bg items-center justify-center">
-        <ScribblingLogo size={28} />
-      </div>
-    );
+    return <FullScreenLoader mode="reflection" />;
   }
 
   return (

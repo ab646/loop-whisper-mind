@@ -1,22 +1,32 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "npm:@supabase/supabase-js@2.101.1";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
-};
+const ALLOWED_ORIGINS = [
+  "https://3600c0cf-3277-4366-8026-9dd38615e329.lovable.app",
+  "http://localhost:5173",
+  "http://localhost:8080",
+];
+
+function getCorsHeaders(req: Request) {
+  const origin = req.headers.get("Origin") || "";
+  const allowedOrigin = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
+  return {
+    "Access-Control-Allow-Origin": allowedOrigin,
+    "Access-Control-Allow-Headers":
+      "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
+  };
+}
 
 serve(async (req) => {
   if (req.method === "OPTIONS")
-    return new Response(null, { headers: corsHeaders });
+    return new Response(null, { headers: getCorsHeaders(req) });
 
   try {
     const authHeader = req.headers.get("Authorization");
     if (!authHeader?.startsWith("Bearer "))
       return new Response(JSON.stringify({ error: "No auth" }), {
         status: 401,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        headers: { ...getCorsHeaders(req), "Content-Type": "application/json" },
       });
 
     const token = authHeader.replace("Bearer ", "").trim();
@@ -34,7 +44,7 @@ serve(async (req) => {
     if (claimsError || !userId)
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        headers: { ...getCorsHeaders(req), "Content-Type": "application/json" },
       });
 
     const adminClient = createClient(supabaseUrl, serviceRoleKey);
@@ -43,15 +53,17 @@ serve(async (req) => {
     if (!theme)
       return new Response(JSON.stringify({ error: "Theme required" }), {
         status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        headers: { ...getCorsHeaders(req), "Content-Type": "application/json" },
       });
+
+    const normalizedTheme = theme.toUpperCase().trim();
 
     // Fetch entries related to this theme
     const { data: entries } = await adminClient
       .from("entries")
       .select("content, reflection, tags, created_at")
       .eq("user_id", userId)
-      .contains("tags", [theme.toUpperCase()])
+      .contains("tags", [normalizedTheme])
       .order("created_at", { ascending: false })
       .limit(20);
 
@@ -97,7 +109,7 @@ serve(async (req) => {
           messages: [
             {
               role: "system",
-              content: `You analyze a user's recurring theme "${theme}" from their journal entries. You are psychologically literate but NOT a therapist. Be warm, insightful, and grounded.
+              content: `You analyze a user's recurring theme "${normalizedTheme}" from their journal entries. You are psychologically literate but NOT a therapist. Be warm, insightful, and grounded.
 
 ${question ? "The user asked a specific question. Answer it thoughtfully based on their data." : "Provide a deep theme analysis."}
 
@@ -116,7 +128,7 @@ Return ONLY valid JSON.`,
             },
             {
               role: "user",
-              content: `Theme: ${theme}\n\nEntries tagged with this theme:\n${themeEntries || "No entries yet"}\n\nAll recent entries for context:\n${allEntriesSummary}`,
+              content: `Theme: ${normalizedTheme}\n\nEntries tagged with this theme:\n${themeEntries || "No entries yet"}\n\nAll recent entries for context:\n${allEntriesSummary}`,
             },
           ],
         }),
@@ -127,12 +139,12 @@ Return ONLY valid JSON.`,
       if (aiResponse.status === 429)
         return new Response(JSON.stringify({ error: "Rate limited" }), {
           status: 429,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          headers: { ...getCorsHeaders(req), "Content-Type": "application/json" },
         });
       if (aiResponse.status === 402)
         return new Response(JSON.stringify({ error: "Credits exhausted" }), {
           status: 402,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          headers: { ...getCorsHeaders(req), "Content-Type": "application/json" },
         });
       throw new Error(`AI gateway error: ${aiResponse.status}`);
     }
@@ -156,13 +168,13 @@ Return ONLY valid JSON.`,
     }
 
     return new Response(JSON.stringify(analysis), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      headers: { ...getCorsHeaders(req), "Content-Type": "application/json" },
     });
   } catch (e) {
     console.error("explore-theme error:", e);
     return new Response(
       JSON.stringify({ error: e instanceof Error ? e.message : "Unknown error" }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      { status: 500, headers: { ...getCorsHeaders(req), "Content-Type": "application/json" } }
     );
   }
 });

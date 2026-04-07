@@ -1,7 +1,16 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, ChevronDown } from "lucide-react";
+
+function getGreeting(): string {
+  const hour = new Date().getHours();
+  if (hour < 5) return "Good night";
+  if (hour < 12) return "Good morning";
+  if (hour < 17) return "Good afternoon";
+  if (hour < 21) return "Good evening";
+  return "Good night";
+}
 import { ScribblingLogo } from "@/components/LoopLogo";
 import { AppHeader } from "@/components/AppHeader";
 import { VoiceOrb } from "@/components/VoiceOrb";

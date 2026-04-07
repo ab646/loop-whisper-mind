@@ -28,32 +28,17 @@ export default function RecordingPage() {
   // Fake progress percentage
   const [fakePercent, setFakePercent] = useState(0);
 
-  // Start recording on mount — on native iOS the first getUserMedia call
-  // triggers the system permission dialog which can cause the promise to
-  // reject before the user has a chance to tap "Allow". We retry once after
-  // a short delay to handle this race condition.
+  // Start recording on mount — getUserMedia triggers the native iOS
+  // permission dialog automatically. We just call it once and let the
+  // system handle the prompt. If denied, we show our fallback screen.
   useEffect(() => {
     if (startedRef.current) return;
     startedRef.current = true;
 
-    const attemptStart = async (retries = 2) => {
-      for (let i = 0; i < retries; i++) {
-        try {
-          await start();
-          return; // success
-        } catch (err) {
-          console.warn(`Mic start attempt ${i + 1} failed:`, err);
-          if (i < retries - 1) {
-            // Wait a moment for the native permission dialog to resolve
-            await new Promise((r) => setTimeout(r, 1000));
-          }
-        }
-      }
-      toast.error("Microphone access denied. Please enable it in Settings.");
+    start().catch((err) => {
+      console.warn("Mic permission denied:", err);
       setMicDenied(true);
-    };
-
-    attemptStart();
+    });
   }, []);
 
   // Fake progress that eases toward ~90% then jumps to 100% on "deleting"

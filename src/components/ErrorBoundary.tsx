@@ -26,7 +26,7 @@ export class ErrorBoundary extends Component<Props, State> {
   render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen mesh-gradient-bg flex items-center justify-center px-6">
+        <div className="h-screen mesh-gradient-bg flex items-center justify-center px-6">
           <div className="text-center space-y-4 max-w-sm">
             <h2 className="font-display text-xl text-on-surface">
               Something went quiet.

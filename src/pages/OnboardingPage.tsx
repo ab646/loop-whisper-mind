@@ -64,6 +64,7 @@ export default function OnboardingPage() {
 
   const handleNext = async () => {
     if (step < steps.length - 1) {
+      analytics.onboardingStepCompleted(step, steps[step].type);
       setStep(step + 1);
       return;
     }

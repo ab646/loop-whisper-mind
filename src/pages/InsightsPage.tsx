@@ -94,6 +94,7 @@ export default function InsightsPage() {
           .eq("user_id", session.user.id);
         const resolvedCount = count ?? 0;
         setEntryCount(resolvedCount);
+        analytics.insightsViewed(resolvedCount);
 
         // Don't call the insights function until user has enough reflections —
         // avoids an error toast on the expected first-use empty state

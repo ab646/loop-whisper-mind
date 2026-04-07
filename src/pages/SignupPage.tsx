@@ -3,7 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { StaticLogo } from "@/components/LoopLogo";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable/index";
+import { signInWithOAuth } from "@/lib/native-auth";
 import { toast } from "sonner";
 
 export default function SignupPage() {
@@ -32,9 +32,7 @@ export default function SignupPage() {
   const handleSocialLogin = async (provider: "google" | "apple") => {
     setSocialLoading(provider);
     try {
-      const result = await lovable.auth.signInWithOAuth(provider, {
-        redirect_uri: window.location.origin,
-      });
+      const result = await signInWithOAuth(provider);
       if (result.error) {
         toast.error(result.error.message || `Failed to sign in with ${provider}`);
         setSocialLoading(null);

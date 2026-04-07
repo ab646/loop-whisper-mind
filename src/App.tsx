@@ -1,9 +1,14 @@
+import { useEffect } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { BottomNav } from "@/components/BottomNav";
+import { Capacitor } from "@capacitor/core";
+import { Browser } from "@capacitor/browser";
+import { App as CapApp } from "@capacitor/app";
+import { supabase } from "@/integrations/supabase/client";
 import HomePage from "./pages/HomePage";
 import ChatPage from "./pages/ChatPage";
 import RecordingPage from "./pages/RecordingPage";
@@ -84,19 +89,56 @@ function AppRoutes() {
   );
 }
 
-const App = () => (
-  <ErrorBoundary>
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Sonner />
-        <BrowserRouter>
-          <AuthProvider>
-            <AppRoutes />
-          </AuthProvider>
-        </BrowserRouter>
-      </TooltipProvider>
-    </QueryClientProvider>
-  </ErrorBoundary>
-);
+const App = () => {
+  // Handle OAuth deep link callback on native platforms
+  useEffect(() => {
+    if (!Capacitor.isNativePlatform()) return;
+
+    // Listen for deep links (e.g. app.loop.journal://callback#access_token=...)
+    const setupDeepLinks = async () => {
+      await CapApp.addListener("appUrlOpen", async ({ url }) => {
+        // Close the system browser after OAuth
+        await Browser.close();
+
+        // Extract tokens from the URL hash/query
+        if (url.includes("access_token") || url.includes("code=")) {
+          const hashParams = new URLSearchParams(
+            url.includes("#") ? url.split("#")[1] : url.split("?")[1]
+          );
+          const accessToken = hashParams.get("access_token");
+          const refreshToken = hashParams.get("refresh_token");
+
+          if (accessToken && refreshToken) {
+            await supabase.auth.setSession({
+              access_token: accessToken,
+              refresh_token: refreshToken,
+            });
+          }
+        }
+      });
+    };
+
+    setupDeepLinks();
+
+    return () => {
+      CapApp.removeAllListeners();
+    };
+  }, []);
+
+  return (
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <Sonner />
+          <BrowserRouter>
+            <AuthProvider>
+              <AppRoutes />
+            </AuthProvider>
+          </BrowserRouter>
+        </TooltipProvider>
+      </QueryClientProvider>
+    </ErrorBoundary>
+  );
+};
 
 export default App;

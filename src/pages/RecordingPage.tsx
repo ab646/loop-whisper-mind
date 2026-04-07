@@ -56,6 +56,21 @@ export default function RecordingPage() {
     attemptStart();
   }, []);
 
+  // Fake progress that eases toward ~90% then jumps to 100% on "deleting"
+  useEffect(() => {
+    if (!processing) return;
+    const target = currentStep === "deleting" ? 100 : 90;
+    const interval = setInterval(() => {
+      setFakePercent((prev) => {
+        if (prev >= target) return prev;
+        const remaining = target - prev;
+        const increment = Math.max(0.5, remaining * 0.06);
+        return Math.min(target, prev + increment);
+      });
+    }, 200);
+    return () => clearInterval(interval);
+  }, [processing, currentStep]);
+
   // Microphone denied screen
   if (micDenied) {
     return (
@@ -84,7 +99,6 @@ export default function RecordingPage() {
                 const retry = async () => {
                   try {
                     await start();
-                    return;
                   } catch {
                     setMicDenied(true);
                   }
@@ -106,21 +120,6 @@ export default function RecordingPage() {
       </div>
     );
   }
-
-  // Fake progress that eases toward ~90% then jumps to 100% on "deleting"
-  useEffect(() => {
-    if (!processing) return;
-    const target = currentStep === "deleting" ? 100 : 90;
-    const interval = setInterval(() => {
-      setFakePercent((prev) => {
-        if (prev >= target) return prev;
-        const remaining = target - prev;
-        const increment = Math.max(0.5, remaining * 0.06);
-        return Math.min(target, prev + increment);
-      });
-    }, 200);
-    return () => clearInterval(interval);
-  }, [processing, currentStep]);
 
   const formatTime = (s: number) => {
     const m = Math.floor(s / 60);

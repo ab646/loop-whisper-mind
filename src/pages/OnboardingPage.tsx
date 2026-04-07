@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+import { useCreateLoop } from "@/hooks/useCreateLoop";
 import { ExplainScreen1 } from "@/components/onboarding/ExplainScreen1";
 import { ExplainScreen2 } from "@/components/onboarding/ExplainScreen2";
 import { ExplainScreen3 } from "@/components/onboarding/ExplainScreen3";
@@ -46,6 +47,7 @@ export default function OnboardingPage() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { user, refreshProfile } = useAuth();
+  const { createEntry } = useCreateLoop();
 
   const current = steps[step];
 
@@ -82,9 +84,9 @@ export default function OnboardingPage() {
       })
       .eq("user_id", user.id);
 
-    setLoading(false);
     if (error) {
       toast.error("Failed to save preferences");
+      setLoading(false);
       return;
     }
 
@@ -97,7 +99,20 @@ export default function OnboardingPage() {
     }
 
     await refreshProfile();
-    navigate("/");
+
+    // Create the first loop entry if seed text was selected
+    if (initialText.trim()) {
+      const entryId = await createEntry({ content: initialText });
+      setLoading(false);
+      if (entryId) {
+        navigate(`/chat/${entryId}`);
+      } else {
+        navigate("/");
+      }
+    } else {
+      setLoading(false);
+      navigate("/");
+    }
   };
 
   const handleSwipe = (_: any, { offset, velocity }: any) => {

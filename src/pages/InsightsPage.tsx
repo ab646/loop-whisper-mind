@@ -268,7 +268,7 @@ export default function InsightsPage() {
                 ];
                 const color = triggerColors[i % triggerColors.length];
                 return (
-                  <div key={t.label} className="rounded-2xl surface-low p-4 flex items-center gap-4 border border-border/10">
+                  <div key={t.label} onClick={() => analytics.catalystTapped(t.label)} className="rounded-2xl surface-low p-4 flex items-center gap-4 border border-border/10">
                     <div className={`w-11 h-11 rounded-full flex items-center justify-center shrink-0 ${color.bg}`}>
                       <Icon size={20} className={color.text} />
                     </div>
@@ -288,6 +288,7 @@ export default function InsightsPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
           className="rounded-2xl surface-low p-5 space-y-4"
+          onViewportEnter={() => analytics.perspectiveViewed()}
         >
           <span className="label-uppercase text-mint">PERSPECTIVE</span>
           <h3 className="font-display text-lg text-on-surface">Fact vs Assumption Trends</h3>

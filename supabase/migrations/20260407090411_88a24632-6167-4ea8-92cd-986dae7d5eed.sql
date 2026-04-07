@@ -1,0 +1,1 @@
+DELETE FROM auth.identities WHERE id = '72bb9918-b8c2-422a-888d-820a95cd370b' AND provider = 'google';

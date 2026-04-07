@@ -5,7 +5,6 @@ const config: CapacitorConfig = {
   appName: 'Loop',
   webDir: 'dist',
   ios: {
-    contentInset: 'automatic',
     preferredContentMode: 'mobile',
     backgroundColor: '#000000',
   },

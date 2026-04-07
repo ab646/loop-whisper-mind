@@ -63,6 +63,11 @@ export function FeedbackButtons({ contentType, contentId, contentPreview }: Feed
 
     setRating(newRating);
     setSaving(false);
+
+    analytics.track(newRating === 1 ? "feedback_thumbs_up" : newRating === -1 ? "feedback_thumbs_down" : "feedback_removed", {
+      content_type: contentType,
+      content_id: contentId,
+    });
   };
 
   if (!session) return null;

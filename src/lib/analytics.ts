@@ -1,5 +1,7 @@
 import posthog from "posthog-js";
 
+let sessionStartTime = Date.now();
+
 export const analytics = {
   init() {
     posthog.init("phc_qzZZ4oV8NHDJP9x7hivXgjJqwryvRWFAnYn6SzF3HBmP", {
@@ -7,6 +9,15 @@ export const analytics = {
       autocapture: false,
       capture_pageview: true,
       persistence: "localStorage",
+    });
+    sessionStartTime = Date.now();
+
+    // Track app_backgrounded on visibility change / unload
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "hidden") {
+        const sessionDuration = Math.round((Date.now() - sessionStartTime) / 1000);
+        posthog.capture("app_backgrounded", { session_duration_seconds: sessionDuration });
+      }
     });
   },
 
@@ -22,8 +33,27 @@ export const analytics = {
     posthog.capture(event, properties);
   },
 
-  sessionStarted() {
-    this.track("session_started");
+  // ── Core Journey ──
+
+  appOpened(source: string = "organic") {
+    sessionStartTime = Date.now();
+    this.track("app_opened", { source });
+  },
+
+  onboardingStarted() {
+    this.track("onboarding_started", { step: 0 });
+  },
+
+  onboardingStepCompleted(step: number, stepType: string) {
+    this.track("onboarding_step_completed", { step, step_type: stepType });
+  },
+
+  onboardingCompleted(finalStep: number) {
+    this.track("onboarding_completed", { step: finalStep });
+  },
+
+  onboardingSkipped(atStep: number) {
+    this.track("onboarding_skipped", { step: atStep });
   },
 
   recordingStarted() {
@@ -34,19 +64,58 @@ export const analytics = {
     this.track("recording_completed", { duration_seconds: durationSeconds });
   },
 
-  reflectionReceived(entryId?: string) {
-    this.track("reflection_received", { entry_id: entryId });
+  transcriptionCompleted(wordCount: number, audioFormat: string) {
+    this.track("transcription_completed", { word_count: wordCount, audio_format: audioFormat });
   },
+
+  reflectionReceived(opts: { responseTimeMs: number; entryNumber?: number; entryId?: string }) {
+    this.track("reflection_received", {
+      response_time_ms: opts.responseTimeMs,
+      entry_number: opts.entryNumber,
+      entry_id: opts.entryId,
+    });
+  },
+
+  chatMessageSent(opts: { isFollowUp: boolean; messageLength: number }) {
+    this.track("chat_message_sent", {
+      is_follow_up: opts.isFollowUp,
+      message_length: opts.messageLength,
+    });
+  },
+
+  entrySaved(entryId: string) {
+    this.track("entry_saved", { entry_id: entryId });
+  },
+
+  // ── Feature Engagement ──
 
   insightsViewed(entryCount?: number) {
     this.track("insights_viewed", { entry_count: entryCount });
   },
 
-  chatMessageSent() {
-    this.track("chat_message_sent");
+  echoTapped(themeName: string) {
+    this.track("echo_tapped", { theme_name: themeName });
   },
 
-  onboardingStepCompleted(step: number, stepType: string) {
-    this.track("onboarding_step_completed", { step, step_type: stepType });
+  catalystTapped(triggerLabel: string) {
+    this.track("catalyst_tapped", { trigger_label: triggerLabel });
+  },
+
+  perspectiveViewed() {
+    this.track("perspective_viewed");
+  },
+
+  themePageViewed(themeName: string) {
+    this.track("theme_page_viewed", { theme_name: themeName });
+  },
+
+  // ── Retention Signals ──
+
+  streakShown(streakCount: number) {
+    this.track("streak_shown", { streak_count: streakCount });
+  },
+
+  notificationOpened() {
+    this.track("notification_opened");
   },
 };

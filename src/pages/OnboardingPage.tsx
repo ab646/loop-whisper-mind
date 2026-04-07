@@ -119,7 +119,7 @@ export default function OnboardingPage() {
   };
 
   return (
-    <div className="min-h-screen mesh-gradient-bg flex flex-col px-6">
+    <div className="h-screen mesh-gradient-bg flex flex-col px-6 overflow-hidden">
       {/* Progress dots + sign out */}
       <div className="pt-3 pb-4 flex items-center justify-between">
         <div className="flex gap-2 flex-1">

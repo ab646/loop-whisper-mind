@@ -174,15 +174,15 @@ export default function HomePage() {
       </div>
       
 
-      <div className="flex-1 overflow-y-auto px-5 flex flex-col" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 150px)' }}>
+      <div className="flex-1 overflow-y-auto px-5 flex flex-col" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 100px)' }}>
         {/* Compact hero — no flex-1 centering so entries appear immediately below */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex flex-col items-center gap-3 pt-5 pb-4"
+          className="flex flex-col items-center gap-2 pt-3 pb-3"
         >
           <VoiceOrb size="md" onClick={() => navigate("/chat/new")} label="START A LOOP" />
-          <div className="text-center space-y-1">
+          <div className="text-center space-y-0.5">
             <h2 className="font-display text-xl text-on-surface leading-tight">
               What's looping right now?
             </h2>

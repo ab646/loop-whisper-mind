@@ -31,7 +31,7 @@ export default function ResetPasswordPage() {
   };
 
   return (
-    <div className="min-h-screen mesh-gradient-bg flex flex-col items-center justify-center px-6">
+    <div className="h-screen mesh-gradient-bg flex flex-col items-center justify-center px-6 overflow-hidden">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

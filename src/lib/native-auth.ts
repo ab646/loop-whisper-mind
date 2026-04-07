@@ -22,8 +22,10 @@ export async function signInWithOAuth(
   }
 
   // On native, use Supabase OAuth directly with system browser.
-  // Redirect back to the app via the custom URL scheme.
-  const redirectTo = "app.loop.journal://callback";
+  // Redirect to the web app's /callback page, which then bounces
+  // back into the native app via the custom URL scheme.
+  // We use an https:// URL because Supabase/Lovable only allows https redirects.
+  const redirectTo = "https://loop-whisper-mind.lovable.app/callback";
 
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider,

@@ -11,7 +11,7 @@ const config: CapacitorConfig = {
   },
   server: {
     // Allow loading from Supabase and other external APIs
-    allowNavigation: ['*.supabase.co'],
+    allowNavigation: ['*.supabase.co', 'loop-whisper-mind.lovable.app'],
   },
 };
 

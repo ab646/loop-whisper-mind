@@ -242,7 +242,7 @@ export default function OnboardingPage() {
       </div>
 
       {/* Bottom action */}
-      <div className="pb-10 pt-4">
+      <div className="pt-4" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 16px)' }}>
         <motion.button
           whileTap={{ scale: 0.97 }}
           onClick={handleNext}

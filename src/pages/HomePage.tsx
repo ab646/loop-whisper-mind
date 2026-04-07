@@ -64,7 +64,7 @@ export default function HomePage() {
   const [loadingMore, setLoadingMore] = useState(false);
   const sentinelRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const firstEntryRef = useRef<HTMLDivElement>(null);
+  const firstEntryRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     if (!session) return;

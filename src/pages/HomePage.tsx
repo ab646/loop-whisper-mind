@@ -239,20 +239,20 @@ export default function HomePage() {
                 Your brain is full. Talk it out.
               </p>
             </div>
-          </motion.div>
 
-          {/* Pulsating scroll arrow */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1 }}
-            className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1"
-          >
+            {/* Pulsating scroll arrow */}
             <motion.div
-              animate={{ y: [0, 6, 0] }}
-              transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 1 }}
+              className="mt-4"
             >
-              <ChevronDown size={20} className="text-on-surface-variant/50" />
+              <motion.div
+                animate={{ y: [0, 6, 0] }}
+                transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+              >
+                <ChevronDown size={20} className="text-on-surface-variant/50" />
+              </motion.div>
             </motion.div>
           </motion.div>
         </div>

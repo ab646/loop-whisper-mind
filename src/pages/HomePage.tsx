@@ -63,6 +63,7 @@ export default function HomePage() {
   const [hasMore, setHasMore] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const sentinelRef = useRef<HTMLDivElement>(null);
+  const [showAllEntries, setShowAllEntries] = useState(false);
 
   useEffect(() => {
     if (!session) return;
@@ -224,41 +225,89 @@ export default function HomePage() {
             </motion.div>
           ) : (
             <>
-              {groupEntries(entries).map(([group, groupItems]) => (
-                <div key={group} className="space-y-2">
-                  <span className="label-uppercase text-mint">{group}</span>
-                  {groupItems.map((entry, i) => (
-                    <motion.button
-                      key={entry.id}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: i * 0.04 }}
-                      onClick={() => navigate(`/chat/${entry.id}`)}
-                      className="w-full rounded-2xl surface-low p-4 flex items-start gap-3 text-left hover:bg-surface-container transition-colors"
-                    >
-                      <div className="flex-1 min-w-0 space-y-2">
-                        <div className="flex items-center justify-between">
-                          <span className="text-on-surface-variant text-[10px] tracking-wider uppercase font-semibold">
-                            {entry.date} • {entry.time}
-                          </span>
-                        </div>
-                        <p className="text-on-surface text-sm leading-relaxed line-clamp-2 font-body">
-                          {entry.mainLoop}
-                        </p>
-                        <div className="flex gap-2 flex-wrap">
-                          {entry.tags.map((tag) => (
-                            <span key={tag} className="tag-pill">
-                              {tag.replace(/_/g, " ").trim().toLowerCase().replace(/^\w/, (char) => char.toUpperCase())}
+              {/* Show only the latest entry initially, expand to show all */}
+              {(() => {
+                const grouped = groupEntries(entries);
+                const firstGroup = grouped[0];
+                const latestEntry = firstGroup?.[1]?.[0];
+
+                if (!showAllEntries && latestEntry) {
+                  return (
+                    <div className="space-y-2">
+                      <motion.button
+                        key={latestEntry.id}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        onClick={() => navigate(`/chat/${latestEntry.id}`)}
+                        className="w-full rounded-2xl surface-low p-4 flex items-start gap-3 text-left hover:bg-surface-container transition-colors"
+                      >
+                        <div className="flex-1 min-w-0 space-y-2">
+                          <div className="flex items-center justify-between">
+                            <span className="text-on-surface-variant text-[10px] tracking-wider uppercase font-semibold">
+                              {latestEntry.date} • {latestEntry.time}
                             </span>
-                          ))}
+                          </div>
+                          <p className="text-on-surface text-sm leading-relaxed line-clamp-2 font-body">
+                            {latestEntry.mainLoop}
+                          </p>
+                          <div className="flex gap-2 flex-wrap">
+                            {latestEntry.tags.map((tag) => (
+                              <span key={tag} className="tag-pill">
+                                {tag.replace(/_/g, " ").trim().toLowerCase().replace(/^\w/, (char) => char.toUpperCase())}
+                              </span>
+                            ))}
+                          </div>
                         </div>
-                      </div>
-                      <ChevronRight size={16} className="text-on-surface-variant mt-1 shrink-0" />
-                    </motion.button>
-                  ))}
-                </div>
-              ))}
-              {hasMore && (
+                        <ChevronRight size={16} className="text-on-surface-variant mt-1 shrink-0" />
+                      </motion.button>
+                      {entries.length > 1 && (
+                        <button
+                          onClick={() => setShowAllEntries(true)}
+                          className="text-mint text-sm font-body hover:underline py-1"
+                        >
+                          See all {entries.length} loops →
+                        </button>
+                      )}
+                    </div>
+                  );
+                }
+
+                return grouped.map(([group, groupItems]) => (
+                  <div key={group} className="space-y-2">
+                    <span className="label-uppercase text-mint">{group}</span>
+                    {groupItems.map((entry, i) => (
+                      <motion.button
+                        key={entry.id}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: i * 0.04 }}
+                        onClick={() => navigate(`/chat/${entry.id}`)}
+                        className="w-full rounded-2xl surface-low p-4 flex items-start gap-3 text-left hover:bg-surface-container transition-colors"
+                      >
+                        <div className="flex-1 min-w-0 space-y-2">
+                          <div className="flex items-center justify-between">
+                            <span className="text-on-surface-variant text-[10px] tracking-wider uppercase font-semibold">
+                              {entry.date} • {entry.time}
+                            </span>
+                          </div>
+                          <p className="text-on-surface text-sm leading-relaxed line-clamp-2 font-body">
+                            {entry.mainLoop}
+                          </p>
+                          <div className="flex gap-2 flex-wrap">
+                            {entry.tags.map((tag) => (
+                              <span key={tag} className="tag-pill">
+                                {tag.replace(/_/g, " ").trim().toLowerCase().replace(/^\w/, (char) => char.toUpperCase())}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                        <ChevronRight size={16} className="text-on-surface-variant mt-1 shrink-0" />
+                      </motion.button>
+                    ))}
+                  </div>
+                ));
+              })()}
+              {showAllEntries && hasMore && (
                 <div ref={sentinelRef} className="flex justify-center py-6">
                   {loadingMore && <ScribblingLogo size={20} />}
                 </div>

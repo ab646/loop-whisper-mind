@@ -170,60 +170,35 @@ export default function HomePage() {
 
   // On initial load, scroll so the first entry card or empty state sits fully above the chat input
   const recentLoopsRef = useRef<HTMLSpanElement>(null);
+  const hasAlignedRef = useRef(false);
 
-  const alignFirstVisibleCard = useCallback(() => {
-    const container = scrollContainerRef.current;
-    const chatInputEl = chatInputRef.current;
-    const targetEl =
-      entries.length > 0
-        ? firstEntryRef.current
-        : emptyStateRef.current ?? recentLoopsRef.current;
+  useEffect(() => {
+    if (loading || error || hasAlignedRef.current) return;
 
-    if (!container || !chatInputEl || !targetEl) return;
+    // Wait one frame for layout, then align once
+    const timer = window.setTimeout(() => {
+      const container = scrollContainerRef.current;
+      const chatInputEl = chatInputRef.current;
+      const targetEl =
+        entries.length > 0
+          ? firstEntryRef.current
+          : emptyStateRef.current ?? recentLoopsRef.current;
 
-    const inputTop = chatInputEl.getBoundingClientRect().top;
-    const targetBottom = targetEl.getBoundingClientRect().bottom;
-    const clearance = 28;
-    const overflow = Math.ceil(targetBottom - (inputTop - clearance));
+      if (!container || !chatInputEl || !targetEl) return;
 
-    if (overflow > 0) {
-      container.scrollTop += overflow;
-    }
-  }, [entries.length]);
+      const inputTop = chatInputEl.getBoundingClientRect().top;
+      const targetBottom = targetEl.getBoundingClientRect().bottom;
+      const clearance = 28;
+      const overflow = Math.ceil(targetBottom - (inputTop - clearance));
 
-  useLayoutEffect(() => {
-    if (loading || error) return;
+      if (overflow > 0) {
+        container.scrollTop += overflow;
+      }
+      hasAlignedRef.current = true;
+    }, 150);
 
-    let cancelled = false;
-    let firstFrame = 0;
-    let secondFrame = 0;
-    const timers: number[] = [];
-
-    const runAlignment = () => {
-      if (cancelled) return;
-      alignFirstVisibleCard();
-    };
-
-    firstFrame = requestAnimationFrame(() => {
-      runAlignment();
-      secondFrame = requestAnimationFrame(runAlignment);
-    });
-
-    timers.push(window.setTimeout(runAlignment, 100));
-    timers.push(window.setTimeout(runAlignment, 250));
-    timers.push(window.setTimeout(runAlignment, 500));
-
-    document.fonts?.ready.then(runAlignment).catch(() => undefined);
-    window.addEventListener("resize", runAlignment);
-
-    return () => {
-      cancelled = true;
-      cancelAnimationFrame(firstFrame);
-      cancelAnimationFrame(secondFrame);
-      timers.forEach((timer) => window.clearTimeout(timer));
-      window.removeEventListener("resize", runAlignment);
-    };
-  }, [loading, error, alignFirstVisibleCard]);
+    return () => window.clearTimeout(timer);
+  }, [loading, error, entries.length]);
 
   const groupedEntries = groupEntries(entries);
   const firstGroup = groupedEntries[0]?.[0];

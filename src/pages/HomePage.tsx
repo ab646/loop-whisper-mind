@@ -223,7 +223,7 @@ export default function HomePage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2 }}
-            className="absolute top-[env(safe-area-inset-top,44px)] left-0 right-0 text-center pt-4 font-display text-3xl font-bold text-on-surface"
+            className="absolute top-[env(safe-area-inset-top,44px)] left-0 right-0 text-center pt-8 font-display text-3xl font-normal text-on-surface"
           >
             {getGreeting()}{profile?.display_name ? `, ${profile.display_name}` : ""}
           </motion.p>

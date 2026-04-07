@@ -50,7 +50,7 @@ export default function RecordingPage() {
         }
       }
       toast.error("Microphone access denied. Please enable it in Settings.");
-      navigate(-1);
+      setMicDenied(true);
     };
 
     attemptStart();

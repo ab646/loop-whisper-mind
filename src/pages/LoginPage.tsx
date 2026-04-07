@@ -116,7 +116,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="h-screen mesh-gradient-bg flex flex-col items-center justify-center px-6 scroll-container py-6">
+    <div className="h-screen mesh-gradient-bg flex flex-col items-center px-6 scroll-container py-6 pt-[max(env(safe-area-inset-top),24px)]" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 24px)' }}>
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

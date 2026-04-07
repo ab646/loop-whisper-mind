@@ -175,25 +175,27 @@ export default function HomePage() {
       
 
       <div className="flex-1 overflow-y-auto px-5 flex flex-col" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 100px)' }}>
-        {/* Compact hero — no flex-1 centering so entries appear immediately below */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex flex-col items-center gap-2 pt-3 pb-3"
-        >
-          <VoiceOrb size="md" onClick={() => navigate("/chat/new")} label="START A LOOP" />
-          <div className="text-center space-y-0.5">
-            <h2 className="font-display text-xl text-on-surface leading-tight">
-              What's looping right now?
-            </h2>
-            <p className="font-display text-sm text-mint italic">
-              Your brain is full. Talk it out.
-            </p>
-          </div>
-        </motion.div>
+        {/* Hero — centered in available space */}
+        <div className="flex-1 flex flex-col items-center justify-center">
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex flex-col items-center gap-3"
+          >
+            <VoiceOrb size="md" onClick={() => navigate("/chat/new")} label="START A LOOP" />
+            <div className="text-center space-y-1">
+              <h2 className="font-display text-xl text-on-surface leading-tight">
+                What's looping right now?
+              </h2>
+              <p className="font-display text-sm text-mint italic">
+                Your brain is full. Talk it out.
+              </p>
+            </div>
+          </motion.div>
+        </div>
 
-        {/* Past entries — directly below hero, no scroll needed */}
-        <div className="space-y-3 pb-4">
+        {/* Last loop — show only the most recent entry */}
+        <div className="space-y-3 pb-4 shrink-0">
           <span className="label-uppercase">RECENT LOOPS</span>
           {loading ? (
             <div className="flex justify-center py-8">
@@ -221,50 +223,37 @@ export default function HomePage() {
               </p>
             </motion.div>
           ) : (
-            <>
-              {groupEntries(entries).map(([group, groupItems]) => (
-                <div key={group} className="space-y-2">
-                  <span className="label-uppercase text-mint">{group}</span>
-                  {groupItems.map((entry, i) => (
-                    <motion.button
-                      key={entry.id}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: i * 0.04 }}
-                      onClick={() => navigate(`/chat/${entry.id}`)}
-                      className="w-full rounded-2xl surface-low p-4 flex items-start gap-3 text-left hover:bg-surface-container transition-colors"
-                    >
-                       <div className="flex-1 min-w-0 space-y-2">
-                        <div className="flex items-center justify-between">
-                          <span className="text-on-surface-variant text-[10px] tracking-wider uppercase font-semibold">
-                            {entry.date} • {entry.time}
-                          </span>
-                        </div>
-                        <p className="text-on-surface text-sm leading-relaxed line-clamp-2 font-body">
-                          {entry.mainLoop}
-                        </p>
-                        <div className="flex gap-2 flex-wrap">
-                          {entry.tags.map((tag) => (
-                            <span
-                              key={tag}
-                              className="tag-pill"
-                            >
-                              {tag.replace(/_/g, " ").trim().toLowerCase().replace(/^\w/, (char) => char.toUpperCase())}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                      <ChevronRight size={16} className="text-on-surface-variant mt-1 shrink-0" />
-                    </motion.button>
-                  ))}
-                </div>
-              ))}
-              {hasMore && (
-                <div ref={sentinelRef} className="flex justify-center py-6">
-                  {loadingMore && <ScribblingLogo size={20} />}
-                </div>
-              )}
-            </>
+            (() => {
+              const latestEntry = entries[0];
+              return (
+                <motion.button
+                  key={latestEntry.id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  onClick={() => navigate(`/chat/${latestEntry.id}`)}
+                  className="w-full rounded-2xl surface-low p-4 flex items-start gap-3 text-left hover:bg-surface-container transition-colors"
+                >
+                  <div className="flex-1 min-w-0 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-on-surface-variant text-[10px] tracking-wider uppercase font-semibold">
+                        {latestEntry.date} • {latestEntry.time}
+                      </span>
+                    </div>
+                    <p className="text-on-surface text-sm leading-relaxed line-clamp-2 font-body">
+                      {latestEntry.mainLoop}
+                    </p>
+                    <div className="flex gap-2 flex-wrap">
+                      {latestEntry.tags.map((tag) => (
+                        <span key={tag} className="tag-pill">
+                          {tag.replace(/_/g, " ").trim().toLowerCase().replace(/^\w/, (char) => char.toUpperCase())}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                  <ChevronRight size={16} className="text-on-surface-variant mt-1 shrink-0" />
+                </motion.button>
+              );
+            })()
           )}
         </div>
       </div>

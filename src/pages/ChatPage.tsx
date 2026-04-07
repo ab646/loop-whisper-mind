@@ -10,6 +10,7 @@ import { ReflectionCard } from "@/components/ReflectionCard";
 import { FeedbackButtons } from "@/components/FeedbackButtons";
 import { Waveform } from "@/components/Waveform";
 import { supabase } from "@/integrations/supabase/client";
+import { clearPendingChatPrefill, readPendingChatPrefill } from "@/lib/pending-chat-prefill";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import {
@@ -36,17 +37,28 @@ interface ReflectionMessage {
   };
 }
 type Message = TextMessage | ImageMessage | VoiceMessage | ReflectionMessage;
+type ChatNavigationState = {
+  autoSubmit?: boolean;
+  prefillImage?: string;
+  prefillText?: string;
+};
 
 export default function ChatPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
+  const locationState = location.state as ChatNavigationState | null;
   const scrollRef = useRef<HTMLDivElement>(null);
   const { session } = useAuth();
   const isNew = id === "new";
-  const prefillText = (location.state as any)?.prefillText as string | undefined;
-  const prefillImage = (location.state as any)?.prefillImage as string | undefined;
-  const autoSubmit = (location.state as any)?.autoSubmit as boolean | undefined;
+  const pendingPrefillRef = useRef(readPendingChatPrefill());
+  const prefillText = locationState?.prefillText ?? pendingPrefillRef.current?.prefillText;
+  const prefillImage = locationState?.prefillImage;
+  const autoSubmit =
+    locationState?.autoSubmit ??
+    (prefillText !== undefined && pendingPrefillRef.current?.prefillText === prefillText
+      ? pendingPrefillRef.current.autoSubmit
+      : undefined);
 
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
@@ -64,6 +76,12 @@ export default function ChatPage() {
     setDraftText(prefillText ?? "");
   }, [prefillText]);
 
+  useEffect(() => {
+    if (isNew) return;
+    pendingPrefillRef.current = null;
+    clearPendingChatPrefill();
+  }, [isNew]);
+
   // Auto-process prefilled image from home page
   useEffect(() => {
     if (prefillImage && isNew && !loading && !imageValidating && messages.length === 0) {
@@ -77,6 +95,8 @@ export default function ChatPage() {
 
     autoSubmitFiredRef.current = true;
     const textToSubmit = draftText;
+    pendingPrefillRef.current = null;
+    clearPendingChatPrefill();
     setDraftText("");
     void handleSend(textToSubmit);
   }, [autoSubmit, draftText, isNew]);

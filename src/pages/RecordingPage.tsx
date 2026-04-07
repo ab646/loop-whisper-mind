@@ -6,6 +6,7 @@ import { Waveform } from "@/components/Waveform";
 import { FullScreenLoader } from "@/components/FullScreenLoader";
 import { useAudioRecorder } from "@/hooks/useAudioRecorder";
 import { supabase } from "@/integrations/supabase/client";
+import { savePendingChatPrefill } from "@/lib/pending-chat-prefill";
 import { toast } from "sonner";
 import { Capacitor } from "@capacitor/core";
 
@@ -163,7 +164,9 @@ export default function RecordingPage() {
       await new Promise((r) => setTimeout(r, 800));
 
       if (text && text.trim()) {
-        navigate("/chat/new", { state: { prefillText: text.trim(), autoSubmit: true } });
+        const trimmedText = text.trim();
+        savePendingChatPrefill({ prefillText: trimmedText, autoSubmit: true });
+        navigate("/chat/new", { state: { prefillText: trimmedText, autoSubmit: true } });
       } else {
         toast.error("No speech detected. Try again.");
         navigate(-1);

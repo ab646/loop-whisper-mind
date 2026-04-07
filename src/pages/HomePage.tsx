@@ -222,7 +222,7 @@ export default function HomePage() {
 
         {/* Past entries */}
         <div className="space-y-3 pb-4 shrink-0">
-          <span className="label-uppercase">RECENT LOOPS</span>
+          <span ref={recentLoopsRef} className="label-uppercase">RECENT LOOPS</span>
           {loading ? (
             <div className="flex justify-center py-8">
               <ScribblingLogo size={24} />

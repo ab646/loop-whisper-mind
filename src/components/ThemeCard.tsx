@@ -7,6 +7,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { analytics } from "@/lib/analytics";
 
 interface ThemeCardProps {
   name: string;
@@ -99,7 +100,7 @@ export function ThemeCard({ name, mentions, icon, delay = 0, colorIndex = 0 }: T
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay, duration: 0.4 }}
-      onClick={() => navigate(`/theme/${encodeURIComponent(name.toLowerCase())}`)}
+      onClick={() => { analytics.echoTapped(name); navigate(`/theme/${encodeURIComponent(name.toLowerCase())}`); }}
       className="rounded-2xl surface-low p-5 flex flex-col gap-3 items-start text-left border border-border/10 hover:border-border/30 transition-colors min-h-[130px]"
     >
       <Icon size={28} className={accent.icon} />

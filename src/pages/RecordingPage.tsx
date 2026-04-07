@@ -164,8 +164,12 @@ export default function RecordingPage() {
         return;
       }
 
+      const wordCount = text.trim().split(/\s+/).length;
+      analytics.transcriptionCompleted(wordCount, audioMime);
+
       // Now call reflect
       setCurrentStep("reflecting");
+      const reflectStart = Date.now();
       const entryId = await createEntry({ content: text.trim() });
 
       setCurrentStep("deleting");
@@ -173,7 +177,8 @@ export default function RecordingPage() {
 
       if (entryId) {
         analytics.recordingCompleted(duration);
-        analytics.reflectionReceived(entryId);
+        analytics.reflectionReceived({ responseTimeMs: Date.now() - reflectStart, entryId });
+        analytics.entrySaved(entryId);
         navigate(`/chat/${entryId}`);
       } else {
         navigate(-1);

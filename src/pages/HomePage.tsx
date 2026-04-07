@@ -166,24 +166,25 @@ export default function HomePage() {
     return () => observer.disconnect();
   }, [loadMore]);
 
-  // On initial load, scroll so the first entry card is fully visible just above the chat input
+  // On initial load, scroll so the first entry card sits fully above the chat input
   const hasScrolledRef = useRef(false);
   const recentLoopsRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    if (loading || entries.length === 0 || !scrollContainerRef.current || !firstEntryRef.current || hasScrolledRef.current) return;
+    if (loading || !scrollContainerRef.current || hasScrolledRef.current) return;
+    // Also handle the empty state card
+    const targetEl = firstEntryRef.current || recentLoopsRef.current;
+    if (!targetEl && entries.length > 0) return;
     hasScrolledRef.current = true;
     requestAnimationFrame(() => {
       const container = scrollContainerRef.current;
-      const entryEl = firstEntryRef.current;
-      const loopsLabel = recentLoopsRef.current;
-      if (!container || !entryEl) return;
-      // We want the bottom of the first entry to sit at the top of the chat input area
-      // The chat input is ~160px from the bottom of the viewport
-      const labelTop = loopsLabel ? loopsLabel.offsetTop : entryEl.offsetTop - 60;
-      const entryBottom = entryEl.offsetTop + entryEl.offsetHeight;
-      const visibleHeight = container.clientHeight;
-      // Position so entryBottom is at the bottom of visible area (minus padding for chat)
-      const scrollTarget = entryBottom - visibleHeight + 20;
+      if (!container) return;
+      if (entries.length === 0 || !targetEl) return;
+      // The chat input overlay is fixed ~140px from the bottom of viewport
+      // So usable visible height = container.clientHeight - 140
+      const chatInputOverlap = 150;
+      const usableHeight = container.clientHeight - chatInputOverlap;
+      const entryBottom = targetEl.offsetTop + targetEl.offsetHeight;
+      const scrollTarget = entryBottom - usableHeight;
       if (scrollTarget > 0) {
         container.scrollTop = scrollTarget;
       }

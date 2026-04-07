@@ -6,7 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { BottomNav } from "@/components/BottomNav";
 import { Capacitor } from "@capacitor/core";
-import type { KeyboardPlugin } from "@capacitor/keyboard";
+
 import { Browser } from "@capacitor/browser";
 import { App as CapApp } from "@capacitor/app";
 import { supabase } from "@/integrations/supabase/client";

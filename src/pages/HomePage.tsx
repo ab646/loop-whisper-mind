@@ -204,7 +204,7 @@ export default function HomePage() {
   const firstGroup = groupedEntries[0]?.[0];
 
   return (
-    <div className="flex flex-col h-screen mesh-gradient-bg relative overflow-hidden">
+    <div className="flex h-full min-h-0 flex-col mesh-gradient-bg relative overflow-hidden">
       {/* Background haze */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-[20%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full bg-primary/[0.07] blur-[120px]" />
@@ -213,10 +213,10 @@ export default function HomePage() {
       </div>
       
 
-      <div ref={scrollContainerRef} className="flex-1 scroll-container px-5 flex flex-col" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 200px)' }}>
-        {/* Hero — fixed 45vh so exactly 1 loop card is visible above ChatInput;
-            independent of how many entries exist */}
-        <div className="flex flex-col items-center justify-center" style={{ height: '45vh' }}>
+      <div ref={scrollContainerRef} className="flex min-h-0 flex-1 flex-col scroll-container px-5" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 200px)' }}>
+        {/* Hero — flexes to keep the orb centered while the initial scroll alignment
+            reveals just one loop card or the empty state above the chat input */}
+        <div className="flex flex-1 flex-col items-center justify-center py-8" style={{ minHeight: '38vh' }}>
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}

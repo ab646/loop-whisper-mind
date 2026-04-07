@@ -625,11 +625,15 @@ export default function ChatPage() {
           style={{ bottom: 'max(var(--keyboard-height), calc(env(safe-area-inset-bottom) + 78px))' }}
         >
           <ChatInput
-            onSend={handleSend}
+            onSend={(text) => {
+              setDraftText("");
+              handleSend(text);
+            }}
             onImageSelected={handleImageSelected}
             onVoice={() => navigate("/recording")}
             placeholder={messages.length === 0 ? "Type your thoughts..." : "Add more context..."}
-            defaultValue={draftText}
+            value={draftText}
+            onValueChange={setDraftText}
             disabled={loading}
             imageUploading={imageValidating}
           />

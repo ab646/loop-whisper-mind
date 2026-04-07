@@ -330,7 +330,7 @@ export default function ChatPage() {
   return (
     <div className="flex flex-col h-screen mesh-gradient-bg">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 pt-4 pb-2 sticky top-0 z-30 mesh-gradient-bg">
+      <div className="flex items-center justify-between px-4 pb-2 sticky top-0 z-30 mesh-gradient-bg" style={{ paddingTop: "max(env(safe-area-inset-top), 16px)" }}>
         <button onClick={() => navigate("/")} className="text-on-surface-variant hover:text-mint transition-colors w-8">
           <ArrowLeft size={22} />
         </button>

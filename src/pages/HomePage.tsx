@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useLayoutEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ChevronRight } from "lucide-react";
@@ -65,6 +65,8 @@ export default function HomePage() {
   const sentinelRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const firstEntryRef = useRef<HTMLButtonElement>(null);
+  const emptyStateRef = useRef<HTMLDivElement>(null);
+  const chatInputRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!session) return;
@@ -168,28 +170,37 @@ export default function HomePage() {
 
   // On initial load, scroll so the first entry card sits fully above the chat input
   const hasScrolledRef = useRef(false);
-  const recentLoopsRef = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    if (loading || !scrollContainerRef.current || hasScrolledRef.current) return;
-    // Also handle the empty state card
-    const targetEl = firstEntryRef.current || recentLoopsRef.current;
-    if (!targetEl && entries.length > 0) return;
-    hasScrolledRef.current = true;
-    requestAnimationFrame(() => {
-      const container = scrollContainerRef.current;
-      if (!container) return;
-      if (entries.length === 0 || !targetEl) return;
-      // The chat input overlay is fixed ~140px from the bottom of viewport
-      // So usable visible height = container.clientHeight - 140
-      const chatInputOverlap = 200;
-      const usableHeight = container.clientHeight - chatInputOverlap;
-      const entryBottom = targetEl.offsetTop + targetEl.offsetHeight;
-      const scrollTarget = entryBottom - usableHeight;
-      if (scrollTarget > 0) {
-        container.scrollTop = scrollTarget;
+  const recentLoopsRef = useRef<HTMLSpanElement>(null);
+  useLayoutEffect(() => {
+    if (loading || error || hasScrolledRef.current) return;
+
+    const container = scrollContainerRef.current;
+    const chatInputEl = chatInputRef.current;
+    const targetEl =
+      entries.length > 0
+        ? firstEntryRef.current
+        : emptyStateRef.current ?? recentLoopsRef.current;
+
+    if (!container || !chatInputEl || !targetEl) return;
+
+    const frame = requestAnimationFrame(() => {
+      const inputTop = chatInputEl.getBoundingClientRect().top;
+      const targetBottom = targetEl.getBoundingClientRect().bottom;
+      const clearance = 16;
+      const overflow = targetBottom - (inputTop - clearance);
+
+      if (overflow > 0) {
+        container.scrollTop += overflow;
       }
+
+      hasScrolledRef.current = true;
     });
-  }, [loading, entries.length]);
+
+    return () => cancelAnimationFrame(frame);
+  }, [loading, error, entries.length]);
+
+  const groupedEntries = groupEntries(entries);
+  const firstGroup = groupedEntries[0]?.[0];
 
   return (
     <div className="flex flex-col h-screen mesh-gradient-bg relative overflow-hidden">
@@ -240,6 +251,7 @@ export default function HomePage() {
             </motion.button>
           ) : entries.length === 0 ? (
             <motion.div
+              ref={emptyStateRef}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               className="rounded-2xl surface-low p-6 text-center space-y-3"
@@ -251,13 +263,13 @@ export default function HomePage() {
             </motion.div>
           ) : (
             <>
-              {groupEntries(entries).map(([group, groupItems]) => (
+              {groupedEntries.map(([group, groupItems]) => (
                 <div key={group} className="space-y-2">
                   <span className="label-uppercase text-mint">{group}</span>
                   {groupItems.map((entry, i) => (
                     <motion.button
                       key={entry.id}
-                      ref={i === 0 && group === groupEntries(entries)[0][0] ? firstEntryRef : undefined}
+                      ref={i === 0 && group === firstGroup ? firstEntryRef : undefined}
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: i * 0.04 }}
@@ -297,7 +309,11 @@ export default function HomePage() {
       </div>
 
       {/* ChatInput floats above the BottomNav with a gap; rises above keyboard when typing */}
-      <div className="fixed left-0 right-0 z-40 px-0" style={{ bottom: 'max(var(--keyboard-height), calc(env(safe-area-inset-bottom) + 78px))' }}>
+      <div
+        ref={chatInputRef}
+        className="fixed left-0 right-0 z-40 px-0"
+        style={{ bottom: 'max(var(--keyboard-height), calc(env(safe-area-inset-bottom) + 78px))' }}
+      >
         <ChatInput
           onSend={(text) => navigate("/chat/new", { state: { prefillText: text } })}
           onImageSelected={(imageDataUrl) => navigate("/chat/new", { state: { prefillImage: imageDataUrl } })}

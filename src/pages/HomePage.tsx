@@ -174,7 +174,7 @@ export default function HomePage() {
       </div>
       
 
-      <div className="flex-1 overflow-y-auto px-5 pt-16 flex flex-col">
+      <div className="flex-1 overflow-y-auto px-5 pt-4 flex flex-col" style={{ paddingBottom: 'calc(130px + env(safe-area-inset-bottom))' }}>
         {/* Hero */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
@@ -269,7 +269,8 @@ export default function HomePage() {
         </div>
       </div>
 
-      <div className="shrink-0 pb-20">
+      {/* ChatInput floats above the BottomNav */}
+      <div className="fixed left-0 right-0 z-40 px-0" style={{ bottom: 'calc(60px + env(safe-area-inset-bottom))' }}>
         <ChatInput
           onSend={(text) => navigate("/chat/new", { state: { prefillText: text } })}
           onImageSelected={(imageDataUrl) => navigate("/chat/new", { state: { prefillImage: imageDataUrl } })}

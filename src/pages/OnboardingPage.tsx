@@ -121,7 +121,7 @@ export default function OnboardingPage() {
   return (
     <div className="min-h-screen mesh-gradient-bg flex flex-col px-6">
       {/* Progress dots + sign out */}
-      <div className="pt-8 pb-4 flex items-center justify-between">
+      <div className="pt-3 pb-4 flex items-center justify-between">
         <div className="flex gap-2 flex-1">
           {steps.map((_, i) => (
             <div
@@ -170,6 +170,7 @@ export default function OnboardingPage() {
                   value={displayName}
                   onChange={(e) => setDisplayName(e.target.value)}
                   placeholder={current.placeholder}
+                  onFocus={(e) => setTimeout(() => e.target.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300)}
                   className="w-full rounded-xl surface-high px-4 py-4 text-on-surface text-lg font-body outline-none focus:ring-1 focus:ring-mint placeholder:text-on-surface-variant"
                 />
               </div>

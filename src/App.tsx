@@ -9,6 +9,7 @@ import { Capacitor } from "@capacitor/core";
 
 import { Browser } from "@capacitor/browser";
 import { App as CapApp } from "@capacitor/app";
+import { StatusBar, Style } from "@capacitor/status-bar";
 import { supabase } from "@/integrations/supabase/client";
 import HomePage from "./pages/HomePage";
 import ChatPage from "./pages/ChatPage";
@@ -96,6 +97,11 @@ const App = () => {
   // Configure native keyboard — hide Safari accessory bar, native resize
   useEffect(() => {
     if (!Capacitor.isNativePlatform()) return;
+
+    // Make the WebView extend behind the status bar so our background shows through
+    StatusBar.setOverlaysWebView({ overlay: true }).catch(() => {});
+    StatusBar.setStyle({ style: Style.Dark }).catch(() => {});
+
     import("@capacitor/keyboard").then(({ Keyboard }) => {
       Keyboard.setAccessoryBarVisible({ isVisible: false });
       // 'none' = keyboard overlays WebView; nav stays fixed at bottom, doesn't rise

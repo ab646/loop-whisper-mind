@@ -102,6 +102,8 @@ const App = () => {
     StatusBar.setOverlaysWebView({ overlay: true }).catch(() => {});
     // Dark = light/white icons & text, correct for Loop's dark background
     StatusBar.setStyle({ style: Style.Dark }).catch(() => {});
+    // Transparent background so app gradient bleeds through
+    StatusBar.setBackgroundColor({ color: '#00000000' }).catch(() => {});
 
     import("@capacitor/keyboard").then(({ Keyboard }) => {
       Keyboard.setAccessoryBarVisible({ isVisible: false });

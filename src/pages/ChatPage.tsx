@@ -49,17 +49,30 @@ type InitialChatPrefill = {
   prefillText: string;
 };
 
+/**
+ * Storage-first resolution: always check durable storage on /chat/new.
+ * URL params and router state are secondary hints – on native iOS they
+ * can get lost during navigation.
+ */
 function resolveInitialChatPrefill(
   locationState: ChatNavigationState | null,
-  locationSearch: string
 ): InitialChatPrefill {
-  const autoSubmitRequested =
-    new URLSearchParams(locationSearch).get("autoSubmit") === "1" || Boolean(locationState?.autoSubmit);
-  const pendingPrefill = autoSubmitRequested ? readPendingChatPrefill() : null;
-  const prefillText = locationState?.prefillText ?? pendingPrefill?.prefillText ?? "";
+  // 1. Read durable storage first – this is the primary source of truth
+  const pendingPrefill = readPendingChatPrefill();
+
+  // 2. Merge: storage wins for text, router state provides image
+  const prefillText = pendingPrefill?.prefillText ?? locationState?.prefillText ?? "";
+  const autoSubmit = pendingPrefill?.autoSubmit === true || Boolean(locationState?.autoSubmit);
+
+  console.log("[ChatPage] resolveInitialChatPrefill", {
+    storage: pendingPrefill,
+    locationState,
+    autoSubmit,
+    prefillText: prefillText.substring(0, 40),
+  });
 
   return {
-    autoSubmitText: autoSubmitRequested && prefillText ? prefillText : null,
+    autoSubmitText: autoSubmit && prefillText ? prefillText : null,
     prefillImage: locationState?.prefillImage,
     prefillText,
   };
@@ -70,7 +83,7 @@ export default function ChatPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const locationState = location.state as ChatNavigationState | null;
-  const initialPrefillRef = useRef(resolveInitialChatPrefill(locationState, location.search));
+  const initialPrefillRef = useRef(resolveInitialChatPrefill(locationState));
   const scrollRef = useRef<HTMLDivElement>(null);
   const { session } = useAuth();
   const isNew = id === "new";
@@ -86,7 +99,14 @@ export default function ChatPage() {
   const [explorationInput, setExplorationInput] = useState("");
   const [explorationLoading, setExplorationLoading] = useState(false);
   const autoSubmitFiredRef = useRef(false);
-  const [draftText, setDraftText] = useState(initialPrefillRef.current.prefillText);
+
+  // Controlled draft text – starts with prefill (empty if auto-submitting)
+  const [draftText, setDraftText] = useState(
+    initialPrefillRef.current.autoSubmitText ? "" : initialPrefillRef.current.prefillText
+  );
+
+  // Queued text for auto-submit – stored separately so clearing draft doesn't lose it
+  const queuedAutoSubmitRef = useRef<string | null>(initialPrefillRef.current.autoSubmitText);
 
   useEffect(() => {
     if (isNew) return;
@@ -95,6 +115,7 @@ export default function ChatPage() {
       prefillImage: undefined,
       prefillText: "",
     };
+    queuedAutoSubmitRef.current = null;
     clearPendingChatPrefill();
   }, [isNew]);
 
@@ -105,17 +126,19 @@ export default function ChatPage() {
     }
   }, [prefillImage]);
 
-  // Auto-submit prefilled text (from voice transcription or home chat input)
+  // Queued auto-submit: fires when page is ready (not loading, not validating)
   useEffect(() => {
-    const textToSubmit = initialPrefillRef.current.autoSubmitText;
+    const textToSubmit = queuedAutoSubmitRef.current;
     if (!textToSubmit || !isNew || autoSubmitFiredRef.current) return;
+    if (loading || imageValidating) return; // wait until ready
 
+    console.log("[ChatPage] auto-submitting queued text:", textToSubmit.substring(0, 40));
     autoSubmitFiredRef.current = true;
-    initialPrefillRef.current.autoSubmitText = null;
+    queuedAutoSubmitRef.current = null;
     clearPendingChatPrefill();
     setDraftText("");
     void handleSend(textToSubmit);
-  }, [isNew]);
+  }, [isNew, loading, imageValidating]);
   // Load existing entry
   useEffect(() => {
     if (isNew || !id) {
@@ -602,11 +625,15 @@ export default function ChatPage() {
           style={{ bottom: 'max(var(--keyboard-height), calc(env(safe-area-inset-bottom) + 78px))' }}
         >
           <ChatInput
-            onSend={handleSend}
+            onSend={(text) => {
+              setDraftText("");
+              handleSend(text);
+            }}
             onImageSelected={handleImageSelected}
             onVoice={() => navigate("/recording")}
             placeholder={messages.length === 0 ? "Type your thoughts..." : "Add more context..."}
-            defaultValue={draftText}
+            value={draftText}
+            onValueChange={setDraftText}
             disabled={loading}
             imageUploading={imageValidating}
           />

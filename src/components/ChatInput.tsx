@@ -8,12 +8,19 @@ interface ChatInputProps {
   onVoice: () => void;
   placeholder?: string;
   defaultValue?: string;
+  /** Controlled value – when provided, component is fully controlled. */
+  value?: string;
+  /** Called on every keystroke when controlled. */
+  onValueChange?: (value: string) => void;
   disabled?: boolean;
   imageUploading?: boolean;
 }
 
-export function ChatInput({ onSend, onImageSelected, onVoice, placeholder = "Type your thoughts...", defaultValue = "", disabled = false, imageUploading = false }: ChatInputProps) {
-  const [text, setText] = useState(defaultValue);
+export function ChatInput({ onSend, onImageSelected, onVoice, placeholder = "Type your thoughts...", defaultValue = "", value, onValueChange, disabled = false, imageUploading = false }: ChatInputProps) {
+  const isControlled = value !== undefined;
+  const [internalText, setInternalText] = useState(defaultValue);
+  const text = isControlled ? value : internalText;
+  const setText = isControlled ? (v: string) => onValueChange?.(v) : setInternalText;
   const fileInputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -24,7 +31,7 @@ export function ChatInput({ onSend, onImageSelected, onVoice, placeholder = "Typ
   }, []);
 
   useEffect(() => {
-    setText(defaultValue);
+    if (!isControlled) setInternalText(defaultValue);
   }, [defaultValue]);
 
   useEffect(() => {

@@ -6,6 +6,7 @@ const ALLOWED_ORIGINS = [
   "http://localhost:5173",
   "http://localhost:8080",
   "capacitor://localhost",
+  "https://app.loopmind.care",
   ...(Deno.env.get("CUSTOM_ORIGIN") ? [Deno.env.get("CUSTOM_ORIGIN")!] : []),
 ];
 

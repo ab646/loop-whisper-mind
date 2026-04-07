@@ -12,6 +12,7 @@ import { Waveform } from "@/components/Waveform";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+import { analytics } from "@/lib/analytics";
 import {
   DropdownMenu,
   DropdownMenuContent,

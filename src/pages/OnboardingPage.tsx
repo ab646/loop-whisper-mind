@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { useCreateLoop } from "@/hooks/useCreateLoop";
+import { analytics } from "@/lib/analytics";
 import { ExplainScreen1 } from "@/components/onboarding/ExplainScreen1";
 import { ExplainScreen2 } from "@/components/onboarding/ExplainScreen2";
 import { ExplainScreen3 } from "@/components/onboarding/ExplainScreen3";

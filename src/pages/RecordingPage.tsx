@@ -9,6 +9,7 @@ import { useCreateLoop } from "@/hooks/useCreateLoop";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Capacitor } from "@capacitor/core";
+import { analytics } from "@/lib/analytics";
 
 type ProcessingStep = "transcribing" | "reflecting" | "deleting";
 

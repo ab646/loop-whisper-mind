@@ -15,6 +15,7 @@ import { FeedbackButtons } from "@/components/FeedbackButtons";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+import { analytics } from "@/lib/analytics";
 
 const triggerIconMap: Record<string, LucideIcon> = {
   "message-circle": MessageCircle,

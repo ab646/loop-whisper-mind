@@ -207,7 +207,9 @@ export default function RecordingPage() {
 
         <Waveform bars={20} active={isRecording && !isPaused} />
 
-        <motion.div
+        <motion.button
+          onClick={handleStop}
+          whileTap={{ scale: 0.92 }}
           animate={isRecording && !isPaused ? { scale: [1, 1.03, 1] } : {}}
           transition={{ duration: 2, repeat: Infinity }}
           className="w-44 h-44 rounded-full orb-gradient orb-shadow flex flex-col items-center justify-center gap-1.5 relative"
@@ -223,7 +225,7 @@ export default function RecordingPage() {
           <span className="text-primary-foreground text-xl font-body font-semibold tracking-wide relative z-10 tabular-nums">
             {formatTime(duration)}
           </span>
-        </motion.div>
+        </motion.button>
 
         <p className="font-display text-base text-mint italic text-center leading-relaxed max-w-xs">
           "Keep speaking. I'm capturing every word..."

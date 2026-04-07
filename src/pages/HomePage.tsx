@@ -174,7 +174,7 @@ export default function HomePage() {
       </div>
       
 
-      <div className="flex-1 overflow-y-auto px-5 flex flex-col" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 160px)' }}>
+      <div className="flex-1 scroll-container px-5 flex flex-col" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 160px)' }}>
         {/* Hero — centered in available space */}
         <div className="flex-1 flex flex-col items-center justify-center">
           <motion.div

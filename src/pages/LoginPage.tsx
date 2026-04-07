@@ -116,7 +116,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="h-screen mesh-gradient-bg flex flex-col items-center justify-center px-6 overflow-y-auto py-6">
+    <div className="h-screen mesh-gradient-bg flex flex-col items-center justify-center px-6 scroll-container py-6">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

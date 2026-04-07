@@ -140,7 +140,7 @@ export default function OnboardingPage() {
         </button>
       </div>
 
-      <div className="flex-1 flex flex-col justify-center overflow-y-auto px-1">
+      <div className="flex-1 flex flex-col justify-center scroll-container px-1">
         <AnimatePresence mode="wait">
           <motion.div
             key={step}

@@ -112,6 +112,14 @@
 }
 
 @layer utilities {
+  /* Unified scroll container for native iOS — prevents rubber-banding and bounce */
+  .scroll-container {
+    overflow-y: auto;
+    overflow-x: hidden;
+    overscroll-behavior-y: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
   .font-display {
     font-family: var(--font-display);
   }

@@ -138,10 +138,10 @@ export default function ThemeExplorationPage() {
   const themeName = theme ? theme.charAt(0).toUpperCase() + theme.slice(1) : "Theme";
 
   return (
-    <div className="h-screen mesh-gradient-bg overflow-y-auto" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 96px)' }}>
+    <div className="h-screen mesh-gradient-bg flex flex-col overflow-hidden">
       <AppHeader title={themeName} showBack />
 
-      <div className="px-5 space-y-6">
+      <div className="flex-1 scroll-container px-5 space-y-6" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 96px)' }}>
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-3">
           <h1 className="font-display text-2xl text-on-surface leading-tight">
             Why does this keep coming up?

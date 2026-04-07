@@ -220,7 +220,8 @@ export default function ChatPage() {
   const handleSend = async (text: string) => {
     if (!text.trim() || loading || imageValidating) return;
 
-    analytics.chatMessageSent();
+    const isFollowUp = messages.some((m) => m.type === "reflection");
+    analytics.chatMessageSent({ isFollowUp, messageLength: text.length });
     const userMsg: TextMessage = { id: crypto.randomUUID(), type: "text", content: text };
     setMessages((prev) => [...prev, userMsg]);
     setLoading(true);
@@ -261,7 +262,8 @@ export default function ChatPage() {
         },
       ]);
 
-      analytics.reflectionReceived(currentEntryId || data.entryId);
+      analytics.reflectionReceived({ responseTimeMs: 0, entryId: currentEntryId || data.entryId });
+      analytics.entrySaved(currentEntryId || data.entryId);
 
       if (isImageNew && data.entryId) {
         setCurrentEntryId(data.entryId);

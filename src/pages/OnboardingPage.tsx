@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
@@ -52,6 +52,11 @@ export default function OnboardingPage() {
 
   const current = steps[step];
 
+  // Track onboarding started on mount
+  useEffect(() => {
+    analytics.onboardingStarted();
+  }, []);
+
   const canProceed = () => {
     if (current.type === "text") return displayName.trim().length > 0;
     if (current.type === "seed") {
@@ -70,6 +75,7 @@ export default function OnboardingPage() {
     }
 
     // Final step — save profile & navigate to first reflection
+    analytics.onboardingCompleted(step);
     setLoading(true);
 
     if (!user?.id) {

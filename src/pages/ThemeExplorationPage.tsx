@@ -10,6 +10,7 @@ import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+import { analytics } from "@/lib/analytics";
 import { AreaChart, Area, XAxis, YAxis, ResponsiveContainer, Tooltip } from "recharts";
 
 const triggerIcons: Record<string, any> = {
@@ -86,6 +87,7 @@ export default function ThemeExplorationPage() {
 
   useEffect(() => {
     if (!session || !theme) return;
+    analytics.themePageViewed(theme);
     (async () => {
       try {
         const { data, error } = await supabase.functions.invoke("explore-theme", {

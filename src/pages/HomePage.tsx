@@ -166,15 +166,26 @@ export default function HomePage() {
     return () => observer.disconnect();
   }, [loadMore]);
 
-  // On initial load, scroll to bottom so only the latest entry peeks above the chat
+  // On initial load, scroll so the first entry card is fully visible just above the chat input
   const hasScrolledRef = useRef(false);
+  const recentLoopsRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    if (loading || entries.length === 0 || !scrollContainerRef.current || hasScrolledRef.current) return;
+    if (loading || entries.length === 0 || !scrollContainerRef.current || !firstEntryRef.current || hasScrolledRef.current) return;
     hasScrolledRef.current = true;
     requestAnimationFrame(() => {
       const container = scrollContainerRef.current;
-      if (container) {
-        container.scrollTop = container.scrollHeight;
+      const entryEl = firstEntryRef.current;
+      const loopsLabel = recentLoopsRef.current;
+      if (!container || !entryEl) return;
+      // We want the bottom of the first entry to sit at the top of the chat input area
+      // The chat input is ~160px from the bottom of the viewport
+      const labelTop = loopsLabel ? loopsLabel.offsetTop : entryEl.offsetTop - 60;
+      const entryBottom = entryEl.offsetTop + entryEl.offsetHeight;
+      const visibleHeight = container.clientHeight;
+      // Position so entryBottom is at the bottom of visible area (minus padding for chat)
+      const scrollTarget = entryBottom - visibleHeight + 20;
+      if (scrollTarget > 0) {
+        container.scrollTop = scrollTarget;
       }
     });
   }, [loading, entries.length]);
@@ -211,7 +222,7 @@ export default function HomePage() {
 
         {/* Past entries */}
         <div className="space-y-3 pb-4 shrink-0">
-          <span className="label-uppercase">RECENT LOOPS</span>
+          <span ref={recentLoopsRef} className="label-uppercase">RECENT LOOPS</span>
           {loading ? (
             <div className="flex justify-center py-8">
               <ScribblingLogo size={24} />

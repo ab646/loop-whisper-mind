@@ -1,50 +1,66 @@
 
-Problem
-- On native, both HomePage text submit and RecordingPage transcription reach `/chat/new`, but the text stays in the chat input instead of being sent automatically.
 
-What I found
-- I reviewed `src/pages/HomePage.tsx`, `src/pages/RecordingPage.tsx`, `src/pages/ChatPage.tsx`, `src/components/ChatInput.tsx`, and `src/lib/pending-chat-prefill.ts`.
-- Do I know what the issue is? Likely yes.
-- `ChatPage` currently only reads storage for auto-submit if URL/query/router state already says `autoSubmit`.
-- On native, the text handoff appears to survive, but the auto-submit trigger is not surviving reliably on first mount.
-- `ChatInput` is also only semi-controlled through `defaultValue`, so if the auto-send path is skipped, the draft remains visible in the input.
+# Plan: Eliminate `/chat/new` — Submit Before Navigating
 
-Implementation plan
-1. Make the storage-backed handoff the primary source of truth on `/chat/new`.
-   - Resolve pending prefill on mount even if query/state flags are missing.
-   - Only auto-submit when the stored payload explicitly says `autoSubmit: true`, so onboarding prefill stays non-auto.
-   - Add a one-time handoff token/nonce or consume-once behavior to avoid stale repeats.
+## Problem
+On native iOS, the handoff from HomePage/RecordingPage to `/chat/new` keeps failing — text lands in the input but never auto-submits. Multiple fix attempts have not resolved this.
 
-2. Replace the mount-only auto-submit with a queued submit flow in `ChatPage`.
-   - Hydrate `draftText` and `queuedAutoSubmitText` separately.
-   - Run a guarded effect that submits only when the page is actually ready: `isNew`, not `loading`, not `imageValidating`.
-   - Do not clear the queued text until submission really starts.
+## Solution
+Remove `/chat/new` entirely. Call the `reflect` edge function **before** navigating, then go directly to `/chat/:entryId`.
 
-3. Make `ChatInput` properly controlled in the chat screen.
-   - Add optional `value` and `onValueChange` props.
-   - Use controlled mode in `ChatPage` so clearing `draftText` immediately clears the visible input.
-   - Keep backward-compatible behavior for HomePage if needed.
+```text
+Before (broken):  HomePage → navigate("/chat/new") → ChatPage reads handoff → calls reflect
+After:            HomePage → show loader → call reflect → navigate("/chat/:entryId")
+```
 
-4. Keep the producers simple.
-   - `HomePage` and `RecordingPage` should keep saving the pending handoff before navigation.
-   - URL query/router state can remain as a secondary hint, but ChatPage should no longer depend on them.
+## Implementation
 
-5. Add temporary logging while verifying the fix.
-   - Log what ChatPage resolves on mount: query, router state, pending storage, queued submit text, and whether send was blocked.
-   - Remove these logs after native verification.
+### 1. Create `src/hooks/useCreateLoop.ts`
+A shared hook that:
+- Accepts text (and optionally image data)
+- Calls the `reflect` edge function
+- Returns the new entry ID on success
+- Exposes `loading` and `error` state
 
-Technical details
-- Main files to update:
-  - `src/lib/pending-chat-prefill.ts`
-  - `src/pages/ChatPage.tsx`
-  - `src/components/ChatInput.tsx`
-  - likely small cleanup in `src/pages/HomePage.tsx`
-  - likely small cleanup in `src/pages/RecordingPage.tsx`
-- I would also keep the current onboarding behavior intact: `navigate("/chat/new", { state: { prefillText } })` should still prefill only, not auto-send.
+### 2. Update `src/pages/HomePage.tsx`
+- On text submit: show loading overlay, call `useCreateLoop`, navigate to `/chat/:entryId`
+- On image submit: same flow with image data
+- Remove `savePendingChatPrefill` and `/chat/new` navigation
 
-Validation
-- Native typed submit from HomePage should auto-send immediately and show the user bubble/loading state.
-- Native voice transcription should auto-send the same way.
-- The input should be empty during processing instead of holding the submitted text.
-- Manual submit inside ChatPage should still work normally.
-- Onboarding prefill should still prefill without auto-submitting.
+### 3. Update `src/pages/RecordingPage.tsx`
+- After transcription: show loading, call `useCreateLoop`, navigate to `/chat/:entryId`
+- Remove `savePendingChatPrefill` and `/chat/new` navigation
+
+### 4. Update `src/pages/ChatPage.tsx`
+- Remove all `/chat/new` logic: `isNew` flag, `resolveInitialChatPrefill`, `queuedAutoSubmitRef`, `autoSubmitFiredRef`, controlled draft text, storage reads
+- Page always loads an existing entry by ID
+- Keep exploration flow and manual follow-up intact
+
+### 5. Update `src/pages/OnboardingPage.tsx`
+- After saving profile with seed text: call `useCreateLoop` with the seed, navigate to `/chat/:entryId`
+- If no seed selected, navigate to `/` (home)
+
+### 6. Update `src/pages/InsightsPage.tsx`
+- Change CTA button from `navigate("/chat/new")` to `navigate("/")` (home)
+
+### 7. Delete `src/lib/pending-chat-prefill.ts`
+- No longer needed — no handoff to manage
+
+## Files
+- **New**: `src/hooks/useCreateLoop.ts`
+- **Edit**: `src/pages/HomePage.tsx`, `src/pages/RecordingPage.tsx`, `src/pages/ChatPage.tsx`, `src/pages/OnboardingPage.tsx`, `src/pages/InsightsPage.tsx`
+- **Delete**: `src/lib/pending-chat-prefill.ts`
+
+## What stays the same
+- The `reflect` edge function is unchanged
+- ChatPage loading/displaying existing entries works identically
+- ChatInput component visuals unchanged
+- Exploration flow within ChatPage untouched
+
+## Validation
+- Native typed submit from Home → loader → reflection page with entry
+- Native voice recording → transcription → loader → reflection page
+- Onboarding seed → loader → first reflection
+- Insights CTA → goes to home
+- Input is never stuck with unsubmitted text
+

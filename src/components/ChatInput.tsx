@@ -24,8 +24,12 @@ export function ChatInput({ onSend, onImageSelected, onVoice, placeholder = "Typ
   }, []);
 
   useEffect(() => {
-    if (defaultValue) autoResize(textareaRef.current);
-  }, [defaultValue, autoResize]);
+    setText(defaultValue);
+  }, [defaultValue]);
+
+  useEffect(() => {
+    autoResize(textareaRef.current);
+  }, [text, autoResize]);
 
   const handleSend = () => {
     if (text.trim() && !disabled) {

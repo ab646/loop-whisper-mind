@@ -116,14 +116,14 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen mesh-gradient-bg flex flex-col items-center justify-center px-6">
+    <div className="h-screen mesh-gradient-bg flex flex-col items-center justify-center px-6 overflow-y-auto py-6">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-sm space-y-8"
+        className="w-full max-w-sm space-y-5"
       >
-        <div className="flex flex-col items-center space-y-3">
-          <StaticLogo size={80} />
+        <div className="flex flex-col items-center space-y-2">
+          <StaticLogo size={64} />
           <h1 className="font-display text-3xl text-on-surface">Loop</h1>
           <AnimatePresence mode="wait">
             <motion.p
@@ -139,7 +139,7 @@ export default function LoginPage() {
         </div>
 
         {/* Social login */}
-        <div className="space-y-3">
+        <div className="space-y-2">
           <motion.button
             whileTap={{ scale: 0.97 }}
             onClick={() => handleSocialLogin("google")}
@@ -175,7 +175,7 @@ export default function LoginPage() {
           <div className="flex-1 h-px bg-border/30" />
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-3">
           <div className="space-y-2">
             <label className="label-uppercase text-[10px]">EMAIL</label>
             <input

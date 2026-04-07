@@ -98,7 +98,15 @@ const App = () => {
     if (!Capacitor.isNativePlatform()) return;
     import("@capacitor/keyboard").then(({ Keyboard }) => {
       Keyboard.setAccessoryBarVisible({ isVisible: false });
-      Keyboard.setResizeMode({ mode: 'native' as any });
+      // 'none' = keyboard overlays WebView; nav stays fixed at bottom, doesn't rise
+      Keyboard.setResizeMode({ mode: 'none' as any });
+      // Track keyboard height so ChatInput can float above keyboard
+      Keyboard.addListener('keyboardWillShow', ({ keyboardHeight }: { keyboardHeight: number }) => {
+        document.documentElement.style.setProperty('--keyboard-height', `${keyboardHeight}px`);
+      });
+      Keyboard.addListener('keyboardWillHide', () => {
+        document.documentElement.style.setProperty('--keyboard-height', '0px');
+      });
     }).catch(() => {});
   }, []);
 

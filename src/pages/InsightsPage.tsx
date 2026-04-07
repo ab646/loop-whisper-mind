@@ -91,7 +91,15 @@ export default function InsightsPage() {
           .from("entries")
           .select("*", { count: "exact", head: true })
           .eq("user_id", session.user.id);
-        setEntryCount(count ?? 0);
+        const resolvedCount = count ?? 0;
+        setEntryCount(resolvedCount);
+
+        // Don't call the insights function until user has enough reflections —
+        // avoids an error toast on the expected first-use empty state
+        if (resolvedCount < 5) {
+          setLoading(false);
+          return; // insights stays null → empty state renders below
+        }
 
         const { data, error } = await supabase.functions.invoke("insights");
         if (error) throw error;
@@ -120,8 +128,8 @@ export default function InsightsPage() {
     const progress = Math.min(entryCount, threshold);
 
     return (
-      <div className="min-h-screen mesh-gradient-bg pb-24 pt-6">
-        <div className="px-5 flex flex-col items-center justify-center min-h-[60vh] gap-6">
+      <div className="h-screen mesh-gradient-bg flex flex-col" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 80px)' }}>
+        <div className="flex-1 px-5 flex flex-col items-center justify-center gap-6">
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="text-center space-y-4">
             <h2 className="font-display text-2xl text-on-surface leading-tight">
               Patterns in the quiet.
@@ -186,7 +194,7 @@ export default function InsightsPage() {
   const assumptionPercent = 100 - factPercent;
 
   return (
-    <div className="min-h-screen mesh-gradient-bg pb-24 pt-6 relative overflow-hidden">
+    <div className="mesh-gradient-bg pt-6 relative overflow-x-hidden" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 96px)' }}>
       {/* Background haze */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-[10%] left-1/2 -translate-x-1/2 w-[500px] h-[400px] rounded-full bg-primary/[0.06] blur-[120px]" />

@@ -174,17 +174,17 @@ export default function HomePage() {
       </div>
       
 
-      <div className="flex-1 overflow-y-auto px-5 pt-4 flex flex-col" style={{ paddingBottom: 'calc(130px + env(safe-area-inset-bottom))' }}>
-        {/* Hero */}
+      <div className="flex-1 overflow-y-auto px-5 flex flex-col" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 150px)' }}>
+        {/* Compact hero — no flex-1 centering so entries appear immediately below */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex-1 flex flex-col items-center justify-center gap-5"
+          className="flex flex-col items-center gap-3 pt-5 pb-4"
         >
-          <VoiceOrb size="lg" onClick={() => navigate("/chat/new")} label="START A LOOP" />
-          <div className="text-center space-y-2">
-            <h2 className="font-display text-2xl text-on-surface leading-tight">
-              What's looping<br />right now?
+          <VoiceOrb size="md" onClick={() => navigate("/chat/new")} label="START A LOOP" />
+          <div className="text-center space-y-1">
+            <h2 className="font-display text-xl text-on-surface leading-tight">
+              What's looping right now?
             </h2>
             <p className="font-display text-sm text-mint italic">
               Your brain is full. Talk it out.
@@ -192,8 +192,8 @@ export default function HomePage() {
           </div>
         </motion.div>
 
-        {/* Past entries */}
-        <div className="space-y-3 mt-auto pt-16 pb-4">
+        {/* Past entries — directly below hero, no scroll needed */}
+        <div className="space-y-3 pb-4">
           <span className="label-uppercase">RECENT LOOPS</span>
           {loading ? (
             <div className="flex justify-center py-8">
@@ -269,8 +269,8 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* ChatInput floats above the BottomNav */}
-      <div className="fixed left-0 right-0 z-40 px-0" style={{ bottom: 'calc(60px + env(safe-area-inset-bottom))' }}>
+      {/* ChatInput floats above the BottomNav with a gap; rises above keyboard when typing */}
+      <div className="fixed left-0 right-0 z-40 px-0" style={{ bottom: 'max(var(--keyboard-height), calc(env(safe-area-inset-bottom) + 78px))' }}>
         <ChatInput
           onSend={(text) => navigate("/chat/new", { state: { prefillText: text } })}
           onImageSelected={(imageDataUrl) => navigate("/chat/new", { state: { prefillImage: imageDataUrl } })}

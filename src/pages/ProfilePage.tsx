@@ -107,7 +107,7 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="min-h-screen mesh-gradient-bg pb-24 pt-6">
+    <div className="h-screen mesh-gradient-bg overflow-y-auto pt-6" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 96px)' }}>
       <div className="px-5 space-y-6">
         {/* Profile card */}
         <motion.div

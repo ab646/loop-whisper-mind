@@ -8,6 +8,8 @@
 :root {
   --safe-area-inset-top: env(safe-area-inset-top);
   --safe-area-inset-bottom: env(safe-area-inset-bottom);
+  /* Updated by @capacitor/keyboard listeners when keyboard opens/closes */
+  --keyboard-height: 0px;
 }
 
 #root {

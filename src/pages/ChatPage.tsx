@@ -331,24 +331,27 @@ export default function ChatPage() {
     <div className="flex flex-col h-screen mesh-gradient-bg">
       {/* Header */}
       <div className="flex items-center justify-between px-4 pt-4 pb-2">
-        <button onClick={() => navigate("/")} className="text-on-surface-variant hover:text-mint transition-colors">
+        <button onClick={() => navigate("/")} className="text-on-surface-variant hover:text-mint transition-colors w-8">
           <ArrowLeft size={22} />
         </button>
-        {!isImageNew && (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button className="text-on-surface-variant hover:text-on-surface transition-colors p-1">
-                <MoreVertical size={20} />
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="surface-high border-border/30">
-              <DropdownMenuItem onClick={handleDelete} className="text-destructive focus:text-destructive gap-2">
-                <Trash2 size={14} />
-                Delete loop
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        )}
+        <ScribblingLogo className="h-5 w-auto text-mint" />
+        <div className="w-8 flex justify-end">
+          {!isImageNew ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="text-on-surface-variant hover:text-on-surface transition-colors p-1">
+                  <MoreVertical size={20} />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="surface-high border-border/30">
+                <DropdownMenuItem onClick={handleDelete} className="text-destructive focus:text-destructive gap-2">
+                  <Trash2 size={14} />
+                  Delete loop
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : null}
+        </div>
       </div>
 
       {entryDate && (

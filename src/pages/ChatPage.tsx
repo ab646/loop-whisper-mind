@@ -70,7 +70,11 @@ export default function ChatPage() {
   useEffect(() => {
     if (autoSubmit && prefillText && isNew && !autoSubmitFiredRef.current) {
       autoSubmitFiredRef.current = true;
-      handleSend(prefillText);
+      // Small delay to ensure component is fully mounted on native
+      const timer = setTimeout(() => {
+        handleSend(prefillText);
+      }, 100);
+      return () => clearTimeout(timer);
     }
   }, [autoSubmit, prefillText, isNew]);
   // Load existing entry

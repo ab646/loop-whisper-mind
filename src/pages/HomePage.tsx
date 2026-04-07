@@ -166,17 +166,18 @@ export default function HomePage() {
     return () => observer.disconnect();
   }, [loadMore]);
 
-  // On initial load, scroll so only the first entry is visible above the chat
+  // On initial load, scroll to bottom so only the latest entry peeks above the chat
+  const hasScrolledRef = useRef(false);
   useEffect(() => {
-    if (loading || entries.length === 0 || !firstEntryRef.current || !scrollContainerRef.current) return;
-    const container = scrollContainerRef.current;
-    const entryEl = firstEntryRef.current;
-    // Scroll so the first entry's top is near the bottom of the visible area
-    const scrollTarget = entryEl.offsetTop - container.clientHeight + entryEl.offsetHeight + 60;
-    if (scrollTarget > 0) {
-      container.scrollTop = scrollTarget;
-    }
-  }, [loading, entries.length > 0]);
+    if (loading || entries.length === 0 || !scrollContainerRef.current || hasScrolledRef.current) return;
+    hasScrolledRef.current = true;
+    requestAnimationFrame(() => {
+      const container = scrollContainerRef.current;
+      if (container) {
+        container.scrollTop = container.scrollHeight;
+      }
+    });
+  }, [loading, entries.length]);
 
   return (
     <div className="flex flex-col h-screen mesh-gradient-bg relative overflow-hidden">

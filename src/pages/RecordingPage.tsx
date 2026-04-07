@@ -5,21 +5,23 @@ import { Mic, MicOff, Pause, Play, RotateCcw } from "lucide-react";
 import { Waveform } from "@/components/Waveform";
 import { FullScreenLoader } from "@/components/FullScreenLoader";
 import { useAudioRecorder } from "@/hooks/useAudioRecorder";
+import { useCreateLoop } from "@/hooks/useCreateLoop";
 import { supabase } from "@/integrations/supabase/client";
-import { savePendingChatPrefill } from "@/lib/pending-chat-prefill";
 import { toast } from "sonner";
 import { Capacitor } from "@capacitor/core";
 
-type ProcessingStep = "transcribing" | "deleting";
+type ProcessingStep = "transcribing" | "reflecting" | "deleting";
 
 const STEPS: { key: ProcessingStep; label: string }[] = [
   { key: "transcribing", label: "Transcribing" },
+  { key: "reflecting", label: "Reflecting" },
   { key: "deleting", label: "Deleting recording" },
 ];
 
 
 export default function RecordingPage() {
   const navigate = useNavigate();
+  const { createEntry, loading: creatingLoop } = useCreateLoop();
   const [processing, setProcessing] = useState(false);
   const [micDenied, setMicDenied] = useState(false);
   const [currentStep, setCurrentStep] = useState<ProcessingStep>("transcribing");
@@ -27,11 +29,8 @@ export default function RecordingPage() {
     useAudioRecorder();
   const startedRef = useRef(false);
 
-  // Fake progress percentage
   const [fakePercent, setFakePercent] = useState(0);
 
-  // Start recording on mount — native iOS uses the Capacitor recorder,
-  // while web uses getUserMedia/MediaRecorder.
   useEffect(() => {
     if (startedRef.current) return;
     startedRef.current = true;
@@ -42,10 +41,9 @@ export default function RecordingPage() {
     });
   }, []);
 
-  // Fake progress that eases toward ~90% then jumps to 100% on "deleting"
   useEffect(() => {
     if (!processing) return;
-    const target = currentStep === "deleting" ? 100 : 90;
+    const target = currentStep === "deleting" ? 100 : currentStep === "reflecting" ? 90 : 60;
     const interval = setInterval(() => {
       setFakePercent((prev) => {
         if (prev >= target) return prev;
@@ -57,7 +55,6 @@ export default function RecordingPage() {
     return () => clearInterval(interval);
   }, [processing, currentStep]);
 
-  // Microphone denied screen
   if (micDenied) {
     return (
       <div className="flex flex-col h-screen mesh-gradient-bg relative overflow-hidden">
@@ -141,8 +138,6 @@ export default function RecordingPage() {
     setFakePercent(0);
 
     try {
-      // Use supabase.functions.invoke so the Supabase JS client handles auth
-      // and CORS — raw fetch from capacitor://localhost gets CORS-blocked.
       const isNative = Capacitor.isNativePlatform();
       const audioMime = isNative ? "audio/mp4" : (blob.type || "audio/webm");
       const audioName = isNative ? "recording.m4a" : "recording.webm";
@@ -160,15 +155,22 @@ export default function RecordingPage() {
 
       const text: string | undefined = data?.text;
 
-      setCurrentStep("deleting");
-      await new Promise((r) => setTimeout(r, 800));
-
-      if (text && text.trim()) {
-        const trimmedText = text.trim();
-        savePendingChatPrefill({ prefillText: trimmedText, autoSubmit: true });
-        navigate("/chat/new?autoSubmit=1", { state: { prefillText: trimmedText, autoSubmit: true } });
-      } else {
+      if (!text || !text.trim()) {
         toast.error("No speech detected. Try again.");
+        navigate(-1);
+        return;
+      }
+
+      // Now call reflect
+      setCurrentStep("reflecting");
+      const entryId = await createEntry({ content: text.trim() });
+
+      setCurrentStep("deleting");
+      await new Promise((r) => setTimeout(r, 600));
+
+      if (entryId) {
+        navigate(`/chat/${entryId}`);
+      } else {
         navigate(-1);
       }
     } catch (e) {
@@ -178,22 +180,19 @@ export default function RecordingPage() {
     }
   };
 
-  // Processing screen
   if (processing) {
     const activeStep = STEPS.find((s) => s.key === currentStep);
     return (
       <FullScreenLoader
-        mode="transcription"
+        mode={currentStep === "reflecting" ? "reflection" : "transcription"}
         label={activeStep?.label}
         progress={fakePercent}
       />
     );
   }
 
-  // Recording screen
   return (
     <div className="flex flex-col h-screen mesh-gradient-bg relative overflow-hidden">
-      {/* Background haze */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full bg-primary/[0.07] blur-[120px]" />
         <div className="absolute top-[45%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] rounded-full bg-mint/[0.05] blur-[80px]" />
@@ -230,7 +229,6 @@ export default function RecordingPage() {
           "Keep speaking. I'm capturing every word..."
         </p>
 
-        {/* Action buttons */}
         <div className="flex items-center gap-4 w-full max-w-xs">
           <motion.button
             whileTap={{ scale: 0.95 }}

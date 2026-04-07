@@ -29,7 +29,18 @@ serve(async (req) => {
     }
     const base64Audio = btoa(binary);
 
-    const mimeType = audioFile.type || "audio/webm";
+    const mimeType = (audioFile.type || "audio/webm").toLowerCase();
+    const audioFormat = mimeType.includes("webm")
+      ? "webm"
+      : mimeType.includes("mp3") || mimeType.includes("mpeg")
+        ? "mp3"
+        : mimeType.includes("ogg")
+          ? "ogg"
+          : mimeType.includes("flac")
+            ? "flac"
+            : mimeType.includes("m4a") || mimeType.includes("mp4") || mimeType.includes("aac")
+              ? "m4a"
+              : "wav";
 
     const response = await fetch(
       "https://ai.gateway.lovable.dev/v1/chat/completions",
@@ -54,7 +65,7 @@ serve(async (req) => {
                   type: "input_audio",
                   input_audio: {
                     data: base64Audio,
-                    format: mimeType.includes("webm") ? "webm" : "wav",
+                    format: audioFormat,
                   },
                 },
                 {

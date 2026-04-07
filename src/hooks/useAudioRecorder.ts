@@ -1,4 +1,10 @@
 import { useState, useRef, useCallback, useEffect } from "react";
+import { Capacitor } from "@capacitor/core";
+import {
+  AudioSessionMode,
+  CapacitorAudioRecorder,
+  RecordingStatus,
+} from "@capgo/capacitor-audio-recorder";
 
 interface UseAudioRecorderReturn {
   isRecording: boolean;
@@ -10,6 +16,8 @@ interface UseAudioRecorderReturn {
   resume: () => void;
   reset: () => void;
 }
+
+const NATIVE_AUDIO_MIME_TYPE = "audio/mp4";
 
 export function useAudioRecorder(): UseAudioRecorderReturn {
   const [isRecording, setIsRecording] = useState(false);
@@ -33,7 +41,7 @@ export function useAudioRecorder(): UseAudioRecorderReturn {
     timerRef.current = setInterval(() => setDuration((d) => d + 1), 1000);
   }, [clearTimer]);
 
-  const start = useCallback(async () => {
+  const startWebRecording = useCallback(async () => {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
     streamRef.current = stream;
     chunksRef.current = [];
@@ -55,15 +63,77 @@ export function useAudioRecorder(): UseAudioRecorderReturn {
     };
 
     mediaRecorderRef.current = recorder;
-    recorder.start(250); // collect chunks every 250ms
+    recorder.start(250);
     setIsRecording(true);
     setIsPaused(false);
     setDuration(0);
     startTimer();
   }, [startTimer]);
 
+  const startNativeRecording = useCallback(async () => {
+    const permission = await CapacitorAudioRecorder.checkPermissions().catch(() => ({
+      recordAudio: "prompt" as const,
+    }));
+
+    const resolvedPermission =
+      permission.recordAudio === "granted"
+        ? permission
+        : await CapacitorAudioRecorder.requestPermissions();
+
+    if (resolvedPermission.recordAudio !== "granted") {
+      throw new Error("Microphone permission denied");
+    }
+
+    await CapacitorAudioRecorder.startRecording({
+      audioSessionMode: AudioSessionMode.Measurement,
+    });
+
+    setIsRecording(true);
+    setIsPaused(false);
+    setDuration(0);
+    startTimer();
+  }, [startTimer]);
+
+  const start = useCallback(async () => {
+    chunksRef.current = [];
+    resolveStopRef.current = null;
+
+    if (Capacitor.isNativePlatform()) {
+      await startNativeRecording();
+      return;
+    }
+
+    await startWebRecording();
+  }, [startNativeRecording, startWebRecording]);
+
   const stop = useCallback(async (): Promise<Blob | null> => {
     clearTimer();
+
+    if (Capacitor.isNativePlatform()) {
+      const status = await CapacitorAudioRecorder.getRecordingStatus().catch(() => null);
+      if (!status || status.status === RecordingStatus.Inactive) {
+        setIsRecording(false);
+        setIsPaused(false);
+        return null;
+      }
+
+      const result = await CapacitorAudioRecorder.stopRecording();
+      setIsRecording(false);
+      setIsPaused(false);
+
+      if (result.blob) {
+        return result.blob;
+      }
+
+      if (!result.uri) {
+        return null;
+      }
+
+      const response = await fetch(Capacitor.convertFileSrc(result.uri));
+      const arrayBuffer = await response.arrayBuffer();
+      return new Blob([arrayBuffer], { type: NATIVE_AUDIO_MIME_TYPE });
+    }
+
     const recorder = mediaRecorderRef.current;
     if (!recorder || recorder.state === "inactive") return null;
 
@@ -77,23 +147,68 @@ export function useAudioRecorder(): UseAudioRecorderReturn {
   }, [clearTimer]);
 
   const pause = useCallback(() => {
+    if (Capacitor.isNativePlatform()) {
+      if (!isRecording || isPaused) return;
+
+      void CapacitorAudioRecorder.pauseRecording()
+        .then(() => {
+          setIsPaused(true);
+          clearTimer();
+        })
+        .catch(() => undefined);
+      return;
+    }
+
     if (mediaRecorderRef.current?.state === "recording") {
       mediaRecorderRef.current.pause();
       setIsPaused(true);
       clearTimer();
     }
-  }, [clearTimer]);
+  }, [clearTimer, isPaused, isRecording]);
 
   const resume = useCallback(() => {
+    if (Capacitor.isNativePlatform()) {
+      if (!isRecording || !isPaused) return;
+
+      void CapacitorAudioRecorder.resumeRecording()
+        .then(() => {
+          setIsPaused(false);
+          startTimer();
+        })
+        .catch(() => undefined);
+      return;
+    }
+
     if (mediaRecorderRef.current?.state === "paused") {
       mediaRecorderRef.current.resume();
       setIsPaused(false);
       startTimer();
     }
-  }, [startTimer]);
+  }, [isPaused, isRecording, startTimer]);
 
   const reset = useCallback(() => {
     clearTimer();
+
+    if (Capacitor.isNativePlatform()) {
+      void CapacitorAudioRecorder.getRecordingStatus()
+        .then((status) => {
+          if (status.status !== RecordingStatus.Inactive) {
+            return CapacitorAudioRecorder.cancelRecording();
+          }
+          return undefined;
+        })
+        .catch(() => undefined);
+
+      mediaRecorderRef.current = null;
+      streamRef.current = null;
+      chunksRef.current = [];
+      resolveStopRef.current = null;
+      setIsRecording(false);
+      setIsPaused(false);
+      setDuration(0);
+      return;
+    }
+
     if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
       mediaRecorderRef.current.stop();
     }
@@ -110,6 +225,19 @@ export function useAudioRecorder(): UseAudioRecorderReturn {
   useEffect(() => {
     return () => {
       clearTimer();
+
+      if (Capacitor.isNativePlatform()) {
+        void CapacitorAudioRecorder.getRecordingStatus()
+          .then((status) => {
+            if (status.status !== RecordingStatus.Inactive) {
+              return CapacitorAudioRecorder.cancelRecording();
+            }
+            return undefined;
+          })
+          .catch(() => undefined);
+        return;
+      }
+
       if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
         mediaRecorderRef.current.stop();
       }

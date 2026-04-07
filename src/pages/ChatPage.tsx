@@ -220,6 +220,7 @@ export default function ChatPage() {
   const handleSend = async (text: string) => {
     if (!text.trim() || loading || imageValidating) return;
 
+    analytics.chatMessageSent();
     const userMsg: TextMessage = { id: crypto.randomUUID(), type: "text", content: text };
     setMessages((prev) => [...prev, userMsg]);
     setLoading(true);
@@ -259,6 +260,8 @@ export default function ChatPage() {
           },
         },
       ]);
+
+      analytics.reflectionReceived(currentEntryId || data.entryId);
 
       if (isImageNew && data.entryId) {
         setCurrentEntryId(data.entryId);

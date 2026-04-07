@@ -36,7 +36,9 @@ export default function RecordingPage() {
     if (startedRef.current) return;
     startedRef.current = true;
 
-    start().catch((err) => {
+    start().then(() => {
+      analytics.recordingStarted();
+    }).catch((err) => {
       console.warn("Mic permission denied:", err);
       setMicDenied(true);
     });
@@ -170,6 +172,8 @@ export default function RecordingPage() {
       await new Promise((r) => setTimeout(r, 600));
 
       if (entryId) {
+        analytics.recordingCompleted(duration);
+        analytics.reflectionReceived(entryId);
         navigate(`/chat/${entryId}`);
       } else {
         navigate(-1);

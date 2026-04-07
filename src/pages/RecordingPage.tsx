@@ -27,11 +27,32 @@ export default function RecordingPage() {
   // Fake progress percentage
   const [fakePercent, setFakePercent] = useState(0);
 
-  // Start recording on mount
+  // Start recording on mount — on native iOS the first getUserMedia call
+  // triggers the system permission dialog which can cause the promise to
+  // reject before the user has a chance to tap "Allow". We retry once after
+  // a short delay to handle this race condition.
   useEffect(() => {
     if (startedRef.current) return;
     startedRef.current = true;
-    start().catch(() => toast.error("Microphone permission denied"));
+
+    const attemptStart = async (retries = 2) => {
+      for (let i = 0; i < retries; i++) {
+        try {
+          await start();
+          return; // success
+        } catch (err) {
+          console.warn(`Mic start attempt ${i + 1} failed:`, err);
+          if (i < retries - 1) {
+            // Wait a moment for the native permission dialog to resolve
+            await new Promise((r) => setTimeout(r, 1000));
+          }
+        }
+      }
+      toast.error("Microphone access denied. Please enable it in Settings.");
+      navigate(-1);
+    };
+
+    attemptStart();
   }, []);
 
 

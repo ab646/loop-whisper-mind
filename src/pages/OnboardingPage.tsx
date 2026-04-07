@@ -134,9 +134,12 @@ export default function OnboardingPage() {
   };
 
   return (
-    <div className="h-[100dvh] mesh-gradient-bg flex flex-col px-6 overflow-hidden">
+    <div
+      className="relative h-[100dvh] mesh-gradient-bg flex flex-col px-6 overflow-hidden"
+      style={{ marginTop: 'calc(env(safe-area-inset-top) * -1)' }}
+    >
       {/* Progress dots + sign out */}
-      <div className="pt-3 pb-4 flex items-center justify-between shrink-0">
+      <div className="pt-[max(env(safe-area-inset-top),12px)] pb-4 flex items-center justify-between shrink-0">
         <div className="flex gap-2 flex-1">
           {steps.map((_, i) => (
             <div
@@ -155,7 +158,13 @@ export default function OnboardingPage() {
         </button>
       </div>
 
-      <div className="flex-1 min-h-0 overflow-y-auto px-1">
+      <div
+        className="scroll-container flex-1 min-h-0 px-1"
+        style={{
+          paddingBottom:
+            'max(calc(var(--keyboard-height, 0px) + 112px), calc(env(safe-area-inset-bottom) + 112px))',
+        }}
+      >
         <AnimatePresence mode="wait">
           <motion.div
             key={step}
@@ -257,8 +266,15 @@ export default function OnboardingPage() {
         </AnimatePresence>
       </div>
 
-      {/* Bottom action — fixed to bottom */}
-      <div className="shrink-0 pt-4" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 16px)' }}>
+      {/* Bottom action */}
+      <div
+        className="absolute inset-x-0 z-10 px-6 pt-4"
+        style={{
+          bottom: 'max(var(--keyboard-height, 0px), env(safe-area-inset-bottom))',
+          paddingBottom: '16px',
+          background: 'linear-gradient(to top, hsl(var(--surface)) 82%, hsl(var(--surface) / 0))',
+        }}
+      >
         <motion.button
           whileTap={{ scale: 0.97 }}
           onClick={handleNext}

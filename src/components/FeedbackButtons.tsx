@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { ThumbsUp, ThumbsDown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { analytics } from "@/lib/analytics";
 
 interface FeedbackButtonsProps {
   contentType: string;
@@ -62,6 +63,11 @@ export function FeedbackButtons({ contentType, contentId, contentPreview }: Feed
 
     setRating(newRating);
     setSaving(false);
+
+    analytics.track(newRating === 1 ? "feedback_thumbs_up" : newRating === -1 ? "feedback_thumbs_down" : "feedback_removed", {
+      content_type: contentType,
+      content_id: contentId,
+    });
   };
 
   if (!session) return null;

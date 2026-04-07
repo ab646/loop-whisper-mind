@@ -218,21 +218,14 @@ export default function HomePage() {
 
       <div ref={scrollContainerRef} className="flex min-h-0 flex-1 flex-col scroll-container px-5" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 200px)' }}>
         <div className="shrink-0 flex flex-col items-center justify-center relative" style={{ height: '100svh' }}>
-          {/* Greeting */}
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.2 }}
-            className="absolute top-[env(safe-area-inset-top,44px)] left-0 right-0 text-center pt-8 font-display text-3xl font-normal text-on-surface"
-          >
-            {getGreeting()}{profile?.display_name ? `, ${profile.display_name}` : ""}
-          </motion.p>
-
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="flex flex-col items-center gap-3"
+            className="flex flex-col items-center gap-5"
           >
+            <p className="font-display text-3xl font-normal text-on-surface text-center">
+              {getGreeting()}{profile?.display_name ? `, ${profile.display_name}` : ""}
+            </p>
             <VoiceOrb size="lg" onClick={() => navigate("/recording")} label="START A LOOP" />
             <div className="text-center space-y-1">
               <h2 className="font-display text-xl text-on-surface leading-tight">

@@ -256,8 +256,8 @@ export default function OnboardingPage() {
         </AnimatePresence>
       </div>
 
-      {/* Bottom action */}
-      <div className="pt-4" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 16px)' }}>
+      {/* Bottom action — fixed to bottom */}
+      <div className="shrink-0 pt-4" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 16px)' }}>
         <motion.button
           whileTap={{ scale: 0.97 }}
           onClick={handleNext}

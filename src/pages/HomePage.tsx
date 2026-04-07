@@ -63,6 +63,7 @@ export default function HomePage() {
   const [hasMore, setHasMore] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const sentinelRef = useRef<HTMLDivElement>(null);
+  const [showAllEntries, setShowAllEntries] = useState(false);
 
   useEffect(() => {
     if (!session) return;

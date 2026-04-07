@@ -134,7 +134,7 @@ export default function OnboardingPage() {
   };
 
   return (
-    <div className="h-screen mesh-gradient-bg flex flex-col px-6 overflow-hidden">
+    <div className="h-[100dvh] mesh-gradient-bg flex flex-col px-6 overflow-hidden">
       {/* Progress dots + sign out */}
       <div className="pt-3 pb-4 flex items-center justify-between shrink-0" style={{ paddingTop: 'max(env(safe-area-inset-top), 12px)' }}>
         <div className="flex gap-2 flex-1">
@@ -155,7 +155,7 @@ export default function OnboardingPage() {
         </button>
       </div>
 
-      <div className="flex-1 min-h-0 flex flex-col justify-center scroll-container px-1">
+      <div className="flex-1 min-h-0 overflow-y-auto px-1">
         <AnimatePresence mode="wait">
           <motion.div
             key={step}
@@ -167,6 +167,7 @@ export default function OnboardingPage() {
             dragConstraints={{ left: 0, right: 0 }}
             dragElastic={0.2}
             onDragEnd={handleSwipe}
+            className="min-h-full flex flex-col justify-center"
           >
             {current.type === "explain" && current.screen === 1 && <ExplainScreen1 />}
             {current.type === "explain" && current.screen === 2 && <ExplainScreen2 />}

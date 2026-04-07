@@ -10,7 +10,6 @@ import { ReflectionCard } from "@/components/ReflectionCard";
 import { FeedbackButtons } from "@/components/FeedbackButtons";
 import { Waveform } from "@/components/Waveform";
 import { supabase } from "@/integrations/supabase/client";
-import { clearPendingChatPrefill, readPendingChatPrefill } from "@/lib/pending-chat-prefill";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import {
@@ -37,111 +36,39 @@ interface ReflectionMessage {
   };
 }
 type Message = TextMessage | ImageMessage | VoiceMessage | ReflectionMessage;
-type ChatNavigationState = {
-  autoSubmit?: boolean;
-  prefillImage?: string;
-  prefillText?: string;
-};
-
-type InitialChatPrefill = {
-  autoSubmitText: string | null;
-  prefillImage?: string;
-  prefillText: string;
-};
-
-/**
- * Storage-first resolution: always check durable storage on /chat/new.
- * URL params and router state are secondary hints – on native iOS they
- * can get lost during navigation.
- */
-function resolveInitialChatPrefill(
-  locationState: ChatNavigationState | null,
-): InitialChatPrefill {
-  // 1. Read durable storage first – this is the primary source of truth
-  const pendingPrefill = readPendingChatPrefill();
-
-  // 2. Merge: storage wins for text, router state provides image
-  const prefillText = pendingPrefill?.prefillText ?? locationState?.prefillText ?? "";
-  const autoSubmit = pendingPrefill?.autoSubmit === true || Boolean(locationState?.autoSubmit);
-
-  console.log("[ChatPage] resolveInitialChatPrefill", {
-    storage: pendingPrefill,
-    locationState,
-    autoSubmit,
-    prefillText: prefillText.substring(0, 40),
-  });
-
-  return {
-    autoSubmitText: autoSubmit && prefillText ? prefillText : null,
-    prefillImage: locationState?.prefillImage,
-    prefillText,
-  };
-}
 
 export default function ChatPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
-  const locationState = location.state as ChatNavigationState | null;
-  const initialPrefillRef = useRef(resolveInitialChatPrefill(locationState));
+  const locationState = location.state as { prefillImage?: string } | null;
   const scrollRef = useRef<HTMLDivElement>(null);
   const { session } = useAuth();
-  const isNew = id === "new";
-  const prefillImage = initialPrefillRef.current.prefillImage;
+
+  // "image" is a special pseudo-ID for image-based new entries from HomePage
+  const isImageNew = id === "image";
+  const prefillImage = isImageNew ? locationState?.prefillImage : undefined;
 
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
-
   const [imageValidating, setImageValidating] = useState(false);
-  const [loadingEntry, setLoadingEntry] = useState(!isNew);
+  const [loadingEntry, setLoadingEntry] = useState(!isImageNew);
   const [entryDate, setEntryDate] = useState<string | null>(null);
   const [explorationMessages, setExplorationMessages] = useState<{ role: "user" | "ai"; content: string }[]>([]);
   const [explorationInput, setExplorationInput] = useState("");
   const [explorationLoading, setExplorationLoading] = useState(false);
-  const autoSubmitFiredRef = useRef(false);
+  const [currentEntryId, setCurrentEntryId] = useState<string | null>(isImageNew ? null : (id || null));
 
-  // Controlled draft text – starts with prefill (empty if auto-submitting)
-  const [draftText, setDraftText] = useState(
-    initialPrefillRef.current.autoSubmitText ? "" : initialPrefillRef.current.prefillText
-  );
-
-  // Queued text for auto-submit – stored separately so clearing draft doesn't lose it
-  const queuedAutoSubmitRef = useRef<string | null>(initialPrefillRef.current.autoSubmitText);
-
+  // Auto-process prefilled image
   useEffect(() => {
-    if (isNew) return;
-    initialPrefillRef.current = {
-      autoSubmitText: null,
-      prefillImage: undefined,
-      prefillText: "",
-    };
-    queuedAutoSubmitRef.current = null;
-    clearPendingChatPrefill();
-  }, [isNew]);
-
-  // Auto-process prefilled image from home page
-  useEffect(() => {
-    if (prefillImage && isNew && !loading && !imageValidating && messages.length === 0) {
+    if (prefillImage && isImageNew && !loading && !imageValidating && messages.length === 0) {
       handleImageSelected(prefillImage);
     }
   }, [prefillImage]);
 
-  // Queued auto-submit: fires when page is ready (not loading, not validating)
-  useEffect(() => {
-    const textToSubmit = queuedAutoSubmitRef.current;
-    if (!textToSubmit || !isNew || autoSubmitFiredRef.current) return;
-    if (loading || imageValidating) return; // wait until ready
-
-    console.log("[ChatPage] auto-submitting queued text:", textToSubmit.substring(0, 40));
-    autoSubmitFiredRef.current = true;
-    queuedAutoSubmitRef.current = null;
-    clearPendingChatPrefill();
-    setDraftText("");
-    void handleSend(textToSubmit);
-  }, [isNew, loading, imageValidating]);
   // Load existing entry
   useEffect(() => {
-    if (isNew || !id) {
+    if (isImageNew || !id) {
       setLoadingEntry(false);
       return;
     }
@@ -173,7 +100,7 @@ export default function ChatPage() {
       }
       setLoadingEntry(false);
     })();
-  }, [id, isNew]);
+  }, [id, isImageNew]);
 
   useEffect(() => {
     if (!scrollRef.current) return;
@@ -197,7 +124,6 @@ export default function ChatPage() {
     setImageValidating(true);
 
     try {
-      // Upload image temporarily to get a URL for AI analysis
       const base64 = imageDataUrl.split(",")[1];
       const mimeMatch = imageDataUrl.match(/data:(.*?);/);
       const mime = mimeMatch?.[1] || "image/jpeg";
@@ -220,12 +146,10 @@ export default function ChatPage() {
         .getPublicUrl(filePath);
       const imageUrl = urlData.publicUrl;
 
-      // Validate image and extract transcription
       const { data: validation, error: valError } = await supabase.functions.invoke("validate-image", {
         body: { imageUrl },
       });
 
-      // Delete the temporary image — we only needed it for analysis
       supabase.storage.from("chat-images").remove([filePath]).catch(() => {});
 
       if (valError) throw valError;
@@ -236,16 +160,13 @@ export default function ChatPage() {
         return;
       }
 
-      // Use transcribed text as the entry content
       const transcribedText = validation.transcription || "[Image content]";
       setImageValidating(false);
 
-      // Show transcribed text as a text message (not image)
       const textMsg: TextMessage = { id: crypto.randomUUID(), type: "text", content: transcribedText };
       setMessages((prev) => [...prev, textMsg]);
       setLoading(true);
 
-      // Reflect on the transcribed text — no image needed
       const { data, error } = await supabase.functions.invoke("reflect", {
         body: {
           content: transcribedText,
@@ -281,7 +202,8 @@ export default function ChatPage() {
         },
       ]);
 
-      if (isNew && data.entryId) {
+      if (data.entryId) {
+        setCurrentEntryId(data.entryId);
         window.history.replaceState(null, "", `/chat/${data.entryId}`);
       }
 
@@ -300,7 +222,6 @@ export default function ChatPage() {
     const userMsg: TextMessage = { id: crypto.randomUUID(), type: "text", content: text };
     setMessages((prev) => [...prev, userMsg]);
     setLoading(true);
-    
 
     try {
       const { data, error } = await supabase.functions.invoke("reflect", {
@@ -338,7 +259,8 @@ export default function ChatPage() {
         },
       ]);
 
-      if (isNew && data.entryId) {
+      if (isImageNew && data.entryId) {
+        setCurrentEntryId(data.entryId);
         window.history.replaceState(null, "", `/chat/${data.entryId}`);
       }
     } catch (e: any) {
@@ -354,7 +276,6 @@ export default function ChatPage() {
     setExplorationInput("");
     setExplorationLoading(true);
 
-    // Get the last reflection's tags for theme context
     const lastReflection = [...messages].reverse().find((m) => m.type === "reflection");
     const theme = lastReflection?.type === "reflection" ? (lastReflection.data.tags?.[0] || "reflection") : "reflection";
 
@@ -374,25 +295,24 @@ export default function ChatPage() {
   const hasReflection = messages.some((m) => m.type === "reflection");
 
   const handleDelete = async () => {
-    const currentId = window.location.pathname.split("/chat/")[1];
-    if (!currentId || currentId === "new") return;
+    const entryId = currentEntryId || id;
+    if (!entryId || entryId === "image") return;
 
-    const deletedMessages = [...messages];
     navigate("/");
 
     toast("Loop deleted", {
       action: {
         label: "Undo",
         onClick: () => {
-          navigate(`/chat/${currentId}`);
+          navigate(`/chat/${entryId}`);
         },
       },
       duration: 5000,
       onAutoClose: async () => {
-        await supabase.from("entries").delete().eq("id", currentId);
+        await supabase.from("entries").delete().eq("id", entryId);
       },
       onDismiss: async () => {
-        await supabase.from("entries").delete().eq("id", currentId);
+        await supabase.from("entries").delete().eq("id", entryId);
       },
     });
   };
@@ -408,7 +328,7 @@ export default function ChatPage() {
         <button onClick={() => navigate("/")} className="text-on-surface-variant hover:text-mint transition-colors">
           <ArrowLeft size={22} />
         </button>
-        {!isNew && (
+        {!isImageNew && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button className="text-on-surface-variant hover:text-on-surface transition-colors p-1">
@@ -434,13 +354,10 @@ export default function ChatPage() {
       )}
 
       <div ref={scrollRef} className={`flex-1 scroll-container px-4 ${hasReflection ? 'pb-36' : 'pb-24'}`}>
-        {messages.length === 0 && isNew && (
+        {messages.length === 0 && isImageNew && (
           <div className="flex flex-col items-center justify-center min-h-[40vh] gap-4">
             <p className="font-display text-lg text-on-surface-variant italic text-center">
-              What's on your mind?
-            </p>
-            <p className="text-on-surface-variant text-sm text-center">
-              Type or record a voice note to start.
+              Processing your image...
             </p>
           </div>
         )}
@@ -619,21 +536,16 @@ export default function ChatPage() {
         </div>
       </div>
 
-      {!hasReflection && (
+      {!hasReflection && !isImageNew && (
         <div
           className="fixed left-0 right-0 z-40 px-0"
           style={{ bottom: 'max(var(--keyboard-height), calc(env(safe-area-inset-bottom) + 78px))' }}
         >
           <ChatInput
-            onSend={(text) => {
-              setDraftText("");
-              handleSend(text);
-            }}
+            onSend={handleSend}
             onImageSelected={handleImageSelected}
             onVoice={() => navigate("/recording")}
             placeholder={messages.length === 0 ? "Type your thoughts..." : "Add more context..."}
-            value={draftText}
-            onValueChange={setDraftText}
             disabled={loading}
             imageUploading={imageValidating}
           />

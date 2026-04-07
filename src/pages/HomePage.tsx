@@ -5,11 +5,11 @@ import { ChevronRight } from "lucide-react";
 import { ScribblingLogo } from "@/components/LoopLogo";
 import { AppHeader } from "@/components/AppHeader";
 import { VoiceOrb } from "@/components/VoiceOrb";
-
+import { FullScreenLoader } from "@/components/FullScreenLoader";
 import { ChatInput } from "@/components/ChatInput";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { savePendingChatPrefill } from "@/lib/pending-chat-prefill";
+import { useCreateLoop } from "@/hooks/useCreateLoop";
 
 interface EntryPreview {
   id: string;
@@ -57,6 +57,7 @@ function groupEntries(entries: EntryPreview[]): [string, EntryPreview[]][] {
 export default function HomePage() {
   const navigate = useNavigate();
   const { session } = useAuth();
+  const { createEntry, loading: creatingLoop } = useCreateLoop();
   const [entries, setEntries] = useState<EntryPreview[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -155,7 +156,6 @@ export default function HomePage() {
     setLoadingMore(false);
   }, [session, loadingMore, hasMore, entries.length]);
 
-  // Infinite scroll via IntersectionObserver
   useEffect(() => {
     const sentinel = sentinelRef.current;
     if (!sentinel) return;
@@ -169,11 +169,9 @@ export default function HomePage() {
     return () => observer.disconnect();
   }, [loadMore]);
 
-  // On initial load, scroll so the first entry card or empty state sits fully above the chat input
   const recentLoopsRef = useRef<HTMLSpanElement>(null);
   const hasAlignedRef = useRef(false);
 
-  // Ensure scroll starts at top on initial load
   useEffect(() => {
     if (loading || hasAlignedRef.current) return;
     const container = scrollContainerRef.current;
@@ -183,22 +181,33 @@ export default function HomePage() {
     }
   }, [loading]);
 
+  const handleSend = async (text: string) => {
+    const entryId = await createEntry({ content: text });
+    if (entryId) navigate(`/chat/${entryId}`);
+  };
+
+  const handleImageSelected = async (imageDataUrl: string) => {
+    // For images, navigate to a new chat page that handles image validation
+    // We pass the image via router state since it's a one-time handoff
+    navigate(`/chat/image`, { state: { prefillImage: imageDataUrl } });
+  };
+
+  if (creatingLoop) {
+    return <FullScreenLoader mode="reflection" />;
+  }
+
   const groupedEntries = groupEntries(entries);
   const firstGroup = groupedEntries[0]?.[0];
 
   return (
     <div className="flex h-full min-h-0 flex-col mesh-gradient-bg relative overflow-hidden">
-      {/* Background haze */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-[20%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full bg-primary/[0.07] blur-[120px]" />
         <div className="absolute top-[35%] left-[30%] -translate-x-1/2 w-[300px] h-[300px] rounded-full bg-mint/[0.04] blur-[100px]" />
         <div className="absolute top-[70%] left-[60%] w-[400px] h-[400px] rounded-full bg-primary/[0.05] blur-[110px]" />
       </div>
-      
 
       <div ref={scrollContainerRef} className="flex min-h-0 flex-1 flex-col scroll-container px-5" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 200px)' }}>
-        {/* Hero — fixed safe viewport height keeps the orb centered and preserves
-            the single-loop peek above the chat input on mobile */}
         <div className="shrink-0 flex flex-col items-center justify-center" style={{ height: '66svh' }}>
           <motion.div
             initial={{ opacity: 0, y: 10 }}
@@ -217,7 +226,6 @@ export default function HomePage() {
           </motion.div>
         </div>
 
-        {/* Past entries */}
         <div className="space-y-3 pb-4 shrink-0">
           <span ref={recentLoopsRef} className="label-uppercase">RECENT LOOPS</span>
           {loading ? (
@@ -293,18 +301,14 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* ChatInput floats above the BottomNav with a gap; rises above keyboard when typing */}
       <div
         ref={chatInputRef}
         className="fixed left-0 right-0 z-40 px-0"
         style={{ bottom: 'max(var(--keyboard-height), calc(env(safe-area-inset-bottom) + 78px))' }}
       >
         <ChatInput
-          onSend={(text) => {
-            savePendingChatPrefill({ prefillText: text, autoSubmit: true });
-            navigate("/chat/new?autoSubmit=1", { state: { prefillText: text, autoSubmit: true } });
-          }}
-          onImageSelected={(imageDataUrl) => navigate("/chat/new", { state: { prefillImage: imageDataUrl } })}
+          onSend={handleSend}
+          onImageSelected={handleImageSelected}
           onVoice={() => navigate("/recording")}
           placeholder="Type your thoughts..."
         />

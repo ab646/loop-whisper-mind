@@ -177,7 +177,7 @@ export default function InsightsPage() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
-            onClick={() => navigate("/chat/new")}
+            onClick={() => navigate("/")}
             className="flex items-center gap-2 px-6 py-3 rounded-full orb-gradient text-primary-foreground font-semibold text-sm"
           >
             <MessageCircle size={16} />

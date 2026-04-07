@@ -140,45 +140,24 @@ export default function RecordingPage() {
     setFakePercent(0);
 
     try {
-      const formData = new FormData();
-      // On native iOS the CapacitorAudioRecorder plugin intercepts MediaRecorder
-      // and records in m4a format, even though the Blob is labelled audio/webm.
-      // Re-wrap with the correct MIME type so Whisper can process it.
+      // Use supabase.functions.invoke so the Supabase JS client handles auth
+      // and CORS — raw fetch from capacitor://localhost gets CORS-blocked.
       const isNative = Capacitor.isNativePlatform();
-      const audioMime = isNative ? "audio/m4a" : (blob.type || "audio/webm");
+      const audioMime = isNative ? "audio/mp4" : (blob.type || "audio/webm");
       const audioName = isNative ? "recording.m4a" : "recording.webm";
-      const audioBlob = isNative
-        ? new Blob([await blob.arrayBuffer()], { type: audioMime })
-        : blob;
+      const audioBlob = new Blob([blob], { type: audioMime });
+
+      const formData = new FormData();
       formData.append("audio", audioBlob, audioName);
 
-      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const { data, error: fnError } = await supabase.functions.invoke("transcribe", {
+        body: formData,
+      });
 
-      // Use authenticated user token instead of anon key
-      const sessionData = await supabase.auth.getSession();
-      const token = sessionData.data.session?.access_token;
+      if (fnError) throw fnError;
+      if (data?.error) throw new Error(data.error);
 
-      if (!token) {
-        throw new Error("Not authenticated");
-      }
-
-      const response = await fetch(
-        `${supabaseUrl}/functions/v1/transcribe`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          body: formData,
-        }
-      );
-
-      if (!response.ok) {
-        const err = await response.json().catch(() => ({}));
-        throw new Error(err.error || "Transcription failed");
-      }
-
-      const { text } = await response.json();
+      const text: string | undefined = data?.text;
 
       setCurrentStep("deleting");
       await new Promise((r) => setTimeout(r, 800));

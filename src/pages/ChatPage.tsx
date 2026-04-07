@@ -105,20 +105,29 @@ export default function ChatPage() {
 
   useEffect(() => {
     if (!scrollRef.current) return;
-    const lastMsg = messages[messages.length - 1];
-    if (lastMsg?.type === "reflection") {
-      requestAnimationFrame(() => {
-        const cards = scrollRef.current?.querySelectorAll("[data-reflection]");
-        const lastCard = cards?.[cards.length - 1];
-        if (lastCard) {
-          lastCard.scrollIntoView({ behavior: "smooth", block: "start" });
-        } else {
-          scrollRef.current!.scrollTop = scrollRef.current!.scrollHeight;
+
+    requestAnimationFrame(() => {
+      if (!scrollRef.current) return;
+
+      const lastMsg = messages[messages.length - 1];
+
+      if (lastMsg?.type === "reflection") {
+        const messageNodes = Array.from(
+          scrollRef.current.querySelectorAll<HTMLElement>("[data-message-type]")
+        );
+        const targetNode =
+          messageNodes.length > 1
+            ? messageNodes[messageNodes.length - 2]
+            : messageNodes[messageNodes.length - 1];
+
+        if (targetNode) {
+          targetNode.scrollIntoView({ behavior: "smooth", block: "start" });
+          return;
         }
-      });
-    } else {
+      }
+
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-    }
+    });
   }, [messages]);
 
   const handleImageSelected = async (imageDataUrl: string) => {

@@ -5,11 +5,10 @@ import { ChevronRight, ChevronDown } from "lucide-react";
 
 function getGreeting(): string {
   const hour = new Date().getHours();
-  if (hour < 5) return "Good night";
+  if (hour < 5) return "Good evening";
   if (hour < 12) return "Good morning";
   if (hour < 17) return "Good afternoon";
-  if (hour < 21) return "Good evening";
-  return "Good night";
+  return "Good evening";
 }
 import { ScribblingLogo } from "@/components/LoopLogo";
 import { AppHeader } from "@/components/AppHeader";

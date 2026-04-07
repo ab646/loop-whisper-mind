@@ -223,7 +223,7 @@ export default function HomePage() {
             animate={{ opacity: 1, y: 0 }}
             className="flex flex-col items-center gap-5"
           >
-            <p className="font-display text-3xl font-normal text-on-surface text-center">
+            <p className="font-display text-3xl font-normal text-on-surface text-center mb-4">
               {getGreeting()}{profile?.display_name ? `, ${profile.display_name}` : ""}
             </p>
             <VoiceOrb size="lg" onClick={() => navigate("/recording")} label="START A LOOP" />

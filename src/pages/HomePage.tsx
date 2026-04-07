@@ -65,7 +65,7 @@ function groupEntries(entries: EntryPreview[]): [string, EntryPreview[]][] {
 
 export default function HomePage() {
   const navigate = useNavigate();
-  const { session } = useAuth();
+  const { session, profile } = useAuth();
   const { createEntry, loading: creatingLoop } = useCreateLoop();
   const [entries, setEntries] = useState<EntryPreview[]>([]);
   const [loading, setLoading] = useState(true);

@@ -136,7 +136,7 @@ export default function OnboardingPage() {
   return (
     <div className="h-screen mesh-gradient-bg flex flex-col px-6 overflow-hidden">
       {/* Progress dots + sign out */}
-      <div className="pt-3 pb-4 flex items-center justify-between">
+      <div className="pt-3 pb-4 flex items-center justify-between shrink-0" style={{ paddingTop: 'max(env(safe-area-inset-top), 12px)' }}>
         <div className="flex gap-2 flex-1">
           {steps.map((_, i) => (
             <div
@@ -155,7 +155,7 @@ export default function OnboardingPage() {
         </button>
       </div>
 
-      <div className="flex-1 flex flex-col justify-center scroll-container px-1">
+      <div className="flex-1 min-h-0 flex flex-col justify-center scroll-container px-1">
         <AnimatePresence mode="wait">
           <motion.div
             key={step}
@@ -256,8 +256,8 @@ export default function OnboardingPage() {
         </AnimatePresence>
       </div>
 
-      {/* Bottom action */}
-      <div className="pt-4" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 16px)' }}>
+      {/* Bottom action — fixed to bottom */}
+      <div className="shrink-0 pt-4" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 16px)' }}>
         <motion.button
           whileTap={{ scale: 0.97 }}
           onClick={handleNext}

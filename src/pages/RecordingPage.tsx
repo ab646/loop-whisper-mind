@@ -141,7 +141,16 @@ export default function RecordingPage() {
 
     try {
       const formData = new FormData();
-      formData.append("audio", blob, "recording.webm");
+      // On native iOS the CapacitorAudioRecorder plugin intercepts MediaRecorder
+      // and records in m4a format, even though the Blob is labelled audio/webm.
+      // Re-wrap with the correct MIME type so Whisper can process it.
+      const isNative = Capacitor.isNativePlatform();
+      const audioMime = isNative ? "audio/m4a" : (blob.type || "audio/webm");
+      const audioName = isNative ? "recording.m4a" : "recording.webm";
+      const audioBlob = isNative
+        ? new Blob([await blob.arrayBuffer()], { type: audioMime })
+        : blob;
+      formData.append("audio", audioBlob, audioName);
 
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 

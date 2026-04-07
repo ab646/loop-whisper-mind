@@ -8,7 +8,6 @@ import { useAudioRecorder } from "@/hooks/useAudioRecorder";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Capacitor } from "@capacitor/core";
-import { App as CapApp } from "@capacitor/app";
 
 type ProcessingStep = "transcribing" | "deleting";
 
@@ -30,9 +29,8 @@ export default function RecordingPage() {
   // Fake progress percentage
   const [fakePercent, setFakePercent] = useState(0);
 
-  // Start recording on mount — getUserMedia triggers the native iOS
-  // permission dialog automatically. We just call it once and let the
-  // system handle the prompt. If denied, we show our fallback screen.
+  // Start recording on mount — native iOS uses the Capacitor recorder,
+  // while web uses getUserMedia/MediaRecorder.
   useEffect(() => {
     if (startedRef.current) return;
     startedRef.current = true;
@@ -82,13 +80,16 @@ export default function RecordingPage() {
               whileTap={{ scale: 0.95 }}
               onClick={async () => {
                 if (Capacitor.isNativePlatform()) {
-                  // Open app's iOS Settings page so user can toggle mic on
-                  await CapApp.openUrl({ url: 'app-settings:' }).catch(() => {});
-                } else {
-                  // Web: just retry getUserMedia
-                  setMicDenied(false);
-                  startedRef.current = false;
-                  try { await start(); } catch { setMicDenied(true); }
+                  window.location.href = "app-settings:";
+                  return;
+                }
+
+                setMicDenied(false);
+                startedRef.current = false;
+                try {
+                  await start();
+                } catch {
+                  setMicDenied(true);
                 }
               }}
               className="rounded-2xl orb-gradient py-4 text-center text-primary-foreground font-body font-semibold tracking-wider text-sm uppercase"

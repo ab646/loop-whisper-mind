@@ -189,7 +189,7 @@ export default function HomePage() {
       </div>
       
 
-      <div ref={scrollContainerRef} className="flex-1 scroll-container px-5 flex flex-col" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 160px)' }}>
+      <div ref={scrollContainerRef} className="flex-1 scroll-container px-5 flex flex-col" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 200px)' }}>
         {/* Hero — centered in available space */}
         <div className="flex flex-col items-center justify-center" style={{ minHeight: 'calc(100dvh - 320px)' }}>
           <motion.div

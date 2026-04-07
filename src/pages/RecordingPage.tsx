@@ -7,6 +7,8 @@ import { FullScreenLoader } from "@/components/FullScreenLoader";
 import { useAudioRecorder } from "@/hooks/useAudioRecorder";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { Capacitor } from "@capacitor/core";
+import { App as CapApp } from "@capacitor/app";
 
 type ProcessingStep = "transcribing" | "deleting";
 
@@ -72,27 +74,26 @@ export default function RecordingPage() {
               Microphone Access Required
             </h1>
             <p className="text-on-surface-variant text-sm leading-relaxed max-w-xs">
-              Loop needs microphone access to record voice notes. Please enable it in your device's Settings app.
+              Loop needs microphone access to record voice notes. Tap below to open Settings and enable it.
             </p>
           </div>
           <div className="flex flex-col gap-3 w-full max-w-xs">
             <motion.button
               whileTap={{ scale: 0.95 }}
-              onClick={() => {
-                setMicDenied(false);
-                startedRef.current = false;
-                const retry = async () => {
-                  try {
-                    await start();
-                  } catch {
-                    setMicDenied(true);
-                  }
-                };
-                retry();
+              onClick={async () => {
+                if (Capacitor.isNativePlatform()) {
+                  // Open app's iOS Settings page so user can toggle mic on
+                  await CapApp.openUrl({ url: 'app-settings:' }).catch(() => {});
+                } else {
+                  // Web: just retry getUserMedia
+                  setMicDenied(false);
+                  startedRef.current = false;
+                  try { await start(); } catch { setMicDenied(true); }
+                }
               }}
               className="rounded-2xl orb-gradient py-4 text-center text-primary-foreground font-body font-semibold tracking-wider text-sm uppercase"
             >
-              Try Again
+              Open Settings
             </motion.button>
             <button
               onClick={() => navigate(-1)}

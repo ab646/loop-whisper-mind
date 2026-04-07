@@ -166,7 +166,7 @@ export default function RecordingPage() {
       if (text && text.trim()) {
         const trimmedText = text.trim();
         savePendingChatPrefill({ prefillText: trimmedText, autoSubmit: true });
-        navigate("/chat/new", { state: { prefillText: trimmedText, autoSubmit: true } });
+        navigate("/chat/new?autoSubmit=1", { state: { prefillText: trimmedText, autoSubmit: true } });
       } else {
         toast.error("No speech detected. Try again.");
         navigate(-1);

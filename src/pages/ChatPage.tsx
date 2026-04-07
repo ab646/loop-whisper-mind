@@ -43,22 +43,38 @@ type ChatNavigationState = {
   prefillText?: string;
 };
 
+type InitialChatPrefill = {
+  autoSubmitText: string | null;
+  prefillImage?: string;
+  prefillText: string;
+};
+
+function resolveInitialChatPrefill(
+  locationState: ChatNavigationState | null,
+  locationSearch: string
+): InitialChatPrefill {
+  const autoSubmitRequested =
+    new URLSearchParams(locationSearch).get("autoSubmit") === "1" || Boolean(locationState?.autoSubmit);
+  const pendingPrefill = autoSubmitRequested ? readPendingChatPrefill() : null;
+  const prefillText = locationState?.prefillText ?? pendingPrefill?.prefillText ?? "";
+
+  return {
+    autoSubmitText: autoSubmitRequested && prefillText ? prefillText : null,
+    prefillImage: locationState?.prefillImage,
+    prefillText,
+  };
+}
+
 export default function ChatPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
   const locationState = location.state as ChatNavigationState | null;
+  const initialPrefillRef = useRef(resolveInitialChatPrefill(locationState, location.search));
   const scrollRef = useRef<HTMLDivElement>(null);
   const { session } = useAuth();
   const isNew = id === "new";
-  const pendingPrefillRef = useRef(readPendingChatPrefill());
-  const prefillText = locationState?.prefillText ?? pendingPrefillRef.current?.prefillText;
-  const prefillImage = locationState?.prefillImage;
-  const autoSubmit =
-    locationState?.autoSubmit ??
-    (prefillText !== undefined && pendingPrefillRef.current?.prefillText === prefillText
-      ? pendingPrefillRef.current.autoSubmit
-      : undefined);
+  const prefillImage = initialPrefillRef.current.prefillImage;
 
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
@@ -70,15 +86,15 @@ export default function ChatPage() {
   const [explorationInput, setExplorationInput] = useState("");
   const [explorationLoading, setExplorationLoading] = useState(false);
   const autoSubmitFiredRef = useRef(false);
-  const [draftText, setDraftText] = useState(prefillText ?? "");
-
-  useEffect(() => {
-    setDraftText(prefillText ?? "");
-  }, [prefillText]);
+  const [draftText, setDraftText] = useState(initialPrefillRef.current.prefillText);
 
   useEffect(() => {
     if (isNew) return;
-    pendingPrefillRef.current = null;
+    initialPrefillRef.current = {
+      autoSubmitText: null,
+      prefillImage: undefined,
+      prefillText: "",
+    };
     clearPendingChatPrefill();
   }, [isNew]);
 
@@ -91,15 +107,15 @@ export default function ChatPage() {
 
   // Auto-submit prefilled text (from voice transcription or home chat input)
   useEffect(() => {
-    if (!autoSubmit || !draftText || !isNew || autoSubmitFiredRef.current) return;
+    const textToSubmit = initialPrefillRef.current.autoSubmitText;
+    if (!textToSubmit || !isNew || autoSubmitFiredRef.current) return;
 
     autoSubmitFiredRef.current = true;
-    const textToSubmit = draftText;
-    pendingPrefillRef.current = null;
+    initialPrefillRef.current.autoSubmitText = null;
     clearPendingChatPrefill();
     setDraftText("");
     void handleSend(textToSubmit);
-  }, [autoSubmit, draftText, isNew]);
+  }, [isNew]);
   // Load existing entry
   useEffect(() => {
     if (isNew || !id) {

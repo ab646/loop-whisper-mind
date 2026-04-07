@@ -337,9 +337,9 @@ export default function ChatPage() {
   }
 
   return (
-    <div className="flex flex-col h-screen mesh-gradient-bg">
+    <div className="flex flex-col h-screen mesh-gradient-bg overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 pb-2 sticky top-0 z-30 mesh-gradient-bg" style={{ paddingTop: "max(env(safe-area-inset-top), 16px)" }}>
+      <div className="shrink-0 flex items-center justify-between px-4 pb-2 sticky top-0 z-30 mesh-gradient-bg" style={{ paddingTop: "max(env(safe-area-inset-top), 16px)" }}>
         <button onClick={() => navigate("/")} className="text-on-surface-variant hover:text-mint transition-colors w-8">
           <ArrowLeft size={22} />
         </button>
@@ -364,14 +364,14 @@ export default function ChatPage() {
       </div>
 
       {entryDate && (
-        <div className="flex justify-center pb-2">
+        <div className="shrink-0 flex justify-center pb-2">
           <span className="px-3 py-1 rounded-full surface-container text-on-surface-variant text-[10px] tracking-[0.15em] uppercase font-semibold">
             {entryDate}
           </span>
         </div>
       )}
 
-      <div ref={scrollRef} className={`flex-1 scroll-container px-4 ${hasReflection ? 'pb-36' : 'pb-24'}`}>
+      <div ref={scrollRef} className={`flex-1 min-h-0 scroll-container px-4 ${hasReflection ? 'pb-36' : 'pb-24'}`}>
         {messages.length === 0 && isImageNew && (
           <div className="flex flex-col items-center justify-center min-h-[40vh] gap-4">
             <p className="font-display text-lg text-on-surface-variant italic text-center">
@@ -381,7 +381,7 @@ export default function ChatPage() {
         )}
         <div className="space-y-3">
           {messages.map((msg) => (
-            <div key={msg.id}>
+            <div key={msg.id} data-message-type={msg.type}>
               {msg.type === "voice" && (
                 <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="flex justify-end">
                   <div className="rounded-2xl orb-gradient px-4 py-3 flex items-center gap-3 max-w-[250px]">

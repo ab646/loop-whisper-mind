@@ -53,7 +53,7 @@ export default function DeleteAccountDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="rounded-2xl surface-low border-border max-w-[360px] p-0 overflow-hidden">
+      <DialogContent className="rounded-2xl surface-low border-border max-w-[360px] p-0 overflow-hidden max-h-[85vh] overflow-y-auto">
         <AnimatePresence mode="wait">
           {/* Step 1: Are you sure? */}
           {step === 1 && (

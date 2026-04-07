@@ -1,7 +1,16 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, ChevronDown } from "lucide-react";
+
+function getGreeting(): string {
+  const hour = new Date().getHours();
+  if (hour < 5) return "Good night";
+  if (hour < 12) return "Good morning";
+  if (hour < 17) return "Good afternoon";
+  if (hour < 21) return "Good evening";
+  return "Good night";
+}
 import { ScribblingLogo } from "@/components/LoopLogo";
 import { AppHeader } from "@/components/AppHeader";
 import { VoiceOrb } from "@/components/VoiceOrb";
@@ -56,7 +65,7 @@ function groupEntries(entries: EntryPreview[]): [string, EntryPreview[]][] {
 
 export default function HomePage() {
   const navigate = useNavigate();
-  const { session } = useAuth();
+  const { session, profile } = useAuth();
   const { createEntry, loading: creatingLoop } = useCreateLoop();
   const [entries, setEntries] = useState<EntryPreview[]>([]);
   const [loading, setLoading] = useState(true);
@@ -208,13 +217,23 @@ export default function HomePage() {
       </div>
 
       <div ref={scrollContainerRef} className="flex min-h-0 flex-1 flex-col scroll-container px-5" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 200px)' }}>
-        <div className="shrink-0 flex flex-col items-center justify-center" style={{ height: '66svh' }}>
+        <div className="shrink-0 flex flex-col items-center justify-center relative" style={{ height: '100svh' }}>
+          {/* Greeting */}
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.2 }}
+            className="absolute top-[env(safe-area-inset-top,44px)] left-0 right-0 text-center pt-4 font-display text-lg text-on-surface-variant"
+          >
+            {getGreeting()}{profile?.display_name ? `, ${profile.display_name}` : ""}
+          </motion.p>
+
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             className="flex flex-col items-center gap-3"
           >
-            <VoiceOrb size="md" onClick={() => navigate("/recording")} label="START A LOOP" />
+            <VoiceOrb size="lg" onClick={() => navigate("/recording")} label="START A LOOP" />
             <div className="text-center space-y-1">
               <h2 className="font-display text-xl text-on-surface leading-tight">
                 What's looping right now?
@@ -223,6 +242,21 @@ export default function HomePage() {
                 Your brain is full. Talk it out.
               </p>
             </div>
+          </motion.div>
+
+          {/* Pulsating scroll arrow */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1 }}
+            className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1"
+          >
+            <motion.div
+              animate={{ y: [0, 6, 0] }}
+              transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+            >
+              <ChevronDown size={20} className="text-on-surface-variant/50" />
+            </motion.div>
           </motion.div>
         </div>
 

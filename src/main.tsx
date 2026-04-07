@@ -4,6 +4,6 @@ import "./index.css";
 import { analytics } from "./lib/analytics";
 
 analytics.init();
-analytics.sessionStarted();
+analytics.appOpened("organic");
 
 createRoot(document.getElementById("root")!).render(<App />);

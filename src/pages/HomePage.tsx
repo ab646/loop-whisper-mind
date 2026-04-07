@@ -214,9 +214,9 @@ export default function HomePage() {
       
 
       <div ref={scrollContainerRef} className="flex min-h-0 flex-1 flex-col scroll-container px-5" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 200px)' }}>
-        {/* Hero — flexes to keep the orb centered while the initial scroll alignment
-            reveals just one loop card or the empty state above the chat input */}
-        <div className="flex flex-1 flex-col items-center justify-center py-8" style={{ minHeight: '38vh' }}>
+        {/* Hero — fixed safe viewport height keeps the orb centered and preserves
+            the single-loop peek above the chat input on mobile */}
+        <div className="shrink-0 flex flex-col items-center justify-center" style={{ height: '45svh' }}>
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}

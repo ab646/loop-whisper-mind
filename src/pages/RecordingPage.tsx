@@ -19,6 +19,7 @@ const STEPS: { key: ProcessingStep; label: string }[] = [
 export default function RecordingPage() {
   const navigate = useNavigate();
   const [processing, setProcessing] = useState(false);
+  const [micDenied, setMicDenied] = useState(false);
   const [currentStep, setCurrentStep] = useState<ProcessingStep>("transcribing");
   const { isRecording, isPaused, duration, start, stop, pause, resume, reset } =
     useAudioRecorder();
@@ -49,12 +50,11 @@ export default function RecordingPage() {
         }
       }
       toast.error("Microphone access denied. Please enable it in Settings.");
-      navigate(-1);
+      setMicDenied(true);
     };
 
     attemptStart();
   }, []);
-
 
   // Fake progress that eases toward ~90% then jumps to 100% on "deleting"
   useEffect(() => {
@@ -70,6 +70,56 @@ export default function RecordingPage() {
     }, 200);
     return () => clearInterval(interval);
   }, [processing, currentStep]);
+
+  // Microphone denied screen
+  if (micDenied) {
+    return (
+      <div className="flex flex-col h-screen mesh-gradient-bg relative overflow-hidden">
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full bg-primary/[0.07] blur-[120px]" />
+        </div>
+        <div className="flex-1 flex flex-col items-center justify-center gap-6 px-8 relative z-10">
+          <div className="w-20 h-20 rounded-full surface-high border border-border/30 flex items-center justify-center">
+            <MicOff size={32} className="text-on-surface-variant" />
+          </div>
+          <div className="text-center space-y-2">
+            <h1 className="font-display text-xl text-on-surface">
+              Microphone Access Required
+            </h1>
+            <p className="text-on-surface-variant text-sm leading-relaxed max-w-xs">
+              Loop needs microphone access to record voice notes. Please enable it in your device's Settings app.
+            </p>
+          </div>
+          <div className="flex flex-col gap-3 w-full max-w-xs">
+            <motion.button
+              whileTap={{ scale: 0.95 }}
+              onClick={() => {
+                setMicDenied(false);
+                startedRef.current = false;
+                const retry = async () => {
+                  try {
+                    await start();
+                  } catch {
+                    setMicDenied(true);
+                  }
+                };
+                retry();
+              }}
+              className="rounded-2xl orb-gradient py-4 text-center text-primary-foreground font-body font-semibold tracking-wider text-sm uppercase"
+            >
+              Try Again
+            </motion.button>
+            <button
+              onClick={() => navigate(-1)}
+              className="text-on-surface-variant text-sm font-body tracking-wider uppercase hover:text-on-surface transition-colors"
+            >
+              Go Back
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const formatTime = (s: number) => {
     const m = Math.floor(s / 60);

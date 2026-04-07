@@ -216,7 +216,7 @@ export default function HomePage() {
       <div ref={scrollContainerRef} className="flex min-h-0 flex-1 flex-col scroll-container px-5" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 200px)' }}>
         {/* Hero — fixed safe viewport height keeps the orb centered and preserves
             the single-loop peek above the chat input on mobile */}
-        <div className="shrink-0 flex flex-col items-center justify-center" style={{ height: '100svh' }}>
+        <div className="shrink-0 flex flex-col items-center justify-center" style={{ height: '50svh' }}>
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}

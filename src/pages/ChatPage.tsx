@@ -262,7 +262,7 @@ export default function ChatPage() {
         },
       ]);
 
-      analytics.reflectionReceived({ responseTimeMs: 0, entryId: currentEntryId || data.entryId });
+      analytics.reflectionReceived({ responseTimeMs: 0, entryId: currentEntryId || data.entryId, entryType: "text" });
       analytics.entrySaved(currentEntryId || data.entryId);
 
       if (isImageNew && data.entryId) {

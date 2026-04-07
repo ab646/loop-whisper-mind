@@ -9,6 +9,7 @@ import { VoiceOrb } from "@/components/VoiceOrb";
 import { ChatInput } from "@/components/ChatInput";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { savePendingChatPrefill } from "@/lib/pending-chat-prefill";
 
 interface EntryPreview {
   id: string;
@@ -299,7 +300,10 @@ export default function HomePage() {
         style={{ bottom: 'max(var(--keyboard-height), calc(env(safe-area-inset-bottom) + 78px))' }}
       >
         <ChatInput
-          onSend={(text) => navigate("/chat/new", { state: { prefillText: text, autoSubmit: true } })}
+          onSend={(text) => {
+            savePendingChatPrefill({ prefillText: text, autoSubmit: true });
+            navigate("/chat/new", { state: { prefillText: text, autoSubmit: true } });
+          }}
           onImageSelected={(imageDataUrl) => navigate("/chat/new", { state: { prefillImage: imageDataUrl } })}
           onVoice={() => navigate("/recording")}
           placeholder="Type your thoughts..."

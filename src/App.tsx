@@ -66,7 +66,7 @@ function OnboardingRoute({ children }: { children: React.ReactNode }) {
 
 function AppRoutes() {
   return (
-    <div className="max-w-md mx-auto relative h-screen overflow-hidden">
+    <div className="max-w-md mx-auto relative h-full min-h-0 overflow-hidden">
       <Routes>
         {/* Public */}
         <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />

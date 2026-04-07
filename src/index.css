@@ -101,6 +101,10 @@
     overflow: hidden;
   }
 
+  html {
+    background: hsl(var(--surface));
+  }
+
   body {
     @apply bg-background text-foreground;
     font-family: var(--font-body);

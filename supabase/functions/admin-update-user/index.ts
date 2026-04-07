@@ -1,9 +1,9 @@
 import { createClient } from "npm:@supabase/supabase-js@2.101.1";
-import { corsHeaders } from "../_shared/cors.ts";
+import { getCorsHeaders, corsResponse, jsonResponse } from "../_shared/cors.ts";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
-    return new Response("ok", { headers: corsHeaders });
+    return corsResponse(req);
   }
 
   const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
@@ -20,20 +20,16 @@ Deno.serve(async (req) => {
   });
 
   if (emailError) {
-    return new Response(JSON.stringify({ error: "email update failed", details: emailError.message }), {
-      status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    return jsonResponse(req, { error: "email update failed", details: emailError.message }, 500);
   }
 
   // 2. Remove google identity
   const { error: unlinkError } = await admin.auth.admin.deleteIdentity(userId, googleIdentityId);
 
-  return new Response(JSON.stringify({
+  return jsonResponse(req, {
     success: true,
     emailUpdated: true,
     googleUnlinked: !unlinkError,
     unlinkError: unlinkError?.message || null,
-  }), {
-    headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
 });

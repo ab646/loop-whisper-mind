@@ -58,6 +58,11 @@ export default function ChatPage() {
   const [explorationInput, setExplorationInput] = useState("");
   const [explorationLoading, setExplorationLoading] = useState(false);
   const autoSubmitFiredRef = useRef(false);
+  const [draftText, setDraftText] = useState(prefillText ?? "");
+
+  useEffect(() => {
+    setDraftText(prefillText ?? "");
+  }, [prefillText]);
 
   // Auto-process prefilled image from home page
   useEffect(() => {
@@ -68,15 +73,13 @@ export default function ChatPage() {
 
   // Auto-submit prefilled text (from voice transcription or home chat input)
   useEffect(() => {
-    if (autoSubmit && prefillText && isNew && !autoSubmitFiredRef.current) {
-      autoSubmitFiredRef.current = true;
-      // Small delay to ensure component is fully mounted on native
-      const timer = setTimeout(() => {
-        handleSend(prefillText);
-      }, 100);
-      return () => clearTimeout(timer);
-    }
-  }, [autoSubmit, prefillText, isNew]);
+    if (!autoSubmit || !draftText || !isNew || autoSubmitFiredRef.current) return;
+
+    autoSubmitFiredRef.current = true;
+    const textToSubmit = draftText;
+    setDraftText("");
+    void handleSend(textToSubmit);
+  }, [autoSubmit, draftText, isNew]);
   // Load existing entry
   useEffect(() => {
     if (isNew || !id) {
@@ -567,7 +570,7 @@ export default function ChatPage() {
             onImageSelected={handleImageSelected}
             onVoice={() => navigate("/recording")}
             placeholder={messages.length === 0 ? "Type your thoughts..." : "Add more context..."}
-            defaultValue={prefillText}
+            defaultValue={draftText}
             disabled={loading}
             imageUploading={imageValidating}
           />

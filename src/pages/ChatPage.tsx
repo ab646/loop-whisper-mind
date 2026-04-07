@@ -46,16 +46,18 @@ export default function ChatPage() {
   const isNew = id === "new";
   const prefillText = (location.state as any)?.prefillText as string | undefined;
   const prefillImage = (location.state as any)?.prefillImage as string | undefined;
+  const autoSubmit = (location.state as any)?.autoSubmit as boolean | undefined;
 
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
-  
+
   const [imageValidating, setImageValidating] = useState(false);
   const [loadingEntry, setLoadingEntry] = useState(!isNew);
   const [entryDate, setEntryDate] = useState<string | null>(null);
   const [explorationMessages, setExplorationMessages] = useState<{ role: "user" | "ai"; content: string }[]>([]);
   const [explorationInput, setExplorationInput] = useState("");
   const [explorationLoading, setExplorationLoading] = useState(false);
+  const autoSubmitFiredRef = useRef(false);
 
   // Auto-process prefilled image from home page
   useEffect(() => {
@@ -63,6 +65,14 @@ export default function ChatPage() {
       handleImageSelected(prefillImage);
     }
   }, [prefillImage]);
+
+  // Auto-submit prefilled text (from voice transcription or home chat input)
+  useEffect(() => {
+    if (autoSubmit && prefillText && isNew && !autoSubmitFiredRef.current) {
+      autoSubmitFiredRef.current = true;
+      handleSend(prefillText);
+    }
+  }, [autoSubmit, prefillText, isNew]);
   // Load existing entry
   useEffect(() => {
     if (isNew || !id) {

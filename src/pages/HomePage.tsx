@@ -299,7 +299,7 @@ export default function HomePage() {
         style={{ bottom: 'max(var(--keyboard-height), calc(env(safe-area-inset-bottom) + 78px))' }}
       >
         <ChatInput
-          onSend={(text) => navigate("/chat/new", { state: { prefillText: text } })}
+          onSend={(text) => navigate("/chat/new", { state: { prefillText: text, autoSubmit: true } })}
           onImageSelected={(imageDataUrl) => navigate("/chat/new", { state: { prefillImage: imageDataUrl } })}
           onVoice={() => navigate("/recording")}
           placeholder="Type your thoughts..."

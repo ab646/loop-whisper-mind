@@ -163,7 +163,7 @@ export default function RecordingPage() {
       await new Promise((r) => setTimeout(r, 800));
 
       if (text && text.trim()) {
-        navigate("/chat/new", { state: { prefillText: text.trim() } });
+        navigate("/chat/new", { state: { prefillText: text.trim(), autoSubmit: true } });
       } else {
         toast.error("No speech detected. Try again.");
         navigate(-1);

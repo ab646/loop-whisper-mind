@@ -334,7 +334,7 @@ export default function ChatPage() {
         <button onClick={() => navigate("/")} className="text-on-surface-variant hover:text-mint transition-colors w-8">
           <ArrowLeft size={22} />
         </button>
-        <ScribblingLogo className="h-5 w-auto text-mint" />
+        <div className="flex-1" />
         <div className="w-8 flex justify-end">
           {!isImageNew ? (
             <DropdownMenu>

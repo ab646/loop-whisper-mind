@@ -33,7 +33,7 @@ export default function ForgotPasswordPage() {
       >
         <div className="flex flex-col items-center space-y-3">
           <StaticLogo size={80} />
-          <h1 className="font-display text-3xl text-on-surface">Loop</h1>
+          <h1 className="font-display text-3xl text-on-surface">Loop Mind</h1>
           <p className="font-display text-base text-mint italic">Reset your password.</p>
         </div>
 

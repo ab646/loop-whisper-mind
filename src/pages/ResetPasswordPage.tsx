@@ -38,7 +38,7 @@ export default function ResetPasswordPage() {
         className="w-full max-w-sm space-y-8"
       >
         <div className="text-center space-y-2">
-          <h1 className="font-display text-3xl text-on-surface">Loop</h1>
+          <h1 className="font-display text-3xl text-on-surface">Loop Mind</h1>
           <p className="font-display text-base text-mint italic">Set a new password.</p>
         </div>
 

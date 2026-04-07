@@ -124,7 +124,7 @@ export default function LoginPage() {
       >
         <div className="flex flex-col items-center space-y-2">
           <StaticLogo size={64} />
-          <h1 className="font-display text-3xl text-on-surface">Loop</h1>
+          <h1 className="font-display text-3xl text-on-surface">Loop Mind</h1>
           <AnimatePresence mode="wait">
             <motion.p
               key={mode}

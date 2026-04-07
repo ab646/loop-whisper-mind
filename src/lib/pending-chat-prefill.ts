@@ -7,49 +7,63 @@ type PendingChatPrefill = {
 const PENDING_CHAT_PREFILL_KEY = "loop.pending-chat-prefill";
 const PENDING_CHAT_PREFILL_MAX_AGE_MS = 5 * 60 * 1000;
 
-function getStorage() {
-  if (typeof window === "undefined") return null;
+function getStorages() {
+  if (typeof window === "undefined") return [] as Storage[];
+
+  const storages: Storage[] = [];
 
   try {
-    return window.sessionStorage;
+    storages.push(window.localStorage);
   } catch {
-    return null;
+    // noop
   }
+
+  try {
+    storages.push(window.sessionStorage);
+  } catch {
+    // noop
+  }
+
+  return storages;
 }
 
 export function savePendingChatPrefill(payload: Omit<PendingChatPrefill, "createdAt">) {
-  const storage = getStorage();
-  if (!storage) return;
+  const storages = getStorages();
+  if (storages.length === 0) return;
 
-  storage.setItem(
-    PENDING_CHAT_PREFILL_KEY,
-    JSON.stringify({ ...payload, createdAt: Date.now() } satisfies PendingChatPrefill)
-  );
+  const value = JSON.stringify({
+    ...payload,
+    createdAt: Date.now(),
+  } satisfies PendingChatPrefill);
+
+  storages.forEach((storage) => storage.setItem(PENDING_CHAT_PREFILL_KEY, value));
 }
 
 export function readPendingChatPrefill(): PendingChatPrefill | null {
-  const storage = getStorage();
-  if (!storage) return null;
+  const storages = getStorages();
+  if (storages.length === 0) return null;
 
-  const raw = storage.getItem(PENDING_CHAT_PREFILL_KEY);
-  if (!raw) return null;
+  for (const storage of storages) {
+    const raw = storage.getItem(PENDING_CHAT_PREFILL_KEY);
+    if (!raw) continue;
 
-  try {
-    const parsed = JSON.parse(raw) as PendingChatPrefill;
+    try {
+      const parsed = JSON.parse(raw) as PendingChatPrefill;
 
-    if (Date.now() - parsed.createdAt > PENDING_CHAT_PREFILL_MAX_AGE_MS) {
+      if (Date.now() - parsed.createdAt > PENDING_CHAT_PREFILL_MAX_AGE_MS) {
+        storage.removeItem(PENDING_CHAT_PREFILL_KEY);
+        continue;
+      }
+
+      return parsed;
+    } catch {
       storage.removeItem(PENDING_CHAT_PREFILL_KEY);
-      return null;
     }
-
-    return parsed;
-  } catch {
-    storage.removeItem(PENDING_CHAT_PREFILL_KEY);
-    return null;
   }
+
+  return null;
 }
 
 export function clearPendingChatPrefill() {
-  const storage = getStorage();
-  storage?.removeItem(PENDING_CHAT_PREFILL_KEY);
+  getStorages().forEach((storage) => storage.removeItem(PENDING_CHAT_PREFILL_KEY));
 }

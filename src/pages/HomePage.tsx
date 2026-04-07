@@ -302,7 +302,7 @@ export default function HomePage() {
         <ChatInput
           onSend={(text) => {
             savePendingChatPrefill({ prefillText: text, autoSubmit: true });
-            navigate("/chat/new", { state: { prefillText: text, autoSubmit: true } });
+            navigate("/chat/new?autoSubmit=1", { state: { prefillText: text, autoSubmit: true } });
           }}
           onImageSelected={(imageDataUrl) => navigate("/chat/new", { state: { prefillImage: imageDataUrl } })}
           onVoice={() => navigate("/recording")}

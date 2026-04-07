@@ -19,6 +19,7 @@ const STEPS: { key: ProcessingStep; label: string }[] = [
 export default function RecordingPage() {
   const navigate = useNavigate();
   const [processing, setProcessing] = useState(false);
+  const [micDenied, setMicDenied] = useState(false);
   const [currentStep, setCurrentStep] = useState<ProcessingStep>("transcribing");
   const { isRecording, isPaused, duration, start, stop, pause, resume, reset } =
     useAudioRecorder();

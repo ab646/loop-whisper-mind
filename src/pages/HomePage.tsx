@@ -214,8 +214,9 @@ export default function HomePage() {
       
 
       <div ref={scrollContainerRef} className="flex-1 scroll-container px-5 flex flex-col" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 200px)' }}>
-        {/* Hero — compact, no min-height so Recent Loops appears immediately below */}
-        <div className="flex flex-col items-center justify-center py-8">
+        {/* Hero — flex-1 fills leftover space (centers orb), min-h-[38vh] keeps it
+            compact when entries push content below the viewport */}
+        <div className="flex-1 flex flex-col items-center justify-center py-8" style={{ minHeight: '38vh' }}>
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}

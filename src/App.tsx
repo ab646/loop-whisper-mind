@@ -100,7 +100,8 @@ const App = () => {
 
     // Make the WebView extend behind the status bar so our background shows through
     StatusBar.setOverlaysWebView({ overlay: true }).catch(() => {});
-    StatusBar.setStyle({ style: Style.Dark }).catch(() => {});
+    // Light = white icons, correct for Loop's dark background
+    StatusBar.setStyle({ style: Style.Light }).catch(() => {});
 
     import("@capacitor/keyboard").then(({ Keyboard }) => {
       Keyboard.setAccessoryBarVisible({ isVisible: false });

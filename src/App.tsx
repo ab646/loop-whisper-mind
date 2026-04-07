@@ -96,8 +96,10 @@ const App = () => {
   // Configure native keyboard — hide Safari accessory bar, native resize
   useEffect(() => {
     if (!Capacitor.isNativePlatform()) return;
-    Keyboard.setAccessoryBarVisible({ isVisible: false });
-    Keyboard.setResizeMode({ mode: 'native' as any });
+    import("@capacitor/keyboard").then(({ Keyboard }) => {
+      Keyboard.setAccessoryBarVisible({ isVisible: false });
+      Keyboard.setResizeMode({ mode: 'native' as any });
+    }).catch(() => {});
   }, []);
 
   // Handle OAuth deep link callback on native platforms

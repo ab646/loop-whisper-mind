@@ -168,12 +168,10 @@ export default function HomePage() {
     return () => observer.disconnect();
   }, [loadMore]);
 
-  // On initial load, scroll so the first entry card sits fully above the chat input
-  const hasScrolledRef = useRef(false);
+  // On initial load, scroll so the first entry card or empty state sits fully above the chat input
   const recentLoopsRef = useRef<HTMLSpanElement>(null);
-  useLayoutEffect(() => {
-    if (loading || error || hasScrolledRef.current) return;
 
+  const alignFirstVisibleCard = useCallback(() => {
     const container = scrollContainerRef.current;
     const chatInputEl = chatInputRef.current;
     const targetEl =
@@ -183,21 +181,49 @@ export default function HomePage() {
 
     if (!container || !chatInputEl || !targetEl) return;
 
-    const frame = requestAnimationFrame(() => {
-      const inputTop = chatInputEl.getBoundingClientRect().top;
-      const targetBottom = targetEl.getBoundingClientRect().bottom;
-      const clearance = 16;
-      const overflow = targetBottom - (inputTop - clearance);
+    const inputTop = chatInputEl.getBoundingClientRect().top;
+    const targetBottom = targetEl.getBoundingClientRect().bottom;
+    const clearance = 28;
+    const overflow = Math.ceil(targetBottom - (inputTop - clearance));
 
-      if (overflow > 0) {
-        container.scrollTop += overflow;
-      }
+    if (overflow > 0) {
+      container.scrollTop += overflow;
+    }
+  }, [entries.length]);
 
-      hasScrolledRef.current = true;
+  useLayoutEffect(() => {
+    if (loading || error) return;
+
+    let cancelled = false;
+    let firstFrame = 0;
+    let secondFrame = 0;
+    const timers: number[] = [];
+
+    const runAlignment = () => {
+      if (cancelled) return;
+      alignFirstVisibleCard();
+    };
+
+    firstFrame = requestAnimationFrame(() => {
+      runAlignment();
+      secondFrame = requestAnimationFrame(runAlignment);
     });
 
-    return () => cancelAnimationFrame(frame);
-  }, [loading, error, entries.length]);
+    timers.push(window.setTimeout(runAlignment, 100));
+    timers.push(window.setTimeout(runAlignment, 250));
+    timers.push(window.setTimeout(runAlignment, 500));
+
+    document.fonts?.ready.then(runAlignment).catch(() => undefined);
+    window.addEventListener("resize", runAlignment);
+
+    return () => {
+      cancelled = true;
+      cancelAnimationFrame(firstFrame);
+      cancelAnimationFrame(secondFrame);
+      timers.forEach((timer) => window.clearTimeout(timer));
+      window.removeEventListener("resize", runAlignment);
+    };
+  }, [loading, error, alignFirstVisibleCard]);
 
   const groupedEntries = groupEntries(entries);
   const firstGroup = groupedEntries[0]?.[0];

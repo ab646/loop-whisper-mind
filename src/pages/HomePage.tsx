@@ -172,33 +172,15 @@ export default function HomePage() {
   const recentLoopsRef = useRef<HTMLSpanElement>(null);
   const hasAlignedRef = useRef(false);
 
+  // Ensure scroll starts at top on initial load
   useEffect(() => {
-    if (loading || error || hasAlignedRef.current) return;
-
-    // Wait one frame for layout, then align once
-    const timer = window.setTimeout(() => {
-      const container = scrollContainerRef.current;
-      const chatInputEl = chatInputRef.current;
-      const targetEl =
-        entries.length > 0
-          ? firstEntryRef.current
-          : emptyStateRef.current ?? recentLoopsRef.current;
-
-      if (!container || !chatInputEl || !targetEl) return;
-
-      const inputTop = chatInputEl.getBoundingClientRect().top;
-      const targetBottom = targetEl.getBoundingClientRect().bottom;
-      const clearance = 28;
-      const overflow = Math.ceil(targetBottom - (inputTop - clearance));
-
-      if (overflow > 0) {
-        container.scrollTop += overflow;
-      }
+    if (loading || hasAlignedRef.current) return;
+    const container = scrollContainerRef.current;
+    if (container) {
+      container.scrollTop = 0;
       hasAlignedRef.current = true;
-    }, 150);
-
-    return () => window.clearTimeout(timer);
-  }, [loading, error, entries.length]);
+    }
+  }, [loading]);
 
   const groupedEntries = groupEntries(entries);
   const firstGroup = groupedEntries[0]?.[0];

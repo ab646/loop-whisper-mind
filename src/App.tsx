@@ -6,7 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { BottomNav } from "@/components/BottomNav";
 import { Capacitor } from "@capacitor/core";
-import { Keyboard } from "@capacitor/keyboard";
+
 import { Browser } from "@capacitor/browser";
 import { App as CapApp } from "@capacitor/app";
 import { supabase } from "@/integrations/supabase/client";
@@ -96,8 +96,10 @@ const App = () => {
   // Configure native keyboard — hide Safari accessory bar, native resize
   useEffect(() => {
     if (!Capacitor.isNativePlatform()) return;
-    Keyboard.setAccessoryBarVisible({ isVisible: false });
-    Keyboard.setResizeMode({ mode: 'native' as any });
+    import("@capacitor/keyboard").then(({ Keyboard }) => {
+      Keyboard.setAccessoryBarVisible({ isVisible: false });
+      Keyboard.setResizeMode({ mode: 'native' as any });
+    }).catch(() => {});
   }, []);
 
   // Handle OAuth deep link callback on native platforms

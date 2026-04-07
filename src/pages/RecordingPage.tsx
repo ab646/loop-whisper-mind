@@ -170,14 +170,14 @@ export default function RecordingPage() {
       // Now call reflect
       setCurrentStep("reflecting");
       const reflectStart = Date.now();
-      const entryId = await createEntry({ content: text.trim() });
+      const entryId = await createEntry({ content: text.trim(), entryType: "voice" });
 
       setCurrentStep("deleting");
       await new Promise((r) => setTimeout(r, 600));
 
       if (entryId) {
         analytics.recordingCompleted(duration);
-        analytics.reflectionReceived({ responseTimeMs: Date.now() - reflectStart, entryId });
+        analytics.reflectionReceived({ responseTimeMs: Date.now() - reflectStart, entryId, entryType: "voice" });
         analytics.entrySaved(entryId);
         navigate(`/chat/${entryId}`);
       } else {

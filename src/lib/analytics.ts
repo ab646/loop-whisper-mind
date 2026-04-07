@@ -68,11 +68,12 @@ export const analytics = {
     this.track("transcription_completed", { word_count: wordCount, audio_format: audioFormat });
   },
 
-  reflectionReceived(opts: { responseTimeMs: number; entryNumber?: number; entryId?: string }) {
+  reflectionReceived(opts: { responseTimeMs: number; entryNumber?: number; entryId?: string; entryType?: string }) {
     this.track("reflection_received", {
       response_time_ms: opts.responseTimeMs,
       entry_number: opts.entryNumber,
       entry_id: opts.entryId,
+      entry_type: opts.entryType,
     });
   },
 

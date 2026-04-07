@@ -32,7 +32,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
   if (loading) {
     return (
-      <div className="min-h-screen mesh-gradient-bg flex items-center justify-center">
+      <div className="h-screen mesh-gradient-bg flex items-center justify-center">
         <div className="text-center space-y-3">
           <h1 className="font-display text-2xl text-on-surface">Loop</h1>
           <p className="text-on-surface-variant text-sm animate-pulse-soft">Loading...</p>
@@ -65,7 +65,7 @@ function OnboardingRoute({ children }: { children: React.ReactNode }) {
 
 function AppRoutes() {
   return (
-    <div className="max-w-md mx-auto relative min-h-screen">
+    <div className="max-w-md mx-auto relative h-screen overflow-hidden">
       <Routes>
         {/* Public */}
         <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />

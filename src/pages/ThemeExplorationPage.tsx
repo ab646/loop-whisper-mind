@@ -138,7 +138,7 @@ export default function ThemeExplorationPage() {
   const themeName = theme ? theme.charAt(0).toUpperCase() + theme.slice(1) : "Theme";
 
   return (
-    <div className="min-h-screen mesh-gradient-bg pb-24">
+    <div className="h-screen mesh-gradient-bg overflow-y-auto" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 96px)' }}>
       <AppHeader title={themeName} showBack />
 
       <div className="px-5 space-y-6">

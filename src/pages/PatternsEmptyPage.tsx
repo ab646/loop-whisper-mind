@@ -7,7 +7,7 @@ export default function PatternsEmptyPage() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen mesh-gradient-bg pb-24 flex flex-col">
+    <div className="h-screen mesh-gradient-bg pb-24 flex flex-col">
       {/* Header */}
       <header className="flex items-center justify-between px-5 py-4">
         <div className="flex items-center gap-3">

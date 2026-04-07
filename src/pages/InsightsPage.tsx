@@ -194,7 +194,7 @@ export default function InsightsPage() {
   const assumptionPercent = 100 - factPercent;
 
   return (
-    <div className="mesh-gradient-bg pt-6 relative overflow-x-hidden" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 96px)' }}>
+    <div className="h-screen mesh-gradient-bg pt-6 relative overflow-y-auto overflow-x-hidden" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 96px)' }}>
       {/* Background haze */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-[10%] left-1/2 -translate-x-1/2 w-[500px] h-[400px] rounded-full bg-primary/[0.06] blur-[120px]" />

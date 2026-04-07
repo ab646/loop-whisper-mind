@@ -246,20 +246,6 @@ export default function LoginPage() {
           </div>
         </form>
 
-        <p className="text-center text-on-surface-variant text-sm font-body py-3">
-          {isLogin ? "New here?" : "Already have an account?"}{" "}
-          <button
-            onClick={() => {
-              setMode(isLogin ? "signup" : "login");
-              setPassword("");
-              setConfirmPassword("");
-              setShowConfirm(false);
-            }}
-            className="text-mint hover:underline py-3 px-2 inline-block min-h-[44px]"
-          >
-            {isLogin ? "Create an account" : "Sign in"}
-          </button>
-        </p>
       </motion.div>
     </div>
   );

@@ -181,7 +181,7 @@ export default function HomePage() {
       if (entries.length === 0 || !targetEl) return;
       // The chat input overlay is fixed ~140px from the bottom of viewport
       // So usable visible height = container.clientHeight - 140
-      const chatInputOverlap = 150;
+      const chatInputOverlap = 200;
       const usableHeight = container.clientHeight - chatInputOverlap;
       const entryBottom = targetEl.offsetTop + targetEl.offsetHeight;
       const scrollTarget = entryBottom - usableHeight;

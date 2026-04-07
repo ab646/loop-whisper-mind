@@ -161,6 +161,7 @@ const App = () => {
         <TooltipProvider>
           <Sonner />
           <BrowserRouter>
+            <ScrollToTop />
             <AuthProvider>
               <AppRoutes />
             </AuthProvider>

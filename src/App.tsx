@@ -25,6 +25,7 @@ import OnboardingPage from "./pages/OnboardingPage";
 import CallbackPage from "./pages/CallbackPage";
 import NotFound from "./pages/NotFound";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import ScrollToTop from "@/components/ScrollToTop";
 
 const queryClient = new QueryClient();
 
@@ -160,6 +161,7 @@ const App = () => {
         <TooltipProvider>
           <Sonner />
           <BrowserRouter>
+            <ScrollToTop />
             <AuthProvider>
               <AppRoutes />
             </AuthProvider>

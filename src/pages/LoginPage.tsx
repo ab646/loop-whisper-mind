@@ -246,6 +246,17 @@ export default function LoginPage() {
           </div>
         </form>
 
+        <p className="text-center text-on-surface-variant text-sm font-body">
+          {isLogin ? "Don't have an account?" : "Already have an account?"}{" "}
+          <button
+            type="button"
+            onClick={() => setMode(isLogin ? "signup" : "login")}
+            className="text-mint hover:underline font-semibold"
+          >
+            {isLogin ? "Sign up" : "Sign in"}
+          </button>
+        </p>
+
       </motion.div>
     </div>
   );

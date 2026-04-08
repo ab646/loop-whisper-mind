@@ -9,6 +9,7 @@ export const analytics = {
       autocapture: false,
       capture_pageview: true,
       persistence: "localStorage",
+      cross_subdomain_cookie: true,
     });
     sessionStartTime = Date.now();
 

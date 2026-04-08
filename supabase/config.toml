@@ -8,3 +8,6 @@ verify_jwt = false
 
 [functions.explore-theme]
 verify_jwt = false
+
+[functions.loops]
+verify_jwt = false

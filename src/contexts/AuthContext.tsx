@@ -1,7 +1,8 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, useRef, ReactNode } from "react";
 import { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { analytics } from "@/lib/analytics";
+import { loops } from "@/lib/loops";
 
 interface Profile {
   display_name: string | null;
@@ -53,6 +54,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
+    const syncedToLoops = useRef(false);
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (_event, session) => {
         setSession(session);
@@ -60,8 +63,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           analytics.identify(session.user.id);
           // Use setTimeout to avoid Supabase deadlock
           setTimeout(() => fetchProfile(session.user.id), 0);
+
+          // Sync to Loops on first auth (signup or login)
+          if (!syncedToLoops.current) {
+            syncedToLoops.current = true;
+            loops.createContact({
+              email: session.user.email!,
+              firstName: session.user.user_metadata?.full_name?.split(" ")[0],
+              lastName: session.user.user_metadata?.full_name?.split(" ").slice(1).join(" "),
+            }).catch((err) => console.warn("Loops sync skipped:", err));
+          }
         } else {
           setProfile(null);
+          syncedToLoops.current = false;
         }
         setLoading(false);
       }

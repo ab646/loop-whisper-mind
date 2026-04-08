@@ -5,7 +5,7 @@ let sessionStartTime = Date.now();
 export const analytics = {
   init() {
     posthog.init("phc_qzZZ4oV8NHDJP9x7hivXgjJqwryvRWFAnYn6SzF3HBmP", {
-      api_host: "https://us.i.posthog.com",
+      api_host: "https://eu.i.posthog.com",
       autocapture: false,
       capture_pageview: true,
       persistence: "localStorage",

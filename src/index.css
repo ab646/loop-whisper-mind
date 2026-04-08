@@ -12,12 +12,15 @@
   --keyboard-height: 0px;
 }
 
-#root {
-    padding-top: env(safe-area-inset-top);
+html, body {
     background:
       radial-gradient(ellipse at 20% 50%, hsla(180, 25%, 80%, 0.04) 0%, transparent 60%),
       radial-gradient(ellipse at 80% 20%, hsla(180, 20%, 25%, 0.06) 0%, transparent 50%),
       hsl(var(--surface));
+}
+
+#root {
+    padding-top: env(safe-area-inset-top);
 }
 
 @layer base {

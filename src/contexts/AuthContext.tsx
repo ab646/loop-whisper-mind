@@ -37,6 +37,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
+  const syncedToLoops = useRef(false);
 
   const fetchProfile = async (userId: string) => {
     const { data } = await supabase
@@ -54,7 +55,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
-    const syncedToLoops = useRef(false);
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (_event, session) => {

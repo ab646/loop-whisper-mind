@@ -17,6 +17,13 @@ export default function LoginPage() {
   const [showConfirmation, setShowConfirmation] = useState(false);
   const navigate = useNavigate();
 
+  // Scroll focused input into view when native keyboard opens
+  const scrollOnFocus = useCallback((e: React.FocusEvent<HTMLInputElement>) => {
+    setTimeout(() => {
+      e.target.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 300);
+  }, []);
+
   // Show confirm password after first password is entered in signup mode
   useEffect(() => {
     if (mode === "signup" && password.length >= 6) {

@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
+import { BrowserRouter, Route, Routes, Navigate, useLocation } from "react-router-dom";
+import { AnimatePresence, LayoutGroup } from "framer-motion";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
@@ -66,29 +67,39 @@ function OnboardingRoute({ children }: { children: React.ReactNode }) {
 }
 
 function AppRoutes() {
+  const location = useLocation();
+
+  // Only animate between home ↔ recording transitions
+  const isOrbRoute = location.pathname === "/" || location.pathname === "/recording";
+  const animationKey = isOrbRoute ? location.pathname : "other";
+
   return (
     <div className="max-w-md mx-auto relative h-full min-h-0 overflow-hidden">
-      <Routes>
-        {/* Public */}
-        <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
-        <Route path="/signup" element={<Navigate to="/login" replace />} />
-        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-        <Route path="/reset-password" element={<ResetPasswordPage />} />
-        <Route path="/callback" element={<CallbackPage />} />
+      <LayoutGroup>
+        <AnimatePresence mode="popLayout" initial={false}>
+          <Routes location={location} key={animationKey}>
+            {/* Public */}
+            <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
+            <Route path="/signup" element={<Navigate to="/login" replace />} />
+            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+            <Route path="/reset-password" element={<ResetPasswordPage />} />
+            <Route path="/callback" element={<CallbackPage />} />
 
-        {/* Onboarding — guarded */}
-        <Route path="/onboarding" element={<OnboardingRoute><OnboardingPage /></OnboardingRoute>} />
+            {/* Onboarding — guarded */}
+            <Route path="/onboarding" element={<OnboardingRoute><OnboardingPage /></OnboardingRoute>} />
 
-        {/* Protected */}
-        <Route path="/" element={<ProtectedRoute><HomePage /></ProtectedRoute>} />
-        <Route path="/chat/:id" element={<ProtectedRoute><ChatPage /></ProtectedRoute>} />
-        <Route path="/recording" element={<ProtectedRoute><RecordingPage /></ProtectedRoute>} />
-        <Route path="/insights" element={<ProtectedRoute><InsightsPage /></ProtectedRoute>} />
-        <Route path="/theme/:id" element={<ProtectedRoute><ThemeExplorationPage /></ProtectedRoute>} />
-        <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+            {/* Protected */}
+            <Route path="/" element={<ProtectedRoute><HomePage /></ProtectedRoute>} />
+            <Route path="/chat/:id" element={<ProtectedRoute><ChatPage /></ProtectedRoute>} />
+            <Route path="/recording" element={<ProtectedRoute><RecordingPage /></ProtectedRoute>} />
+            <Route path="/insights" element={<ProtectedRoute><InsightsPage /></ProtectedRoute>} />
+            <Route path="/theme/:id" element={<ProtectedRoute><ThemeExplorationPage /></ProtectedRoute>} />
+            <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
 
-        <Route path="*" element={<NotFound />} />
-      </Routes>
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </AnimatePresence>
+      </LayoutGroup>
       <BottomNav />
     </div>
   );

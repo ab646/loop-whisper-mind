@@ -208,7 +208,12 @@ export default function HomePage() {
   const firstGroup = groupedEntries[0]?.[0];
 
   return (
-    <div className="flex h-full min-h-0 flex-col mesh-gradient-bg relative overflow-hidden">
+    <motion.div
+      initial={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.3 }}
+      className="flex h-full min-h-0 flex-col mesh-gradient-bg relative overflow-hidden"
+    >
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-[20%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full bg-primary/[0.07] blur-[120px]" />
         <div className="absolute top-[35%] left-[30%] -translate-x-1/2 w-[300px] h-[300px] rounded-full bg-mint/[0.04] blur-[100px]" />
@@ -229,7 +234,7 @@ export default function HomePage() {
             animate={{ opacity: 1, y: 0 }}
             className="flex flex-col items-center gap-5"
           >
-            <VoiceOrb size="lg" onClick={() => navigate("/recording")} label="START A LOOP" />
+            <VoiceOrb size="lg" onClick={() => navigate("/recording")} label="START A LOOP" layoutId="voice-orb" />
             <div className="text-center space-y-1">
               <h2 className="font-display text-xl text-on-surface leading-tight">
                 What's looping right now?
@@ -343,6 +348,6 @@ export default function HomePage() {
           placeholder="Type your thoughts..."
         />
       </div>
-    </div>
+    </motion.div>
   );
 }

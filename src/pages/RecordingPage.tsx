@@ -202,7 +202,13 @@ export default function RecordingPage() {
   }
 
   return (
-    <div className="flex flex-col h-screen mesh-gradient-bg relative overflow-hidden">
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.3 }}
+      className="flex flex-col h-screen mesh-gradient-bg relative overflow-hidden"
+    >
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full bg-primary/[0.07] blur-[120px]" />
         <div className="absolute top-[45%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] rounded-full bg-mint/[0.05] blur-[80px]" />
@@ -218,10 +224,14 @@ export default function RecordingPage() {
         <Waveform bars={20} active={isRecording && !isPaused} />
 
         <motion.button
+          layoutId="voice-orb"
           onClick={handleStop}
           whileTap={{ scale: 0.92 }}
           animate={isRecording && !isPaused ? { scale: [1, 1.03, 1] } : {}}
-          transition={{ duration: 2, repeat: Infinity }}
+          transition={{
+            layout: { duration: 0.5, ease: [0.4, 0, 0.2, 1] },
+            scale: { duration: 2, repeat: Infinity },
+          }}
           className="w-44 h-44 rounded-full orb-gradient orb-shadow flex flex-col items-center justify-center gap-1.5 relative"
         >
           <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/30 to-transparent" />
@@ -276,6 +286,6 @@ export default function RecordingPage() {
           Cancel
         </button>
       </div>
-    </div>
+    </motion.div>
   );
 }

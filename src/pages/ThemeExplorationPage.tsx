@@ -403,7 +403,7 @@ export default function ThemeExplorationPage() {
       {/* Fixed input above keyboard */}
       <div
         className="fixed left-0 right-0 z-40 px-4"
-        style={{ bottom: 'max(var(--keyboard-height), calc(env(safe-area-inset-bottom) + 16px))' }}
+        style={{ bottom: 'max(var(--keyboard-height), calc(env(safe-area-inset-bottom) + 78px))' }}
       >
         <div className="flex items-center gap-2 rounded-xl surface-high px-4 py-3 border border-border/20 shadow-lg">
           <input

@@ -209,7 +209,7 @@ export default function HomePage() {
 
   return (
     <div
-      className="flex h-full min-h-0 flex-col mesh-gradient-bg relative overflow-hidden"
+      className="flex h-full min-h-0 flex-col mesh-gradient-bg relative overflow-hidden isolate"
     >
 
       <div ref={scrollContainerRef} className="flex min-h-0 flex-1 flex-col scroll-container px-5" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 200px)' }}>

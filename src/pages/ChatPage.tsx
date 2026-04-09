@@ -339,7 +339,7 @@ export default function ChatPage() {
   }
 
   return (
-    <div className="flex flex-col h-screen mesh-gradient-bg overflow-hidden relative">
+    <div className="flex flex-col h-screen mesh-gradient-bg overflow-hidden relative isolate">
       {/* Header */}
       <div className="shrink-0 flex items-center justify-between px-4 pb-2 sticky top-0 z-30 mesh-gradient-bg" style={{ paddingTop: "max(env(safe-area-inset-top), 16px)" }}>
         <button onClick={() => navigate("/")} className="text-on-surface-variant hover:text-mint transition-colors w-8">

@@ -71,7 +71,7 @@ function AppRoutes() {
   const location = useLocation();
 
   return (
-    <div className="max-w-md mx-auto relative h-full min-h-0 overflow-hidden">
+    <div className="max-w-md mx-auto relative h-full min-h-0 overflow-hidden isolate">
       <LayoutGroup>
         <Routes location={location}>
           {/* Public */}

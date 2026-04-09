@@ -348,6 +348,6 @@ export default function HomePage() {
           placeholder="Type your thoughts..."
         />
       </div>
-    </div>
+    </motion.div>
   );
 }

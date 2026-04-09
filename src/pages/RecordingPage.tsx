@@ -286,6 +286,6 @@ export default function RecordingPage() {
           Cancel
         </button>
       </div>
-    </div>
+    </motion.div>
   );
 }

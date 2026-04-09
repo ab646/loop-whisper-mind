@@ -11,7 +11,7 @@
   /* Updated by @capacitor/keyboard listeners when keyboard opens/closes */
   --keyboard-height: 0px;
   /* Measured dynamically by BottomNav via ResizeObserver */
-  --bottom-nav-height: 0px;
+  --bottom-nav-height: calc(72px + env(safe-area-inset-bottom));
 }
 
 html, body {

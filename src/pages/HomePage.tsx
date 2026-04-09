@@ -333,8 +333,10 @@ export default function HomePage() {
         </div>
       </div>
 
-      <div
+      <motion.div
         ref={chatInputRef}
+        animate={{ opacity: navigatingOut ? 0 : 1 }}
+        transition={{ duration: 0.25 }}
         className="absolute left-0 right-0 z-40 px-0"
         style={{ bottom: 'max(var(--keyboard-height, 0px), calc(var(--bottom-nav-height, calc(72px + env(safe-area-inset-bottom))) + 12px))' }}
       >

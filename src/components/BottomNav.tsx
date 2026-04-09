@@ -1,6 +1,7 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { MessageCircle, BarChart3, User } from "lucide-react";
 import { motion } from "framer-motion";
+import { useEffect, useRef } from "react";
 
 const tabs = [
   { path: "/", label: "REFLECT", icon: MessageCircle },
@@ -11,6 +12,19 @@ const tabs = [
 export function BottomNav() {
   const location = useLocation();
   const navigate = useNavigate();
+  const navRef = useRef<HTMLElement>(null);
+
+  // Publish actual nav height as a CSS variable so pages can adapt
+  useEffect(() => {
+    const el = navRef.current;
+    if (!el) return;
+    const observer = new ResizeObserver(([entry]) => {
+      const h = entry.contentRect.height + (parseFloat(getComputedStyle(el).borderTopWidth) || 0);
+      document.documentElement.style.setProperty("--bottom-nav-height", `${h}px`);
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   const hiddenPaths = ["/recording", "/login", "/signup", "/onboarding", "/forgot-password", "/reset-password"];
   const hiddenPrefixes: string[] = [];
@@ -19,10 +33,14 @@ export function BottomNav() {
     hiddenPaths.includes(location.pathname) ||
     hiddenPrefixes.some((prefix) => location.pathname.startsWith(prefix));
 
-  if (shouldHide) return null;
+  if (shouldHide) {
+    // Reset variable when nav is hidden
+    document.documentElement.style.setProperty("--bottom-nav-height", "0px");
+    return null;
+  }
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 glass-panel border-t border-border/30">
+    <nav ref={navRef} className="fixed bottom-0 left-0 right-0 z-50 glass-panel border-t border-border/30">
       <div className="flex items-center justify-around px-4 py-2 max-w-md mx-auto" style={{ paddingBottom: 'max(env(safe-area-inset-bottom), 8px)' }}>
         {tabs.map((tab) => {
           const isActive = location.pathname === tab.path;

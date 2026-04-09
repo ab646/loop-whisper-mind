@@ -130,7 +130,7 @@ export default function InsightsPage() {
     const progress = Math.min(entryCount, threshold);
 
     return (
-      <div className="h-screen mesh-gradient-bg flex flex-col overflow-hidden" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 80px)' }}>
+      <div className="h-screen mesh-gradient-bg flex flex-col overflow-hidden" style={{ paddingBottom: 'var(--bottom-nav-height, 80px)' }}>
         <div className="flex-1 px-5 flex flex-col items-center justify-center gap-6">
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="text-center space-y-4">
             <h2 className="font-display text-2xl text-on-surface leading-tight">
@@ -204,7 +204,7 @@ export default function InsightsPage() {
         <div className="absolute top-[75%] left-[65%] w-[300px] h-[300px] rounded-full bg-tertiary/[0.03] blur-[110px]" />
       </div>
 
-      <div className="flex-1 scroll-container pt-6 px-5 space-y-8 relative z-10" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 120px)' }}>
+      <div className="flex-1 scroll-container pt-6 px-5 space-y-8 relative z-10" style={{ paddingBottom: 'calc(var(--bottom-nav-height, 80px) + 24px)' }}>
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
           <h2 className="font-display text-3xl text-on-surface leading-tight tracking-tight">
             Patterns in the quiet.

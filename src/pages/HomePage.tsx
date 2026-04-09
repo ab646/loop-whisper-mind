@@ -330,8 +330,8 @@ export default function HomePage() {
 
       <div
         ref={chatInputRef}
-        className="fixed left-0 right-0 z-40 px-0"
-        style={{ bottom: 'max(var(--keyboard-height), calc(env(safe-area-inset-bottom) + 78px))' }}
+        className="absolute left-0 right-0 z-40 px-0"
+        style={{ bottom: 'max(var(--keyboard-height, 0px), calc(var(--bottom-nav-height, calc(72px + env(safe-area-inset-bottom))) + 12px))' }}
       >
         <ChatInput
           onSend={handleSend}

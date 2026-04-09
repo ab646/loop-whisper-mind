@@ -339,7 +339,7 @@ export default function ChatPage() {
   }
 
   return (
-    <div className="flex flex-col h-screen mesh-gradient-bg overflow-hidden">
+    <div className="flex flex-col h-screen mesh-gradient-bg overflow-hidden relative">
       {/* Header */}
       <div className="shrink-0 flex items-center justify-between px-4 pb-2 sticky top-0 z-30 mesh-gradient-bg" style={{ paddingTop: "max(env(safe-area-inset-top), 16px)" }}>
         <button onClick={() => navigate("/")} className="text-on-surface-variant hover:text-mint transition-colors w-8">
@@ -558,8 +558,8 @@ export default function ChatPage() {
 
       {!hasReflection && !isImageNew && (
         <div
-          className="fixed left-0 right-0 z-40 px-0"
-          style={{ bottom: 'max(var(--keyboard-height), calc(env(safe-area-inset-bottom) + 78px))' }}
+          className="absolute left-0 right-0 z-40 px-0"
+          style={{ bottom: 'max(var(--keyboard-height, 0px), calc(var(--bottom-nav-height, calc(72px + env(safe-area-inset-bottom))) + 12px))' }}
         >
           <ChatInput
             onSend={handleSend}

@@ -215,32 +215,31 @@ export default function HomePage() {
       <div ref={scrollContainerRef} className="flex min-h-0 flex-1 flex-col scroll-container px-5" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 200px)' }}>
         <div className="shrink-0 flex flex-col items-center justify-center relative" style={{ height: '100svh' }}>
           <motion.p
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
+            animate={{ opacity: navigatingOut ? 0 : 1, y: navigatingOut ? -10 : 0 }}
+            transition={{ duration: 0.3 }}
             className="absolute top-[16%] font-display text-3xl font-normal text-on-surface text-center w-full"
           >
             {getGreeting()}
           </motion.p>
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="flex flex-col items-center gap-5"
-          >
-            <VoiceOrb size="lg" onClick={() => navigate("/recording")} label="START A LOOP" layoutId="voice-orb" />
-            <div className="text-center space-y-1">
+          <div className="flex flex-col items-center gap-5">
+            <VoiceOrb size="lg" onClick={handleNavigateToRecording} label={navigatingOut ? undefined : "START A LOOP"} layoutId="voice-orb" />
+            <motion.div
+              animate={{ opacity: navigatingOut ? 0 : 1, y: navigatingOut ? 10 : 0 }}
+              transition={{ duration: 0.3 }}
+              className="text-center space-y-1"
+            >
               <h2 className="font-display text-xl text-on-surface leading-tight">
                 What's looping right now?
               </h2>
               <p className="font-display text-sm text-mint italic">
                 Your brain is full. Talk it out.
               </p>
-            </div>
+            </motion.div>
 
             {/* Pulsating scroll arrow */}
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 1 }}
+              animate={{ opacity: navigatingOut ? 0 : 1 }}
+              transition={{ duration: 0.2 }}
               className="mt-4"
             >
               <motion.div
@@ -250,7 +249,7 @@ export default function HomePage() {
                 <ChevronDown size={20} className="text-on-surface-variant/50" />
               </motion.div>
             </motion.div>
-          </motion.div>
+          </div>
         </div>
 
         <div className="space-y-3 pb-4 shrink-0">

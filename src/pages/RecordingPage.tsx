@@ -218,10 +218,14 @@ export default function RecordingPage() {
         <Waveform bars={20} active={isRecording && !isPaused} />
 
         <motion.button
+          layoutId="voice-orb"
           onClick={handleStop}
           whileTap={{ scale: 0.92 }}
           animate={isRecording && !isPaused ? { scale: [1, 1.03, 1] } : {}}
-          transition={{ duration: 2, repeat: Infinity }}
+          transition={{
+            layout: { duration: 0.5, ease: [0.4, 0, 0.2, 1] },
+            scale: { duration: 2, repeat: Infinity },
+          }}
           className="w-44 h-44 rounded-full orb-gradient orb-shadow flex flex-col items-center justify-center gap-1.5 relative"
         >
           <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/30 to-transparent" />

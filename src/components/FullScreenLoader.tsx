@@ -95,7 +95,7 @@ export function FullScreenLoader({ mode, label, progress }: FullScreenLoaderProp
   const displayText = label || `${shuffled[index]}...`;
 
   return (
-    <div className="flex flex-col h-screen mesh-gradient-bg items-center justify-center gap-4 px-8">
+    <div className="flex flex-col h-screen mesh-gradient-bg items-center justify-center gap-4 px-8" style={{ paddingBottom: 'var(--bottom-nav-height, 0px)' }}>
       <LogoComponent size={80} />
 
       <div className="flex items-center gap-2 mt-1">

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { StaticLogo } from "@/components/LoopLogo";
@@ -23,6 +23,39 @@ export default function LoginPage() {
       e.target.scrollIntoView({ behavior: "smooth", block: "center" });
     }, 300);
   }, []);
+
+  // Debounced email existence check for auto mode-switching
+  const checkTimerRef = useRef<ReturnType<typeof setTimeout>>();
+  const lastCheckedRef = useRef("");
+
+  useEffect(() => {
+    if (checkTimerRef.current) clearTimeout(checkTimerRef.current);
+
+    const trimmed = email.trim().toLowerCase();
+    if (!trimmed || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) return;
+    if (trimmed === lastCheckedRef.current) return;
+
+    checkTimerRef.current = setTimeout(async () => {
+      try {
+        const { data, error } = await supabase.functions.invoke("check-email", {
+          body: { email: trimmed },
+        });
+        if (error) return;
+        lastCheckedRef.current = trimmed;
+        if (data?.exists && mode === "signup") {
+          setMode("login");
+        } else if (!data?.exists && mode === "login") {
+          setMode("signup");
+        }
+      } catch {
+        // silently ignore
+      }
+    }, 600);
+
+    return () => {
+      if (checkTimerRef.current) clearTimeout(checkTimerRef.current);
+    };
+  }, [email, mode]);
 
   // Show confirm password after first password is entered in signup mode
   useEffect(() => {

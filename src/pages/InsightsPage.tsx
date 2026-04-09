@@ -130,7 +130,7 @@ export default function InsightsPage() {
     const progress = Math.min(entryCount, threshold);
 
     return (
-      <div className="h-screen mesh-gradient-bg flex flex-col overflow-hidden" style={{ paddingBottom: 'var(--bottom-nav-height)' }}>
+      <div className="h-screen mesh-gradient-bg flex flex-col overflow-hidden" style={{ paddingBottom: 'var(--bottom-nav-height, calc(72px + env(safe-area-inset-bottom)))' }}>
         <div className="flex-1 px-5 flex flex-col items-center justify-center gap-6">
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="text-center space-y-4">
             <h2 className="font-display text-2xl text-on-surface leading-tight">

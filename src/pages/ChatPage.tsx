@@ -373,7 +373,7 @@ export default function ChatPage() {
         </div>
       )}
 
-      <div ref={scrollRef} className={`flex-1 min-h-0 scroll-container px-4 ${hasReflection ? 'pb-36' : 'pb-24'}`}>
+      <div ref={scrollRef} className="flex-1 min-h-0 scroll-container px-4" style={{ paddingBottom: hasReflection ? 'calc(var(--bottom-nav-height, calc(72px + env(safe-area-inset-bottom))) + 32px)' : 'calc(var(--bottom-nav-height, calc(72px + env(safe-area-inset-bottom))) + 64px)' }}>
         {messages.length === 0 && isImageNew && (
           <div className="flex flex-col items-center justify-center min-h-[40vh] gap-4">
             <p className="font-display text-lg text-on-surface-variant italic text-center">

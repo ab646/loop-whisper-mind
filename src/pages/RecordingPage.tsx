@@ -210,14 +210,25 @@ export default function RecordingPage() {
         <div className="absolute top-[45%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] rounded-full bg-mint/[0.05] blur-[80px]" />
       </div>
       <div className="flex-1 flex flex-col items-center justify-center gap-8 px-8 relative z-10">
-        <div className="text-center space-y-2">
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3, duration: 0.4 }}
+          className="text-center space-y-2"
+        >
           <span className="label-uppercase">VOICE INPUT</span>
           <h1 className="font-display text-2xl text-on-surface italic">
             {isPaused ? "Paused" : isRecording ? "Listening..." : "Starting..."}
           </h1>
-        </div>
+        </motion.div>
 
-        <Waveform bars={20} active={isRecording && !isPaused} />
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.4, duration: 0.4 }}
+        >
+          <Waveform bars={20} active={isRecording && !isPaused} />
+        </motion.div>
 
         <motion.button
           layoutId="voice-orb"
@@ -243,11 +254,21 @@ export default function RecordingPage() {
           </span>
         </motion.button>
 
-        <p className="font-display text-base text-mint italic text-center leading-relaxed max-w-xs">
+        <motion.p
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.35, duration: 0.4 }}
+          className="font-display text-base text-mint italic text-center leading-relaxed max-w-xs"
+        >
           "Keep speaking. I'm capturing every word..."
-        </p>
+        </motion.p>
 
-        <div className="flex items-center gap-4 w-full max-w-xs">
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.45, duration: 0.4 }}
+          className="flex items-center gap-4 w-full max-w-xs"
+        >
           <motion.button
             whileTap={{ scale: 0.95 }}
             onClick={handleStartOver}
@@ -273,14 +294,17 @@ export default function RecordingPage() {
           >
             Stop & Process
           </motion.button>
-        </div>
+        </motion.div>
 
-        <button
+        <motion.button
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.5, duration: 0.3 }}
           onClick={() => { reset(); navigate(-1); }}
           className="text-destructive text-sm font-body tracking-wider uppercase hover:text-destructive/80 transition-colors mt-2"
         >
           Cancel
-        </button>
+        </motion.button>
       </div>
     </div>
   );

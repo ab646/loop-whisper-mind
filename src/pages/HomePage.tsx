@@ -346,7 +346,7 @@ export default function HomePage() {
           onVoice={() => navigate("/recording")}
           placeholder="Type your thoughts..."
         />
-      </div>
+      </motion.div>
     </div>
   );
 }

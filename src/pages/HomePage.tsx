@@ -84,6 +84,7 @@ export default function HomePage() {
     setTimeout(() => navigate("/recording"), 350);
   };
 
+  useEffect(() => {
     if (!session) return;
     (async () => {
       try {

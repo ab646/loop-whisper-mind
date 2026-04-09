@@ -7,7 +7,8 @@ const Toaster = ({ ...props }: ToasterProps) => {
     <Sonner
       theme="dark"
       position="top-center"
-      offset={16}
+      offset={0}
+      style={{ top: 'max(env(safe-area-inset-top), 12px)' }}
       gap={8}
       className="toaster group"
       toastOptions={{

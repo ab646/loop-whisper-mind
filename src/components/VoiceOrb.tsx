@@ -5,12 +5,13 @@ interface VoiceOrbProps {
   size?: "sm" | "md" | "lg";
   onClick?: () => void;
   label?: string;
+  layoutId?: string;
 }
 
 const sizes = {
   sm: "w-14 h-14",
   md: "w-24 h-24",
-  lg: "w-40 h-40",
+  lg: "w-44 h-44",
 };
 
 const iconSizes = {
@@ -19,16 +20,18 @@ const iconSizes = {
   lg: 40,
 };
 
-export function VoiceOrb({ size = "lg", onClick, label }: VoiceOrbProps) {
+export function VoiceOrb({ size = "lg", onClick, label, layoutId }: VoiceOrbProps) {
   const prefersReduced = useReducedMotion();
 
   return (
     <div className="flex flex-col items-center gap-4">
       <motion.button
+        layoutId={layoutId}
         whileTap={prefersReduced ? undefined : { scale: 0.92 }}
         whileHover={prefersReduced ? undefined : { scale: 1.04 }}
         onClick={onClick}
         className={`${sizes[size]} rounded-full orb-gradient orb-shadow flex items-center justify-center relative`}
+        transition={{ layout: { duration: 0.5, ease: [0.4, 0, 0.2, 1] } }}
       >
         <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/30 to-transparent" />
         <Mic size={iconSizes[size]} className="text-primary-foreground relative z-10" />

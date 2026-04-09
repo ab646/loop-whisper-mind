@@ -77,8 +77,13 @@ export default function HomePage() {
   const firstEntryRef = useRef<HTMLButtonElement>(null);
   const emptyStateRef = useRef<HTMLDivElement>(null);
   const chatInputRef = useRef<HTMLDivElement>(null);
+  const [navigatingOut, setNavigatingOut] = useState(false);
 
-  useEffect(() => {
+  const handleNavigateToRecording = () => {
+    setNavigatingOut(true);
+    setTimeout(() => navigate("/recording"), 350);
+  };
+
     if (!session) return;
     (async () => {
       try {

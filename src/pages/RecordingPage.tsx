@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Capacitor } from "@capacitor/core";
 import { analytics } from "@/lib/analytics";
+import { recalculateAfterEntry } from "@/lib/adaptive-notifications";
 
 type ProcessingStep = "transcribing" | "reflecting" | "deleting";
 
@@ -179,6 +180,7 @@ export default function RecordingPage() {
         analytics.recordingCompleted(duration);
         analytics.reflectionReceived({ responseTimeMs: Date.now() - reflectStart, entryId, entryType: "voice" });
         analytics.entrySaved(entryId);
+        recalculateAfterEntry();
         navigate(`/chat/${entryId}`);
       } else {
         navigate(-1);

@@ -13,6 +13,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { analytics } from "@/lib/analytics";
+import { recalculateAfterEntry } from "@/lib/adaptive-notifications";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -273,6 +274,7 @@ export default function ChatPage() {
 
       analytics.reflectionReceived({ responseTimeMs: 0, entryId: currentEntryId || data.entryId, entryType: "text" });
       analytics.entrySaved(currentEntryId || data.entryId);
+      recalculateAfterEntry();
 
       if (isImageNew && data.entryId) {
         setCurrentEntryId(data.entryId);

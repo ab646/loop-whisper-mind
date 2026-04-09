@@ -12,6 +12,7 @@ import { Browser } from "@capacitor/browser";
 import { App as CapApp } from "@capacitor/app";
 import { StatusBar, Style } from "@capacitor/status-bar";
 import { supabase } from "@/integrations/supabase/client";
+import { scheduleAdaptiveNotification } from "@/lib/adaptive-notifications";
 import HomePage from "./pages/HomePage";
 import ChatPage from "./pages/ChatPage";
 import RecordingPage from "./pages/RecordingPage";
@@ -110,6 +111,9 @@ const App = () => {
     StatusBar.setStyle({ style: Style.Dark }).catch(() => {});
     // Transparent background so app gradient bleeds through
     StatusBar.setBackgroundColor({ color: '#00000000' }).catch(() => {});
+
+    // Schedule adaptive notification on app launch
+    scheduleAdaptiveNotification().catch(() => {});
 
     import("@capacitor/keyboard").then(({ Keyboard }) => {
       Keyboard.setAccessoryBarVisible({ isVisible: false });

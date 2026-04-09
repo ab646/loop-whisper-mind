@@ -189,6 +189,7 @@ export default function LoginPage() {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              onFocus={scrollOnFocus}
               required
               className="w-full rounded-xl surface-high border border-border/40 px-4 py-3 text-on-surface text-base font-body outline-none focus:ring-1 focus:ring-mint placeholder:text-on-surface-variant"
               placeholder="you@example.com"
@@ -200,6 +201,7 @@ export default function LoginPage() {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              onFocus={scrollOnFocus}
               required
               minLength={mode === "signup" ? 6 : undefined}
               className="w-full rounded-xl surface-high border border-border/40 px-4 py-3 text-on-surface text-base font-body outline-none focus:ring-1 focus:ring-mint placeholder:text-on-surface-variant"

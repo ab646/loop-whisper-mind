@@ -143,7 +143,7 @@ export default function ThemeExplorationPage() {
     <div className="h-screen mesh-gradient-bg flex flex-col overflow-hidden">
       <AppHeader title={themeName} showBack />
 
-      <div className="flex-1 scroll-container px-5 space-y-6" style={{ paddingBottom: 'calc(var(--bottom-nav-height, 80px) + 72px)' }}>
+      <div className="flex-1 scroll-container px-5 space-y-6" style={{ paddingBottom: 'calc(var(--bottom-nav-height, 80px) + env(safe-area-inset-bottom) + 80px)' }}>
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-3">
           <h1 className="font-display text-2xl text-on-surface leading-tight">
             Why does this keep coming up?
@@ -403,7 +403,7 @@ export default function ThemeExplorationPage() {
       {/* Fixed input above keyboard */}
       <div
         className="fixed left-0 right-0 z-40 px-4"
-        style={{ bottom: 'max(var(--keyboard-height), calc(var(--bottom-nav-height, 80px) + 8px))' }}
+        style={{ bottom: 'max(var(--keyboard-height), calc(var(--bottom-nav-height, 80px) + env(safe-area-inset-bottom) + 12px))' }}
       >
         <div className="flex items-center gap-2 rounded-xl surface-high px-4 py-3 border border-border/20 shadow-lg">
           <input

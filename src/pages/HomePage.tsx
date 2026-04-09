@@ -217,9 +217,9 @@ export default function HomePage() {
           <motion.p
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="absolute top-[16%] font-display text-3xl font-normal text-on-surface text-center"
+            className="absolute top-[16%] font-display text-3xl font-normal text-on-surface text-center w-full"
           >
-            {getGreeting()}{profile?.display_name ? `, ${profile.display_name}` : ""}
+            {getGreeting()}
           </motion.p>
           <motion.div
             initial={{ opacity: 0, y: 10 }}

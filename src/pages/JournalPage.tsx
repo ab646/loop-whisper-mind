@@ -178,9 +178,6 @@ export default function JournalPage() {
                       <span className="text-on-surface-variant/60 text-xs font-medium tracking-widest uppercase font-body shrink-0">
                         Journal
                       </span>
-                      <span className="text-on-surface font-display text-sm font-semibold truncate">
-                        {entry.summary || entry.content.substring(0, 60)}
-                      </span>
                       <span className="text-on-surface-variant/60 text-xs font-body ml-auto shrink-0">
                         {new Date(entry.createdAt).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}
                       </span>

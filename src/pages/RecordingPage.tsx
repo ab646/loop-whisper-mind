@@ -214,61 +214,79 @@ export default function RecordingPage() {
 
   return (
     <div className="flex flex-col h-screen mesh-gradient-bg relative overflow-hidden">
-      <div className="flex-1 flex flex-col items-center justify-center gap-6 px-8 relative z-10">
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3, duration: 0.4 }}
-          className="text-center space-y-2"
-        >
-          <span className="label-uppercase">VOICE INPUT</span>
-          <h1 className="font-display text-2xl text-on-surface italic">
-            {isPaused ? "Paused" : isRecording ? "Listening..." : "Starting..."}
-          </h1>
-        </motion.div>
+      <div className="flex-1 flex flex-col items-center relative z-10">
+        {/* Top text area — positioned to match homepage layout */}
+        <div className="flex flex-col items-center mt-auto mb-6">
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3, duration: 0.4 }}
+            className="text-center space-y-1"
+          >
+            <span className="label-uppercase">VOICE INPUT</span>
+            <p className="font-display text-base text-mint italic text-center leading-relaxed max-w-xs">
+              {isPaused ? "Paused" : isRecording ? "Keep speaking. I'm capturing every word..." : "Starting..."}
+            </p>
+          </motion.div>
+        </div>
 
-        {/* Orb with radiating pulse rings */}
-        <div className="relative flex items-center justify-center" style={{ width: 320, height: 320 }}>
-          {/* Pulse rings — react to audio level */}
+        {/* Orb with radiating pulse rings — centered like homepage */}
+        <div className="relative flex items-center justify-center mb-auto" style={{ width: 360, height: 360 }}>
+          {/* Pulse rings — driven by real audio level */}
           {isRecording && !isPaused && (
             <>
-              <motion.div
-                className="absolute rounded-full border border-primary/20"
-                style={{ width: 240, height: 240 }}
-                animate={{
-                  scale: [1, 1.3 + avgLevel * 0.5],
-                  opacity: [0.35, 0],
-                }}
-                transition={{ duration: 1.8, repeat: Infinity, ease: "easeOut" }}
-              />
-              <motion.div
-                className="absolute rounded-full border border-primary/15"
-                style={{ width: 240, height: 240 }}
-                animate={{
-                  scale: [1, 1.6 + avgLevel * 0.6],
-                  opacity: [0.25, 0],
-                }}
-                transition={{ duration: 1.8, repeat: Infinity, ease: "easeOut", delay: 0.4 }}
-              />
-              <motion.div
-                className="absolute rounded-full border border-primary/10"
-                style={{ width: 240, height: 240 }}
-                animate={{
-                  scale: [1, 1.9 + avgLevel * 0.7],
-                  opacity: [0.18, 0],
-                }}
-                transition={{ duration: 1.8, repeat: Infinity, ease: "easeOut", delay: 0.8 }}
-              />
-              {/* Soft glow behind orb reacting to volume */}
+              {/* Ring 1 — fast, tight */}
               <motion.div
                 className="absolute rounded-full"
                 style={{
-                  width: 200,
-                  height: 200,
-                  background: `radial-gradient(circle, hsl(var(--primary) / ${0.12 + avgLevel * 0.18}) 0%, transparent 70%)`,
+                  width: 176,
+                  height: 176,
+                  border: `2px solid hsl(var(--primary) / ${0.25 + avgLevel * 0.35})`,
                 }}
-                animate={{ scale: [1, 1.1 + avgLevel * 0.3, 1] }}
-                transition={{ duration: 0.3, ease: "easeOut" }}
+                animate={{
+                  scale: [1, 1.4 + avgLevel * 1.2],
+                  opacity: [0.5 + avgLevel * 0.3, 0],
+                }}
+                transition={{ duration: 1.2, repeat: Infinity, ease: "easeOut" }}
+              />
+              {/* Ring 2 — medium */}
+              <motion.div
+                className="absolute rounded-full"
+                style={{
+                  width: 176,
+                  height: 176,
+                  border: `2px solid hsl(var(--primary) / ${0.18 + avgLevel * 0.25})`,
+                }}
+                animate={{
+                  scale: [1, 1.7 + avgLevel * 1.4],
+                  opacity: [0.4 + avgLevel * 0.2, 0],
+                }}
+                transition={{ duration: 1.2, repeat: Infinity, ease: "easeOut", delay: 0.3 }}
+              />
+              {/* Ring 3 — wide */}
+              <motion.div
+                className="absolute rounded-full"
+                style={{
+                  width: 176,
+                  height: 176,
+                  border: `1.5px solid hsl(var(--primary) / ${0.12 + avgLevel * 0.2})`,
+                }}
+                animate={{
+                  scale: [1, 2.0 + avgLevel * 1.5],
+                  opacity: [0.3 + avgLevel * 0.15, 0],
+                }}
+                transition={{ duration: 1.2, repeat: Infinity, ease: "easeOut", delay: 0.6 }}
+              />
+              {/* Ambient glow — scales with volume */}
+              <motion.div
+                className="absolute rounded-full"
+                style={{
+                  width: 220,
+                  height: 220,
+                  background: `radial-gradient(circle, hsl(var(--primary) / ${0.15 + avgLevel * 0.3}) 0%, transparent 70%)`,
+                }}
+                animate={{ scale: 1 + avgLevel * 0.6 }}
+                transition={{ duration: 0.1, ease: "easeOut" }}
               />
             </>
           )}
@@ -289,54 +307,47 @@ export default function RecordingPage() {
           </motion.button>
         </div>
 
-        {/* Timer outside the orb */}
-        <span className="text-on-surface text-2xl font-body font-semibold tracking-wide tabular-nums">
-          {formatTime(duration)}
-        </span>
+        {/* Timer — smaller, below orb */}
+        <div className="flex flex-col items-center gap-4 mb-8">
+          <span className="text-on-surface-variant text-sm font-body font-medium tracking-widest tabular-nums">
+            {formatTime(duration)}
+          </span>
 
-        <motion.p
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.35, duration: 0.4 }}
-          className="font-display text-base text-mint italic text-center leading-relaxed max-w-xs"
-        >
-          "Keep speaking. I'm capturing every word..."
-        </motion.p>
-
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.45, duration: 0.4 }}
-          className="flex items-center gap-4"
-        >
-          <motion.button
-            whileTap={{ scale: 0.95 }}
-            onClick={handleStartOver}
-            className="w-12 h-12 rounded-full surface-high border border-border/30 flex items-center justify-center text-on-surface-variant hover:text-on-surface transition-colors"
-            title="Start over"
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.45, duration: 0.4 }}
+            className="flex items-center gap-4"
           >
-            <RotateCcw size={18} />
-          </motion.button>
+            <motion.button
+              whileTap={{ scale: 0.95 }}
+              onClick={handleStartOver}
+              className="w-12 h-12 rounded-full surface-high border border-border/30 flex items-center justify-center text-on-surface-variant hover:text-on-surface transition-colors"
+              title="Start over"
+            >
+              <RotateCcw size={18} />
+            </motion.button>
+
+            <motion.button
+              whileTap={{ scale: 0.95 }}
+              onClick={handlePauseResume}
+              className="w-12 h-12 rounded-full surface-high border border-border/30 flex items-center justify-center text-on-surface-variant hover:text-on-surface transition-colors"
+              title={isPaused ? "Resume" : "Pause"}
+            >
+              {isPaused ? <Play size={18} /> : <Pause size={18} />}
+            </motion.button>
+          </motion.div>
 
           <motion.button
-            whileTap={{ scale: 0.95 }}
-            onClick={handlePauseResume}
-            className="w-12 h-12 rounded-full surface-high border border-border/30 flex items-center justify-center text-on-surface-variant hover:text-on-surface transition-colors"
-            title={isPaused ? "Resume" : "Pause"}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5, duration: 0.3 }}
+            onClick={() => { disconnect(); reset(); navigate(-1); }}
+            className="text-destructive text-sm font-body tracking-wider uppercase hover:text-destructive/80 transition-colors mt-2"
           >
-            {isPaused ? <Play size={18} /> : <Pause size={18} />}
+            Cancel
           </motion.button>
-        </motion.div>
-
-        <motion.button
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.5, duration: 0.3 }}
-          onClick={() => { disconnect(); reset(); navigate(-1); }}
-          className="text-destructive text-sm font-body tracking-wider uppercase hover:text-destructive/80 transition-colors mt-2"
-        >
-          Cancel
-        </motion.button>
+        </div>
       </div>
     </div>
   );

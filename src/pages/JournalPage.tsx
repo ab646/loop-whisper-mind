@@ -170,8 +170,8 @@ export default function JournalPage() {
                     onClick={() => navigate(`/journal/${entry.id}`)}
                     className="w-full text-left rounded-2xl surface-low border border-border/10 overflow-hidden"
                   >
-                    {/* Header — JOURNAL + Summary + time */}
-                    <div className="p-4 pb-3 space-y-1">
+                    {/* Header — JOURNAL label + time */}
+                    <div className="p-4 pb-3 space-y-2">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2.5">
                           <div className="w-7 h-7 rounded-full bg-on-surface/10 flex items-center justify-center">
@@ -186,14 +186,14 @@ export default function JournalPage() {
                         </span>
                       </div>
                       <p className="text-on-surface font-display text-base font-semibold leading-snug line-clamp-3 pl-[38px]">
-                        {entry.summary || entry.content.substring(0, 120)}
+                        Summary
                       </p>
                     </div>
 
-                    {/* Entry content preview */}
+                    {/* Summary content */}
                     <div className="border-t border-border/10 px-4 py-3">
                       <p className="text-on-surface-variant text-sm leading-relaxed line-clamp-3 font-body">
-                        {entry.content.substring(0, 200)}
+                        {entry.summary || entry.content.substring(0, 200)}
                       </p>
                     </div>
 

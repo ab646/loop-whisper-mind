@@ -170,8 +170,8 @@ export default function JournalPage() {
                     onClick={() => navigate(`/journal/${entry.id}`)}
                     className="w-full text-left rounded-2xl surface-low border border-border/10 overflow-hidden"
                   >
-                    {/* Header — JOURNAL label + summary + time */}
-                    <div className="p-4 pb-3 space-y-2">
+                    {/* Header — JOURNAL + Summary + time */}
+                    <div className="p-4 pb-3 space-y-1">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2.5">
                           <div className="w-7 h-7 rounded-full bg-on-surface/10 flex items-center justify-center">
@@ -185,8 +185,8 @@ export default function JournalPage() {
                           {new Date(entry.createdAt).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}
                         </span>
                       </div>
-                      <p className="text-on-surface font-display text-base font-semibold leading-snug line-clamp-2 pl-[38px]">
-                        {entry.summary || entry.content.substring(0, 60)}
+                      <p className="text-on-surface font-display text-base font-semibold leading-snug line-clamp-3 pl-[38px]">
+                        {entry.summary || entry.content.substring(0, 120)}
                       </p>
                     </div>
 

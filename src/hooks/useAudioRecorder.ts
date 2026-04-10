@@ -10,6 +10,7 @@ interface UseAudioRecorderReturn {
   isRecording: boolean;
   isPaused: boolean;
   duration: number;
+  stream: MediaStream | null;
   start: () => Promise<void>;
   stop: () => Promise<Blob | null>;
   pause: () => void;
@@ -245,5 +246,5 @@ export function useAudioRecorder(): UseAudioRecorderReturn {
     };
   }, [clearTimer]);
 
-  return { isRecording, isPaused, duration, start, stop, pause, resume, reset };
+  return { isRecording, isPaused, duration, stream: streamRef.current, start, stop, pause, resume, reset };
 }

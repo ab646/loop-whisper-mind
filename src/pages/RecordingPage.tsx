@@ -1,10 +1,11 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Mic, MicOff, Pause, Play, RotateCcw } from "lucide-react";
+import { MicOff, Pause, Play, RotateCcw, Square } from "lucide-react";
 import { Waveform } from "@/components/Waveform";
 import { FullScreenLoader } from "@/components/FullScreenLoader";
 import { useAudioRecorder } from "@/hooks/useAudioRecorder";
+import { useAudioAnalyser } from "@/hooks/useAudioAnalyser";
 import { useCreateLoop } from "@/hooks/useCreateLoop";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -19,6 +20,7 @@ const STEPS: { key: ProcessingStep; label: string }[] = [
   { key: "reflecting", label: "Reflecting" },
 ];
 
+const WAVEFORM_BARS = 20;
 
 export default function RecordingPage() {
   const navigate = useNavigate();
@@ -26,11 +28,20 @@ export default function RecordingPage() {
   const [processing, setProcessing] = useState(false);
   const [micDenied, setMicDenied] = useState(false);
   const [currentStep, setCurrentStep] = useState<ProcessingStep>("transcribing");
-  const { isRecording, isPaused, duration, start, stop, pause, resume, reset } =
+  const { isRecording, isPaused, duration, stream, start, stop, pause, resume, reset } =
     useAudioRecorder();
+  const { levels, connect, disconnect } = useAudioAnalyser(WAVEFORM_BARS);
   const startedRef = useRef(false);
 
   const [fakePercent, setFakePercent] = useState(0);
+
+  // Connect analyser when stream becomes available (web only)
+  useEffect(() => {
+    if (stream && isRecording) {
+      connect(stream);
+    }
+    return () => disconnect();
+  }, [stream, isRecording]);
 
   useEffect(() => {
     if (startedRef.current) return;
@@ -121,11 +132,13 @@ export default function RecordingPage() {
   };
 
   const handleStartOver = () => {
+    disconnect();
     reset();
     start().catch(() => toast.error("I can't reach your mic. Check Settings."));
   };
 
   const handleStop = async () => {
+    disconnect();
     const blob = await stop();
     if (!blob || blob.size === 0) {
       toast.error("No audio recorded. Try again.");
@@ -216,7 +229,7 @@ export default function RecordingPage() {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.4, duration: 0.4 }}
         >
-          <Waveform bars={20} active={isRecording && !isPaused} />
+          <Waveform bars={WAVEFORM_BARS} active={isRecording && !isPaused} levels={isPaused ? undefined : levels} />
         </motion.div>
 
         <motion.button
@@ -231,13 +244,7 @@ export default function RecordingPage() {
           className="w-44 h-44 rounded-full orb-gradient orb-shadow flex flex-col items-center justify-center gap-1.5 relative"
         >
           <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/30 to-transparent" />
-          {isPaused ? (
-            <Pause size={32} className="text-primary-foreground relative z-10" />
-          ) : isRecording ? (
-            <Mic size={32} className="text-primary-foreground relative z-10" />
-          ) : (
-            <MicOff size={32} className="text-primary-foreground relative z-10" />
-          )}
+          <Square size={32} className="text-primary-foreground relative z-10" fill="currentColor" />
           <span className="text-primary-foreground text-xl font-body font-semibold tracking-wide relative z-10 tabular-nums">
             {formatTime(duration)}
           </span>
@@ -256,7 +263,7 @@ export default function RecordingPage() {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.45, duration: 0.4 }}
-          className="flex items-center gap-4 w-full max-w-xs"
+          className="flex items-center gap-4"
         >
           <motion.button
             whileTap={{ scale: 0.95 }}
@@ -275,21 +282,13 @@ export default function RecordingPage() {
           >
             {isPaused ? <Play size={18} /> : <Pause size={18} />}
           </motion.button>
-
-          <motion.button
-            whileTap={{ scale: 0.95 }}
-            onClick={handleStop}
-            className="flex-1 rounded-2xl orb-gradient py-4 text-center text-primary-foreground font-body font-semibold tracking-wider text-sm uppercase"
-          >
-            Stop & Process
-          </motion.button>
         </motion.div>
 
         <motion.button
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5, duration: 0.3 }}
-          onClick={() => { reset(); navigate(-1); }}
+          onClick={() => { disconnect(); reset(); navigate(-1); }}
           className="text-destructive text-sm font-body tracking-wider uppercase hover:text-destructive/80 transition-colors mt-2"
         >
           Cancel

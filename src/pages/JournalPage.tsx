@@ -170,16 +170,28 @@ export default function JournalPage() {
                     onClick={() => navigate(`/journal/${entry.id}`)}
                     className="w-full text-left rounded-2xl surface-low border border-border/10 overflow-hidden"
                   >
-                    {/* Entry section */}
-                    <div className="p-4 space-y-3">
-                      <div className="flex items-center gap-2.5">
-                        <div className="w-7 h-7 rounded-full bg-on-surface/10 flex items-center justify-center">
-                          <Pen size={13} className="text-on-surface" />
+                    {/* Header — JOURNAL label + summary + time */}
+                    <div className="p-4 pb-3 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2.5">
+                          <div className="w-7 h-7 rounded-full bg-on-surface/10 flex items-center justify-center">
+                            <Pen size={13} className="text-on-surface" />
+                          </div>
+                          <span className="text-on-surface-variant/60 text-xs font-medium tracking-widest uppercase font-body">
+                            Journal
+                          </span>
                         </div>
-                        <span className="text-on-surface font-display text-base font-semibold">
+                        <span className="text-on-surface-variant/60 text-xs font-body">
                           {new Date(entry.createdAt).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}
                         </span>
                       </div>
+                      <p className="text-on-surface font-display text-base font-semibold leading-snug line-clamp-2 pl-[38px]">
+                        {entry.summary || entry.content.substring(0, 60)}
+                      </p>
+                    </div>
+
+                    {/* Entry content preview */}
+                    <div className="border-t border-border/10 px-4 py-3">
                       <p className="text-on-surface-variant text-sm leading-relaxed line-clamp-3 font-body">
                         {entry.content.substring(0, 200)}
                       </p>

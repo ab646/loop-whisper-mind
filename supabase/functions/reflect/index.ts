@@ -16,6 +16,7 @@ import { chatCompletionJSON, AIError } from "../_shared/ai.ts";
  */
 
 interface Reflection {
+  summary: string;
   mainLoop: string;
   loopType: "rumination" | "anticipatory" | "decisional" | "self-critical" | "relational" | "existential";
   feelings: string[];

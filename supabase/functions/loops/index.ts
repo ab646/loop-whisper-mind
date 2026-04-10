@@ -26,19 +26,37 @@ serve(async (req) => {
         const { email, firstName, lastName, properties } = params;
         if (!email) return errorResponse(req, "email is required", 400);
 
+        const contactBody = {
+          email,
+          firstName: firstName || undefined,
+          lastName: lastName || undefined,
+          userId,
+          ...properties,
+        };
+
         const response = await fetch(`${LOOPS_API_BASE}/contacts/create`, {
           method: "POST",
           headers,
-          body: JSON.stringify({
-            email,
-            firstName: firstName || undefined,
-            lastName: lastName || undefined,
-            userId,
-            ...properties,
-          }),
+          body: JSON.stringify(contactBody),
         });
 
         const data = await response.json();
+
+        // If contact already exists, update instead
+        if (!response.ok && response.status === 409) {
+          const updateResponse = await fetch(`${LOOPS_API_BASE}/contacts/update`, {
+            method: "PUT",
+            headers,
+            body: JSON.stringify(contactBody),
+          });
+          const updateData = await updateResponse.json();
+          if (!updateResponse.ok) {
+            console.error("Loops updateContact fallback error:", updateResponse.status, updateData);
+            return errorResponse(req, updateData.message || "Failed to update contact", updateResponse.status);
+          }
+          return jsonResponse(req, updateData);
+        }
+
         if (!response.ok) {
           console.error("Loops createContact error:", response.status, data);
           return errorResponse(req, data.message || "Failed to create contact", response.status);

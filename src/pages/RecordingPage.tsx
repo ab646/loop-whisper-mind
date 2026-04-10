@@ -319,14 +319,6 @@ export default function RecordingPage() {
             transition={{ delay: 0.45, duration: 0.4 }}
             className="flex items-center gap-4"
           >
-            <motion.button
-              whileTap={{ scale: 0.95 }}
-              onClick={handleStartOver}
-              className="w-12 h-12 rounded-full surface-high border border-border/30 flex items-center justify-center text-on-surface-variant hover:text-on-surface transition-colors"
-              title="Start over"
-            >
-              <RotateCcw size={18} />
-            </motion.button>
 
             <motion.button
               whileTap={{ scale: 0.95 }}

@@ -147,10 +147,7 @@ export default function JournalPage() {
           grouped.map(([group, items]) => (
             <div key={group} className="space-y-3">
               {/* Day header */}
-              <div className="flex items-center justify-between">
-                <h2 className="font-display text-xl text-on-surface font-semibold">{group}</h2>
-                <ChevronRight size={16} className="text-on-surface-variant" />
-              </div>
+              <h2 className="font-display text-xl text-on-surface font-semibold">{group}</h2>
 
               {/* Entry cards */}
               <div className="space-y-3">

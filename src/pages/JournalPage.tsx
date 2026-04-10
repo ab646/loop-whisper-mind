@@ -161,31 +161,34 @@ export default function JournalPage() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: i * 0.03 }}
                     onClick={() => navigate(`/journal/${entry.id}`)}
-                    className="w-full rounded-2xl surface-low p-4 text-left space-y-2 border border-border/10 hover:border-border/30 transition-colors"
+                    className="w-full rounded-2xl surface-low p-4 text-left space-y-2.5 border border-border/10 hover:border-border/30 transition-colors"
                   >
-                    <div className="flex items-center justify-between">
-                      <span className="label-uppercase text-mint">
-                        {entry.entryType === "voice" ? "Voice Entry" : "Journal"}
-                      </span>
-                      <span className="text-on-surface-variant text-[10px] tracking-wider uppercase font-semibold">
-                        {new Date(entry.createdAt).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}
-                      </span>
-                    </div>
+                    {/* Time */}
+                    <span className="text-on-surface-variant text-[10px] tracking-wider uppercase font-semibold">
+                      {new Date(entry.createdAt).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}
+                    </span>
 
-                    {entry.mainLoop && (
-                      <p className="text-on-surface text-sm font-semibold leading-snug line-clamp-1">
-                        {entry.mainLoop}
-                      </p>
-                    )}
-
-                    <p className="text-on-surface-variant text-sm leading-relaxed line-clamp-2">
+                    {/* Summary of user entry */}
+                    <p className="text-on-surface text-sm leading-relaxed line-clamp-2 font-body">
                       {entry.content.substring(0, 140)}
                     </p>
 
-                    {entry.pattern && (
-                      <p className="text-on-surface-variant text-xs italic line-clamp-1">
-                        Pattern: {entry.pattern}
-                      </p>
+                    {/* Key insight elements: main loop + pattern */}
+                    {(entry.mainLoop || entry.pattern) && (
+                      <div className="border-t border-border/15 pt-2.5 space-y-1.5">
+                        {entry.mainLoop && (
+                          <div className="flex items-start gap-2">
+                            <span className="text-mint text-[9px] tracking-[0.15em] uppercase font-semibold shrink-0 mt-0.5">Loop</span>
+                            <p className="text-on-surface text-sm font-semibold leading-snug line-clamp-1">{entry.mainLoop}</p>
+                          </div>
+                        )}
+                        {entry.pattern && (
+                          <div className="flex items-start gap-2">
+                            <span className="text-on-surface-variant text-[9px] tracking-[0.15em] uppercase font-semibold shrink-0 mt-0.5">Pattern</span>
+                            <p className="text-on-surface-variant text-sm italic leading-snug line-clamp-1">{entry.pattern}</p>
+                          </div>
+                        )}
+                      </div>
                     )}
 
                     {entry.tags.length > 0 && (

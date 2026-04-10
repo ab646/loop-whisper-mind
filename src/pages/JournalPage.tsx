@@ -190,10 +190,10 @@ export default function JournalPage() {
                       </p>
                     </div>
 
-                    {/* Entry content preview */}
-                    <div className="border-t border-border/10 px-4 py-3">
-                      <p className="text-on-surface-variant text-sm leading-relaxed line-clamp-3 font-body">
-                        {entry.content.substring(0, 200)}
+                    {/* Session summary — cleaned version of user content */}
+                    <div className="px-4 pb-4 pt-1">
+                      <p className="text-on-surface-variant text-sm leading-relaxed line-clamp-3 font-body pl-[38px]">
+                        {entry.mainLoop || entry.content.substring(0, 200)}
                       </p>
                     </div>
 

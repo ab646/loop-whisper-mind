@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Pen, RefreshCw, Sparkles } from "lucide-react";
 import { ScribblingLogo } from "@/components/LoopLogo";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -153,7 +153,7 @@ export default function JournalPage() {
               </div>
 
               {/* Entry cards */}
-              <div className="space-y-2">
+              <div className="space-y-3">
                 {items.map((entry, i) => (
                   <motion.button
                     key={entry.id}
@@ -161,43 +161,61 @@ export default function JournalPage() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: i * 0.03 }}
                     onClick={() => navigate(`/journal/${entry.id}`)}
-                    className="w-full rounded-2xl surface-low p-4 text-left space-y-2.5 border border-border/10 hover:border-border/30 transition-colors"
+                    className="w-full text-left space-y-2"
                   >
-                    {/* Time */}
-                    <span className="text-on-surface-variant text-[10px] tracking-wider uppercase font-semibold">
-                      {new Date(entry.createdAt).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}
-                    </span>
+                    {/* Entry card */}
+                    <div className="rounded-2xl surface-low p-4 space-y-3 border border-border/10">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-7 h-7 rounded-full bg-on-surface/10 flex items-center justify-center">
+                          <Pen size={13} className="text-on-surface" />
+                        </div>
+                        <span className="text-on-surface font-display text-base font-semibold">
+                          {new Date(entry.createdAt).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}
+                        </span>
+                      </div>
+                      <p className="text-on-surface-variant text-sm leading-relaxed line-clamp-3 font-body">
+                        {entry.content.substring(0, 200)}
+                      </p>
+                    </div>
 
-                    {/* Summary of user entry */}
-                    <p className="text-on-surface text-sm leading-relaxed line-clamp-2 font-body">
-                      {entry.content.substring(0, 140)}
-                    </p>
-
-                    {/* Key insight elements: main loop + pattern */}
-                    {(entry.mainLoop || entry.pattern) && (
-                      <div className="border-t border-border/15 pt-2.5 space-y-1.5">
-                        {entry.mainLoop && (
-                          <div className="flex items-start gap-2">
-                            <span className="text-mint text-[9px] tracking-[0.15em] uppercase font-semibold shrink-0 mt-0.5">Loop</span>
-                            <p className="text-on-surface text-sm font-semibold leading-snug line-clamp-1">{entry.mainLoop}</p>
+                    {/* Main loop card */}
+                    {entry.mainLoop && (
+                      <div className="rounded-2xl surface-low p-4 space-y-2 border border-border/10">
+                        <div className="flex items-center gap-2.5">
+                          <div className="w-7 h-7 rounded-full bg-on-surface flex items-center justify-center">
+                            <RefreshCw size={13} className="text-background" />
                           </div>
-                        )}
-                        {entry.pattern && (
-                          <div className="flex items-start gap-2">
-                            <span className="text-on-surface-variant text-[9px] tracking-[0.15em] uppercase font-semibold shrink-0 mt-0.5">Pattern</span>
-                            <p className="text-on-surface-variant text-sm italic leading-snug line-clamp-1">{entry.pattern}</p>
-                          </div>
-                        )}
+                          <span className="text-on-surface font-display text-base font-semibold">Main loop</span>
+                        </div>
+                        <p className="text-on-surface text-sm leading-relaxed font-body line-clamp-4">
+                          {entry.mainLoop}
+                        </p>
                       </div>
                     )}
 
-                    {entry.tags.length > 0 && (
-                      <div className="flex gap-2 flex-wrap">
-                        {entry.tags.slice(0, 3).map((tag) => (
-                          <span key={tag} className="tag-pill">
-                            {tag.replace(/_/g, " ").trim().toLowerCase().replace(/^\w/, (c) => c.toUpperCase())}
-                          </span>
-                        ))}
+                    {/* Pattern card */}
+                    {(entry.pattern || entry.tags.length > 0) && (
+                      <div className="rounded-2xl surface-low p-4 space-y-2.5 border border-border/10">
+                        <div className="flex items-center gap-2.5">
+                          <div className="w-7 h-7 rounded-full bg-on-surface/10 flex items-center justify-center">
+                            <Sparkles size={13} className="text-on-surface" />
+                          </div>
+                          <span className="text-on-surface font-display text-base font-semibold">Pattern</span>
+                        </div>
+                        {entry.pattern && (
+                          <p className="text-on-surface-variant text-sm italic leading-relaxed font-body line-clamp-2">
+                            {entry.pattern}
+                          </p>
+                        )}
+                        {entry.tags.length > 0 && (
+                          <div className="flex gap-2 flex-wrap">
+                            {entry.tags.slice(0, 3).map((tag) => (
+                              <span key={tag} className="tag-pill">
+                                {tag.replace(/_/g, " ").trim().toLowerCase().replace(/^\w/, (c) => c.toUpperCase())}
+                              </span>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     )}
                   </motion.button>

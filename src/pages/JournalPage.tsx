@@ -9,6 +9,7 @@ import { useAuth } from "@/contexts/AuthContext";
 interface JournalEntry {
   id: string;
   content: string;
+  summary: string;
   mainLoop: string;
   pattern: string | null;
   tags: string[];
@@ -241,6 +242,7 @@ function mapEntry(e: any): JournalEntry {
   return {
     id: e.id,
     content: e.content || "",
+    summary: reflection?.summary || "",
     mainLoop: reflection?.mainLoop || "",
     pattern: reflection?.repeatingPattern || null,
     tags: e.tags || [],

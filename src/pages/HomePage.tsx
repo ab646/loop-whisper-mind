@@ -302,7 +302,7 @@ export default function HomePage() {
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: i * 0.04 }}
-                      onClick={() => navigate(`/chat/${entry.id}`)}
+                      onClick={() => navigate(`/journal/${entry.id}`)}
                       className="w-full rounded-2xl surface-low p-4 flex items-start gap-3 text-left hover:bg-surface-container transition-colors"
                     >
                       <div className="flex-1 min-w-0 space-y-2">

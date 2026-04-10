@@ -224,42 +224,80 @@ export default function HomePage() {
 
       <div ref={scrollContainerRef} className="flex min-h-0 flex-1 flex-col scroll-container px-5" style={{ paddingBottom: 'calc(var(--bottom-nav-height, calc(72px + env(safe-area-inset-bottom))) + 120px)' }}>
         <div className="shrink-0 flex flex-col items-center justify-center relative" style={{ height: '100svh' }}>
+          {/* Ambient orb glow — the entire zone IS this glow */}
+          <div
+            className="absolute pointer-events-none"
+            style={{
+              width: '130vw',
+              height: '130vw',
+              maxWidth: '600px',
+              maxHeight: '600px',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              background: `
+                radial-gradient(circle, hsla(180, 25%, 80%, 0.12) 0%, hsla(180, 25%, 80%, 0.06) 25%, hsla(180, 20%, 25%, 0.04) 50%, transparent 70%)
+              `,
+              filter: 'blur(40px)',
+            }}
+          />
+          {/* Secondary softer outer halo */}
+          <div
+            className="absolute pointer-events-none"
+            style={{
+              width: '180vw',
+              height: '180vw',
+              maxWidth: '900px',
+              maxHeight: '900px',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              background: `
+                radial-gradient(circle, hsla(180, 25%, 80%, 0.04) 0%, hsla(180, 20%, 20%, 0.02) 40%, transparent 65%)
+              `,
+              filter: 'blur(60px)',
+            }}
+          />
+
+          {/* Greeting — small, quiet */}
           <motion.div
             animate={{ opacity: navigatingOut ? 0 : 1, y: navigatingOut ? -10 : 0 }}
             transition={{ duration: 0.3 }}
-            className="absolute top-[16%] text-center w-full space-y-1"
+            className="absolute top-[18%] text-center w-full"
           >
-            <p className="text-on-surface-variant text-sm tracking-wide">{getGreeting()}</p>
-            <h1 className="font-display text-3xl font-normal text-on-surface">
+            <p className="text-on-surface-variant/60 text-sm tracking-wide font-body">{getGreeting()}</p>
+          </motion.div>
+
+          {/* Orb — centered, the heart of the glow */}
+          <VoiceOrb size="lg" onClick={handleNavigateToRecording} layoutId="voice-orb" />
+
+          {/* Headline + tagline float below the orb */}
+          <motion.div
+            animate={{ opacity: navigatingOut ? 0 : 1, y: navigatingOut ? 10 : 0 }}
+            transition={{ duration: 0.3 }}
+            className="text-center mt-8 space-y-2"
+          >
+            <h1 className="font-display text-2xl font-normal text-on-surface leading-tight">
               What's looping right now?
             </h1>
+            <p className="font-display text-sm text-mint/70 italic">
+              Your brain is full. Talk it out.
+            </p>
           </motion.div>
-          <div className="flex flex-col items-center gap-5">
-            <VoiceOrb size="lg" onClick={handleNavigateToRecording} layoutId="voice-orb" />
-            <motion.div
-              animate={{ opacity: navigatingOut ? 0 : 1, y: navigatingOut ? 10 : 0 }}
-              transition={{ duration: 0.3 }}
-              className="text-center"
-            >
-              <p className="font-display text-sm text-mint italic">
-                Your brain is full. Talk it out.
-              </p>
-            </motion.div>
 
-            {/* Pulsating scroll arrow */}
+          {/* Scroll hint */}
+          <motion.div
+            animate={{ opacity: navigatingOut ? 0 : 0.4 }}
+            transition={{ duration: 0.2 }}
+            className="absolute bottom-8"
+          >
             <motion.div
-              animate={{ opacity: navigatingOut ? 0 : 1 }}
-              transition={{ duration: 0.2 }}
-              className="mt-4"
+              animate={{ y: [0, 6, 0] }}
+              transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
             >
-              <motion.div
-                animate={{ y: [0, 6, 0] }}
-                transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-              >
-                <ChevronDown size={20} className="text-on-surface-variant/50" />
-              </motion.div>
+              <ChevronDown size={18} className="text-on-surface-variant" />
             </motion.div>
-          </div>
+          </motion.div>
         </div>
 
         <div className="space-y-3 pb-4 shrink-0">

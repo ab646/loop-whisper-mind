@@ -1,7 +1,7 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { MessageCircle, BarChart3, User } from "lucide-react";
 import { motion } from "framer-motion";
-import { useEffect, useRef } from "react";
+import { useLayoutEffect, useRef } from "react";
 
 const tabs = [
   { path: "/", label: "REFLECT", icon: MessageCircle },
@@ -14,18 +14,6 @@ export function BottomNav() {
   const navigate = useNavigate();
   const navRef = useRef<HTMLElement>(null);
 
-  // Publish actual nav height as a CSS variable so pages can adapt
-  useEffect(() => {
-    const el = navRef.current;
-    if (!el) return;
-    const observer = new ResizeObserver(([entry]) => {
-      const h = entry.contentRect.height + (parseFloat(getComputedStyle(el).borderTopWidth) || 0);
-      document.documentElement.style.setProperty("--bottom-nav-height", `${h}px`);
-    });
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
-
   const hiddenPaths = ["/recording", "/login", "/signup", "/onboarding", "/forgot-password", "/reset-password"];
   const hiddenPrefixes: string[] = [];
 
@@ -33,9 +21,29 @@ export function BottomNav() {
     hiddenPaths.includes(location.pathname) ||
     hiddenPrefixes.some((prefix) => location.pathname.startsWith(prefix));
 
+  useLayoutEffect(() => {
+    if (shouldHide) {
+      document.documentElement.style.setProperty("--bottom-nav-height", "0px");
+      return;
+    }
+
+    const el = navRef.current;
+    if (!el) return;
+
+    const updateHeight = () => {
+      const borderTopWidth = parseFloat(getComputedStyle(el).borderTopWidth) || 0;
+      const height = el.getBoundingClientRect().height + borderTopWidth;
+      document.documentElement.style.setProperty("--bottom-nav-height", `${height}px`);
+    };
+
+    updateHeight();
+
+    const observer = new ResizeObserver(() => updateHeight());
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [shouldHide]);
+
   if (shouldHide) {
-    // Reset variable when nav is hidden
-    document.documentElement.style.setProperty("--bottom-nav-height", "0px");
     return null;
   }
 

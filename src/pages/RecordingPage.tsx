@@ -12,6 +12,11 @@ import { toast } from "sonner";
 import { Capacitor } from "@capacitor/core";
 import { analytics } from "@/lib/analytics";
 import { recalculateAfterEntry } from "@/lib/adaptive-notifications";
+import {
+  ENTRY_THRESHOLDS,
+  countWords,
+  isLikelyWhisperHallucination,
+} from "@/lib/entryThresholds";
 
 type ProcessingStep = "transcribing" | "reflecting";
 
@@ -138,8 +143,23 @@ export default function RecordingPage() {
   };
 
   const handleStop = async () => {
+    // ── Scenario 1: duration floor ─────────────────────────────────
+    // Reject anything shorter than MIN_RECORDING_SECONDS before we even
+    // stop the mic. Saves a Whisper call and prevents hallucination on
+    // silent / <2s audio. Do NOT disconnect the analyser here — the
+    // user stays in recording mode so they can keep talking.
+    if (duration < ENTRY_THRESHOLDS.MIN_RECORDING_SECONDS) {
+      analytics.recordingTooShort(duration, ENTRY_THRESHOLDS.MIN_RECORDING_SECONDS);
+      toast("Take your time — tell me what's on your mind.", {
+        description: `Recordings need to be at least ${ENTRY_THRESHOLDS.MIN_RECORDING_SECONDS} seconds.`,
+      });
+      return;
+    }
+
     disconnect();
     const blob = await stop();
+
+    // ── Scenario 2: empty / corrupted blob ─────────────────────────
     if (!blob || blob.size === 0) {
       toast.error("No audio recorded. Try again.");
       navigate(-1);
@@ -167,20 +187,50 @@ export default function RecordingPage() {
       if (data?.error) throw new Error(data.error);
 
       const text: string | undefined = data?.text;
+      const trimmed = text?.trim() ?? "";
 
-      if (!text || !text.trim()) {
-        toast.error("No speech detected. Try again.");
+      // ── Scenario 3: empty transcription ──────────────────────────
+      if (!trimmed) {
+        toast.error("No speech detected. Try speaking a little louder or closer to the mic.");
+        setProcessing(false);
         navigate(-1);
         return;
       }
 
-      const wordCount = text.trim().split(/\s+/).length;
+      // ── Scenario 4: Whisper hallucination on silent audio ────────
+      // If Whisper returned a known artifact phrase ("Thank you.",
+      // "Thanks for watching!", etc.), reject as if no speech detected.
+      if (isLikelyWhisperHallucination(trimmed)) {
+        analytics.transcriptionHallucinationRejected(trimmed, audioMime);
+        toast.error("I couldn't hear you clearly. Try again in a quieter spot?");
+        setProcessing(false);
+        navigate(-1);
+        return;
+      }
+
+      const wordCount = countWords(trimmed);
       analytics.transcriptionCompleted(wordCount, audioMime);
+
+      // ── Scenario 5: below word floor for loop analysis ───────────
+      // Transcription worked but the entry is too brief for a meaningful
+      // loop reflection. We still save it — but flag it as `brief` so
+      // the reflect function gives a softer, shorter response.
+      if (wordCount < ENTRY_THRESHOLDS.MIN_WORDS_FOR_LOOP_ANALYSIS) {
+        analytics.entryBelowWordFloor({
+          source: "voice",
+          wordCount,
+          floor: ENTRY_THRESHOLDS.MIN_WORDS_FOR_LOOP_ANALYSIS,
+          action: "sent_as_brief",
+        });
+        toast("Got it — brief entry saved.", {
+          description: "Next time, try a few more sentences for a deeper reflection.",
+        });
+      }
 
       // Now call reflect
       setCurrentStep("reflecting");
       const reflectStart = Date.now();
-      const entryId = await createEntry({ content: text.trim(), entryType: "voice" });
+      const entryId = await createEntry({ content: trimmed, entryType: "voice" });
 
       if (entryId) {
         analytics.recordingCompleted(duration);

@@ -69,6 +69,34 @@ export const analytics = {
     this.track("transcription_completed", { word_count: wordCount, audio_format: audioFormat });
   },
 
+  recordingTooShort(durationSeconds: number, minSeconds: number) {
+    this.track("recording_too_short", {
+      duration_seconds: durationSeconds,
+      min_seconds: minSeconds,
+    });
+  },
+
+  transcriptionHallucinationRejected(rawText: string, audioFormat: string) {
+    this.track("transcription_hallucination_rejected", {
+      raw_text: rawText,
+      audio_format: audioFormat,
+    });
+  },
+
+  entryBelowWordFloor(opts: {
+    source: "voice" | "text";
+    wordCount: number;
+    floor: number;
+    action: "prompted_to_add_more" | "sent_as_brief" | "rejected";
+  }) {
+    this.track("entry_below_word_floor", {
+      source: opts.source,
+      word_count: opts.wordCount,
+      floor: opts.floor,
+      action: opts.action,
+    });
+  },
+
   reflectionReceived(opts: { responseTimeMs: number; entryNumber?: number; entryId?: string; entryType?: string }) {
     this.track("reflection_received", {
       response_time_ms: opts.responseTimeMs,

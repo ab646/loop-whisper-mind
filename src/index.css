@@ -218,3 +218,9 @@ html, body {
     scroll-behavior: auto !important;
   }
 }
+
+/* Filled Lucide icons globally */
+.lucide {
+  fill: currentColor;
+  stroke-width: 1.5;
+}

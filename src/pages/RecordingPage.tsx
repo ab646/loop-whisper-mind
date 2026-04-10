@@ -12,12 +12,11 @@ import { Capacitor } from "@capacitor/core";
 import { analytics } from "@/lib/analytics";
 import { recalculateAfterEntry } from "@/lib/adaptive-notifications";
 
-type ProcessingStep = "transcribing" | "reflecting" | "deleting";
+type ProcessingStep = "transcribing" | "reflecting";
 
 const STEPS: { key: ProcessingStep; label: string }[] = [
   { key: "transcribing", label: "Transcribing" },
   { key: "reflecting", label: "Reflecting" },
-  { key: "deleting", label: "Deleting recording" },
 ];
 
 
@@ -47,7 +46,7 @@ export default function RecordingPage() {
 
   useEffect(() => {
     if (!processing) return;
-    const target = currentStep === "deleting" ? 100 : currentStep === "reflecting" ? 90 : 60;
+    const target = currentStep === "reflecting" ? 100 : 60;
     const interval = setInterval(() => {
       setFakePercent((prev) => {
         if (prev >= target) return prev;
@@ -169,9 +168,6 @@ export default function RecordingPage() {
       setCurrentStep("reflecting");
       const reflectStart = Date.now();
       const entryId = await createEntry({ content: text.trim(), entryType: "voice" });
-
-      setCurrentStep("deleting");
-      await new Promise((r) => setTimeout(r, 600));
 
       if (entryId) {
         analytics.recordingCompleted(duration);

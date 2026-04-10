@@ -52,7 +52,7 @@ export function BottomNav() {
     <nav ref={navRef} className="fixed bottom-0 left-0 right-0 z-50 glass-panel border-t border-border/30">
       <div className="flex items-center justify-around px-4 py-2 max-w-md mx-auto" style={{ paddingBottom: 'max(env(safe-area-inset-bottom), 8px)' }}>
         {tabs.map((tab) => {
-          const isActive = location.pathname === tab.path;
+          const isActive = tab.path === "/" ? location.pathname === "/" : location.pathname.startsWith(tab.path);
           const Icon = tab.icon;
           return (
             <button

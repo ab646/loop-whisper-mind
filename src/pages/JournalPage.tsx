@@ -147,7 +147,16 @@ export default function JournalPage() {
           grouped.map(([group, items]) => (
             <div key={group} className="space-y-3">
               {/* Day header */}
-              <h2 className="font-display text-xl text-on-surface font-semibold">{group}</h2>
+              <h2 className="font-display text-xl font-semibold">
+                {group.includes(", ") ? (
+                  <>
+                    <span className="text-on-surface">{group.split(", ")[0]},</span>{" "}
+                    <span className="text-on-surface-variant/60">{group.split(", ").slice(1).join(", ")}</span>
+                  </>
+                ) : (
+                  <span className="text-on-surface">{group}</span>
+                )}
+              </h2>
 
               {/* Entry cards */}
               <div className="space-y-3">

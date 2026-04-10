@@ -190,27 +190,13 @@ export default function JournalPage() {
                       </p>
                     </div>
 
-                    {/* Entry content preview */}
-                    <div className="border-t border-border/10 px-4 py-3">
-                      <p className="text-on-surface-variant text-sm leading-relaxed line-clamp-3 font-body">
-                        {entry.content.substring(0, 200)}
+                    {/* Session summary — cleaned version of user content */}
+                    <div className="px-4 pb-4 pt-1">
+                      <p className="text-on-surface-variant text-sm leading-relaxed line-clamp-3 font-body pl-[38px]">
+                        {entry.mainLoop || entry.content.substring(0, 200)}
                       </p>
                     </div>
 
-                    {/* Main loop section */}
-                    {entry.mainLoop && (
-                      <div className="border-t border-border/10 p-4 space-y-2">
-                        <div className="flex items-center gap-2.5">
-                          <div className="w-7 h-7 rounded-full bg-on-surface flex items-center justify-center">
-                            <RefreshCw size={13} className="text-background" />
-                          </div>
-                          <span className="text-on-surface font-display text-base font-semibold">Main loop</span>
-                        </div>
-                        <p className="text-on-surface text-sm leading-relaxed font-body line-clamp-3">
-                          {entry.mainLoop}
-                        </p>
-                      </div>
-                    )}
 
                     {/* Pattern section */}
                     {(entry.pattern || entry.tags.length > 0) && (

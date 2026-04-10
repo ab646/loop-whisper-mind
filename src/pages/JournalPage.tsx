@@ -170,24 +170,20 @@ export default function JournalPage() {
                     onClick={() => navigate(`/journal/${entry.id}`)}
                     className="w-full text-left rounded-2xl surface-low border border-border/10 overflow-hidden"
                   >
-                    {/* Header — JOURNAL label + time */}
-                    <div className="p-4 pb-3 space-y-2">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2.5">
-                          <div className="w-7 h-7 rounded-full bg-on-surface/10 flex items-center justify-center">
-                            <Pen size={13} className="text-on-surface" />
-                          </div>
-                          <span className="text-on-surface-variant/60 text-xs font-medium tracking-widest uppercase font-body">
-                            Journal
-                          </span>
-                        </div>
-                        <span className="text-on-surface-variant/60 text-xs font-body">
-                          {new Date(entry.createdAt).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}
-                        </span>
+                    {/* Header — single row: icon + JOURNAL + Summary + time */}
+                    <div className="flex items-center gap-2.5 px-4 py-3">
+                      <div className="w-7 h-7 rounded-full bg-on-surface/10 flex items-center justify-center shrink-0">
+                        <Pen size={13} className="text-on-surface" />
                       </div>
-                      <p className="text-on-surface font-display text-base font-semibold leading-snug line-clamp-3 pl-[38px]">
+                      <span className="text-on-surface-variant/60 text-xs font-medium tracking-widest uppercase font-body shrink-0">
+                        Journal
+                      </span>
+                      <span className="text-on-surface font-display text-sm font-semibold truncate">
                         Summary
-                      </p>
+                      </span>
+                      <span className="text-on-surface-variant/60 text-xs font-body ml-auto shrink-0">
+                        {new Date(entry.createdAt).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}
+                      </span>
                     </div>
 
                     {/* Summary content */}

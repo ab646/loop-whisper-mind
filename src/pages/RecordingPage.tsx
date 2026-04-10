@@ -232,61 +232,62 @@ export default function RecordingPage() {
 
         {/* Orb with radiating pulse rings — centered like homepage */}
         <div className="relative flex items-center justify-center mb-auto" style={{ width: 360, height: 360 }}>
-          {/* Pulse rings — driven by real audio level */}
+          {/* Reactive rings — scale directly with voice level */}
           {isRecording && !isPaused && (
             <>
-              {/* Ring 1 — fast, tight */}
+              {/* Inner ring — tightest, most reactive */}
+              <motion.div
+                className="absolute rounded-full"
+                style={{ width: 176, height: 176 }}
+                animate={{
+                  scale: 1 + avgLevel * 1.8,
+                  opacity: 0.15 + avgLevel * 0.45,
+                  borderWidth: 2 + avgLevel * 2,
+                  borderColor: `hsl(var(--primary) / ${0.3 + avgLevel * 0.5})`,
+                }}
+                transition={{ duration: 0.08, ease: "linear" }}
+                initial={false}
+              />
+              {/* Middle ring */}
+              <motion.div
+                className="absolute rounded-full"
+                style={{ width: 176, height: 176, borderStyle: "solid" }}
+                animate={{
+                  scale: 1.15 + avgLevel * 2.4,
+                  opacity: 0.1 + avgLevel * 0.3,
+                  borderWidth: 1.5 + avgLevel * 1.5,
+                  borderColor: `hsl(var(--primary) / ${0.2 + avgLevel * 0.35})`,
+                }}
+                transition={{ duration: 0.12, ease: "linear" }}
+                initial={false}
+              />
+              {/* Outer ring — widest spread */}
+              <motion.div
+                className="absolute rounded-full"
+                style={{ width: 176, height: 176, borderStyle: "solid" }}
+                animate={{
+                  scale: 1.3 + avgLevel * 3.0,
+                  opacity: 0.06 + avgLevel * 0.2,
+                  borderWidth: 1 + avgLevel * 1,
+                  borderColor: `hsl(var(--primary) / ${0.12 + avgLevel * 0.25})`,
+                }}
+                transition={{ duration: 0.15, ease: "linear" }}
+                initial={false}
+              />
+              {/* Ambient glow — reacts instantly */}
               <motion.div
                 className="absolute rounded-full"
                 style={{
-                  width: 176,
-                  height: 176,
-                  border: `2px solid hsl(var(--primary) / ${0.25 + avgLevel * 0.35})`,
+                  width: 200,
+                  height: 200,
                 }}
                 animate={{
-                  scale: [1, 1.4 + avgLevel * 1.2],
-                  opacity: [0.5 + avgLevel * 0.3, 0],
+                  scale: 1 + avgLevel * 1.2,
+                  opacity: 0.3 + avgLevel * 0.5,
+                  background: `radial-gradient(circle, hsl(var(--primary) / ${0.1 + avgLevel * 0.35}) 0%, transparent 70%)`,
                 }}
-                transition={{ duration: 1.2, repeat: Infinity, ease: "easeOut" }}
-              />
-              {/* Ring 2 — medium */}
-              <motion.div
-                className="absolute rounded-full"
-                style={{
-                  width: 176,
-                  height: 176,
-                  border: `2px solid hsl(var(--primary) / ${0.18 + avgLevel * 0.25})`,
-                }}
-                animate={{
-                  scale: [1, 1.7 + avgLevel * 1.4],
-                  opacity: [0.4 + avgLevel * 0.2, 0],
-                }}
-                transition={{ duration: 1.2, repeat: Infinity, ease: "easeOut", delay: 0.3 }}
-              />
-              {/* Ring 3 — wide */}
-              <motion.div
-                className="absolute rounded-full"
-                style={{
-                  width: 176,
-                  height: 176,
-                  border: `1.5px solid hsl(var(--primary) / ${0.12 + avgLevel * 0.2})`,
-                }}
-                animate={{
-                  scale: [1, 2.0 + avgLevel * 1.5],
-                  opacity: [0.3 + avgLevel * 0.15, 0],
-                }}
-                transition={{ duration: 1.2, repeat: Infinity, ease: "easeOut", delay: 0.6 }}
-              />
-              {/* Ambient glow — scales with volume */}
-              <motion.div
-                className="absolute rounded-full"
-                style={{
-                  width: 220,
-                  height: 220,
-                  background: `radial-gradient(circle, hsl(var(--primary) / ${0.15 + avgLevel * 0.3}) 0%, transparent 70%)`,
-                }}
-                animate={{ scale: 1 + avgLevel * 0.6 }}
-                transition={{ duration: 0.1, ease: "easeOut" }}
+                transition={{ duration: 0.08, ease: "linear" }}
+                initial={false}
               />
             </>
           )}

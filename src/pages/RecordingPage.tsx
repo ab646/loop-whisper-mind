@@ -304,7 +304,7 @@ export default function RecordingPage() {
             className="w-44 h-44 rounded-full orb-gradient orb-shadow flex items-center justify-center relative z-10"
           >
             <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/30 to-transparent" />
-            <Square size={32} className="text-primary-foreground relative z-10" fill="currentColor" strokeWidth={0} style={{ borderRadius: 6 }} />
+            <Square size={56} className="text-primary-foreground relative z-10" fill="currentColor" strokeWidth={0} style={{ borderRadius: 10 }} />
           </motion.button>
         </div>
 

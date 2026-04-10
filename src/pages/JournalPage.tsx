@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ChevronRight, Pen, RefreshCw, Sparkles } from "lucide-react";
+import { Pen } from "lucide-react";
 import { ScribblingLogo } from "@/components/LoopLogo";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -193,41 +193,8 @@ export default function JournalPage() {
                       </p>
                     </div>
 
-                    {/* Main loop section */}
-                    {entry.mainLoop && (
-                      <div className="border-t border-border/10 p-4 space-y-2">
-                        <div className="flex items-center gap-2.5">
-                          <div className="w-7 h-7 rounded-full bg-on-surface flex items-center justify-center">
-                            <RefreshCw size={13} className="text-background" />
-                          </div>
-                          <span className="text-on-surface font-display text-base font-semibold">Main loop</span>
-                        </div>
-                        <p className="text-on-surface text-sm leading-relaxed font-body line-clamp-3">
-                          {entry.mainLoop}
-                        </p>
-                      </div>
-                    )}
 
-                    {/* Pattern section */}
-                    {(entry.pattern || entry.tags.length > 0) && (
-                      <div className="border-t border-border/10 p-4 space-y-2.5">
-                        <div className="flex items-center gap-2.5">
-                          <div className="w-7 h-7 rounded-full bg-on-surface/10 flex items-center justify-center">
-                            <Sparkles size={13} className="text-on-surface" />
-                          </div>
-                          <span className="text-on-surface font-display text-base font-semibold">Pattern</span>
-                        </div>
-                        {entry.tags.length > 0 && (
-                          <div className="flex gap-2 flex-wrap">
-                            {entry.tags.slice(0, 3).map((tag) => (
-                              <span key={tag} className="tag-pill">
-                                {tag.replace(/_/g, " ").trim().toLowerCase().replace(/^\w/, (c) => c.toUpperCase())}
-                              </span>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    )}
+
                   </motion.button>
                 ))}
               </div>

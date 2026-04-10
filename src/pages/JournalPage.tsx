@@ -202,11 +202,6 @@ export default function JournalPage() {
                           </div>
                           <span className="text-on-surface font-display text-base font-semibold">Pattern</span>
                         </div>
-                        {entry.pattern && (
-                          <p className="text-on-surface-variant text-sm italic leading-relaxed font-body line-clamp-2">
-                            {entry.pattern}
-                          </p>
-                        )}
                         {entry.tags.length > 0 && (
                           <div className="flex gap-2 flex-wrap">
                             {entry.tags.slice(0, 3).map((tag) => (

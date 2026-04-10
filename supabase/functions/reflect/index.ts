@@ -37,6 +37,7 @@ interface Reflection {
 }
 
 const REFLECTION_FALLBACK: Reflection = {
+  summary: "",
   mainLoop: "",
   loopType: "rumination",
   feelings: [],
@@ -146,6 +147,7 @@ If the input is too brief, context-free, or unclear to meaningfully analyze (e.g
 ## OUTPUT FORMAT
 Return ONLY a valid JSON object with these exact fields:
 {
+  "summary": "A short 3-8 word title summarizing the TOPIC of what the user shared (not the analysis). Think of it as a journal entry title — e.g. 'Overthinking the job interview', 'Tension with Mom about boundaries', 'Sleepless night and racing thoughts'. Capture the subject matter, not the loop type.",
   "mainLoop": "A 1-2 sentence description of the specific cognitive loop, written in second person. Be precise, not generic. If input is too vague, acknowledge it honestly.",
   "loopType": "rumination" | "anticipatory" | "decisional" | "self-critical" | "relational" | "existential",
   "feelings": ["2-4 specific emotions — prefer precise words like 'dread' over vague ones like 'bad'"],

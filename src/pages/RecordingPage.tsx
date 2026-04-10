@@ -223,9 +223,9 @@ export default function RecordingPage() {
             transition={{ delay: 0.3, duration: 0.4 }}
             className="text-center space-y-1"
           >
-            <span className="label-uppercase">VOICE INPUT</span>
+            <span className="label-uppercase">{isPaused ? "PAUSED" : "LISTENING"}</span>
             <p className="font-display text-base text-mint italic text-center leading-relaxed max-w-xs">
-              {isPaused ? "Paused" : isRecording ? "Keep speaking. I'm capturing every word..." : "Starting..."}
+              {isPaused ? "Tap play to continue" : isRecording ? "Keep speaking. I'm capturing every word..." : "Starting..."}
             </p>
           </motion.div>
         </div>

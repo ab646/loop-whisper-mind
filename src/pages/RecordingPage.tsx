@@ -16,7 +16,6 @@ import {
   ENTRY_THRESHOLDS,
   countWords,
   isLikelyWhisperHallucination,
-  isRepetitiveHallucination,
 } from "@/lib/entryThresholds";
 
 type ProcessingStep = "transcribing" | "reflecting";
@@ -198,27 +197,11 @@ export default function RecordingPage() {
         return;
       }
 
-      // ── Scenario 4a: Whisper artifact-phrase hallucination ───────
+      // ── Scenario 4: Whisper hallucination on silent audio ────────
       // If Whisper returned a known artifact phrase ("Thank you.",
       // "Thanks for watching!", etc.), reject as if no speech detected.
       if (isLikelyWhisperHallucination(trimmed)) {
         analytics.transcriptionHallucinationRejected(trimmed, audioMime);
-        toast.error("I couldn't hear you clearly. Try again in a quieter spot?");
-        setProcessing(false);
-        navigate(-1);
-        return;
-      }
-
-      // ── Scenario 4b: Whisper stuck-decoding / repetition loop ────
-      // Whisper can lock onto a single token on silent or ambient audio
-      // and emit it thousands of times ("la la la la...", "you you you...").
-      // These pass the artifact-phrase check and the duration floor, so
-      // we need a structural check (unique-token ratio).
-      if (isRepetitiveHallucination(trimmed)) {
-        analytics.transcriptionHallucinationRejected(
-          `[repetition] ${trimmed.slice(0, 120)}`,
-          audioMime,
-        );
         toast.error("I couldn't hear you clearly. Try again in a quieter spot?");
         setProcessing(false);
         navigate(-1);

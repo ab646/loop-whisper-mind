@@ -90,6 +90,8 @@ function AppRoutes() {
           <Route path="/" element={<ProtectedRoute><HomePage /></ProtectedRoute>} />
           <Route path="/chat/:id" element={<ProtectedRoute><ChatPage /></ProtectedRoute>} />
           <Route path="/recording" element={<ProtectedRoute><RecordingPage /></ProtectedRoute>} />
+          <Route path="/journal" element={<ProtectedRoute><JournalPage /></ProtectedRoute>} />
+          <Route path="/journal/:id" element={<ProtectedRoute><JournalDetailPage /></ProtectedRoute>} />
           <Route path="/insights" element={<ProtectedRoute><InsightsPage /></ProtectedRoute>} />
           <Route path="/theme/:id" element={<ProtectedRoute><ThemeExplorationPage /></ProtectedRoute>} />
           <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />

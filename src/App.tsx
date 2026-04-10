@@ -25,6 +25,8 @@ import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 import OnboardingPage from "./pages/OnboardingPage";
 import CallbackPage from "./pages/CallbackPage";
+import JournalPage from "./pages/JournalPage";
+import JournalDetailPage from "./pages/JournalDetailPage";
 import NotFound from "./pages/NotFound";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import ScrollToTop from "@/components/ScrollToTop";

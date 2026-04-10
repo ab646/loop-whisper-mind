@@ -1,10 +1,11 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import { MessageCircle, BarChart3, User } from "lucide-react";
+import { MessageCircle, BookOpen, BarChart3, User } from "lucide-react";
 import { motion } from "framer-motion";
 import { useLayoutEffect, useRef } from "react";
 
 const tabs = [
   { path: "/", label: "REFLECT", icon: MessageCircle },
+  { path: "/journal", label: "JOURNAL", icon: BookOpen },
   { path: "/insights", label: "PATTERNS", icon: BarChart3 },
   { path: "/profile", label: "PROFILE", icon: User },
 ];

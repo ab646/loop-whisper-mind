@@ -209,9 +209,12 @@ export default function RecordingPage() {
     );
   }
 
+  // Compute average audio level for ring intensity
+  const avgLevel = levels.reduce((a, b) => a + b, 0) / (levels.length || 1);
+
   return (
     <div className="flex flex-col h-screen mesh-gradient-bg relative overflow-hidden">
-      <div className="flex-1 flex flex-col items-center justify-center gap-8 px-8 relative z-10">
+      <div className="flex-1 flex flex-col items-center justify-center gap-6 px-8 relative z-10">
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -224,31 +227,72 @@ export default function RecordingPage() {
           </h1>
         </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.4, duration: 0.4 }}
-        >
-          <Waveform bars={WAVEFORM_BARS} active={isRecording && !isPaused} levels={isPaused ? undefined : levels} />
-        </motion.div>
+        {/* Orb with radiating pulse rings */}
+        <div className="relative flex items-center justify-center" style={{ width: 320, height: 320 }}>
+          {/* Pulse rings — react to audio level */}
+          {isRecording && !isPaused && (
+            <>
+              <motion.div
+                className="absolute rounded-full border border-primary/20"
+                style={{ width: 240, height: 240 }}
+                animate={{
+                  scale: [1, 1.3 + avgLevel * 0.5],
+                  opacity: [0.35, 0],
+                }}
+                transition={{ duration: 1.8, repeat: Infinity, ease: "easeOut" }}
+              />
+              <motion.div
+                className="absolute rounded-full border border-primary/15"
+                style={{ width: 240, height: 240 }}
+                animate={{
+                  scale: [1, 1.6 + avgLevel * 0.6],
+                  opacity: [0.25, 0],
+                }}
+                transition={{ duration: 1.8, repeat: Infinity, ease: "easeOut", delay: 0.4 }}
+              />
+              <motion.div
+                className="absolute rounded-full border border-primary/10"
+                style={{ width: 240, height: 240 }}
+                animate={{
+                  scale: [1, 1.9 + avgLevel * 0.7],
+                  opacity: [0.18, 0],
+                }}
+                transition={{ duration: 1.8, repeat: Infinity, ease: "easeOut", delay: 0.8 }}
+              />
+              {/* Soft glow behind orb reacting to volume */}
+              <motion.div
+                className="absolute rounded-full"
+                style={{
+                  width: 200,
+                  height: 200,
+                  background: `radial-gradient(circle, hsl(var(--primary) / ${0.12 + avgLevel * 0.18}) 0%, transparent 70%)`,
+                }}
+                animate={{ scale: [1, 1.1 + avgLevel * 0.3, 1] }}
+                transition={{ duration: 0.3, ease: "easeOut" }}
+              />
+            </>
+          )}
 
-        <motion.button
-          layoutId="voice-orb"
-          onClick={handleStop}
-          whileTap={{ scale: 0.92 }}
-          animate={isRecording && !isPaused ? { scale: [1, 1.03, 1] } : {}}
-          transition={{
-            layout: { duration: 0.5, ease: [0.4, 0, 0.2, 1] },
-            scale: { duration: 2, repeat: Infinity },
-          }}
-          className="w-44 h-44 rounded-full orb-gradient orb-shadow flex flex-col items-center justify-center gap-1.5 relative"
-        >
-          <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/30 to-transparent" />
-          <Square size={32} className="text-primary-foreground relative z-10" fill="currentColor" />
-          <span className="text-primary-foreground text-xl font-body font-semibold tracking-wide relative z-10 tabular-nums">
-            {formatTime(duration)}
-          </span>
-        </motion.button>
+          <motion.button
+            layoutId="voice-orb"
+            onClick={handleStop}
+            whileTap={{ scale: 0.92 }}
+            animate={isRecording && !isPaused ? { scale: [1, 1.03, 1] } : {}}
+            transition={{
+              layout: { duration: 0.5, ease: [0.4, 0, 0.2, 1] },
+              scale: { duration: 2, repeat: Infinity },
+            }}
+            className="w-44 h-44 rounded-full orb-gradient orb-shadow flex items-center justify-center relative z-10"
+          >
+            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/30 to-transparent" />
+            <Square size={32} className="text-primary-foreground relative z-10" fill="currentColor" strokeWidth={0} style={{ borderRadius: 6 }} />
+          </motion.button>
+        </div>
+
+        {/* Timer outside the orb */}
+        <span className="text-on-surface text-2xl font-body font-semibold tracking-wide tabular-nums">
+          {formatTime(duration)}
+        </span>
 
         <motion.p
           initial={{ opacity: 0, y: 10 }}

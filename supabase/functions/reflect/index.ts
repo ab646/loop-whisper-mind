@@ -29,6 +29,10 @@ interface Reflection {
   temporalShift: string | null;
   oneQuestion: string;
   tags: string[];
+  // Candidate 7th loop type — health/somatic anxiety (Salkovskis & Warwick, 1986).
+  // Tracked as a soft detector flag while we measure how common these loops are
+  // before promoting it to a first-class loopType. See Notion: AI Intelligence Layer.
+  healthRelated: boolean;
 }
 
 const REFLECTION_FALLBACK: Reflection = {
@@ -42,6 +46,7 @@ const REFLECTION_FALLBACK: Reflection = {
   temporalShift: null,
   oneQuestion: "What's the specific thought you keep coming back to?",
   tags: [],
+  healthRelated: false,
 };
 
 function buildSystemPrompt(
@@ -114,6 +119,21 @@ If the person is stuck in the past or future, note it:
 Assign 1-3 UPPERCASE tags from this taxonomy (use exactly these when applicable):
 AMBIGUITY, REJECTION, SELF-DOUBT, CONTROL, DECISION PARALYSIS, SAFETY, VALIDATION, OVERWHELM, SHAME, LONELINESS, AVOIDANCE, REASSURANCE, ATTACHMENT, STUCKNESS, LONGING, WORK ANXIETY, PERFECTIONISM, PEOPLE-PLEASING, BOUNDARIES, IMPOSTER, COMPARISON, BURNOUT, GRIEF, IDENTITY, CHANGE
 
+## HEALTH-ANXIETY DETECTOR (soft flag)
+Set \`healthRelated\` to true when the entry shows a health-anxiety loop — the pattern Salkovskis & Warwick (1986) describe as repeatedly checking bodily sensations, Googling symptoms, or interpreting normal sensations as dangerous.
+Set true when you see any of:
+- Body scanning or repeatedly checking a sensation ("is this a lump", "my heart feels weird", "this headache won't go away")
+- Symptom-Googling or WebMD-style spiraling
+- Catastrophic interpretation of normal body signals (fatigue = illness, dizziness = stroke, chest tightness = heart attack)
+- Reassurance-seeking about a physical symptom
+- Loops about a pending test result, doctor visit, or diagnosis
+- Catastrophizing about sleep itself ("if I don't sleep I'll be broken tomorrow") — this counts because Loop treats insomnia-as-illness as a health-anxiety variant
+Set false when:
+- The loop is about physical discomfort but not framed as threat (e.g. "I'm tired and burnt out")
+- The health topic belongs to someone else with no self-scanning component
+- Unclear or absent
+This flag does NOT change any other field. Do not change loopType. Do not add health advice. This is a measurement signal only.
+
 ## HANDLING SHORT OR AMBIGUOUS INPUT
 If the input is too brief, context-free, or unclear to meaningfully analyze (e.g. a single cryptic sentence, a random observation, or something that doesn't express a feeling or cognitive pattern), DO NOT invent psychological meaning. Instead:
 - Set mainLoop to a direct, honest reflection of what was said — e.g. "You shared a brief note without much context. It's hard to see what's looping for you here."
@@ -137,7 +157,8 @@ Return ONLY a valid JSON object with these exact fields:
   "repeatingPattern": "If you see a pattern from their history, describe it in 1 sentence. Otherwise null.",
   "temporalShift": "If they're stuck in past or future, name it in 1 sentence. Otherwise null.",
   "oneQuestion": "A single reflective question that could crack the loop open. Not generic. Specific to what they said. This is the only place the user is invited to think further — DO NOT include advice, coping techniques, or prescriptive suggestions anywhere in the output.",
-  "tags": ["1-3 UPPERCASE tags from the taxonomy above"]
+  "tags": ["1-3 UPPERCASE tags from the taxonomy above"],
+  "healthRelated": "true if this is a health-anxiety loop per the detector rules above, false otherwise"
 }
 
 Return ONLY valid JSON. No markdown fences, no explanation, no preamble.${historyContext}${conversationContext}`;
@@ -233,6 +254,10 @@ serve(async (req) => {
     if (!reflection.knownVsAssumed) {
       reflection.knownVsAssumed = { known: [], assumed: [] };
     }
+
+    // Coerce health-anxiety soft flag to boolean (some providers return "true"/"false" strings)
+    const rawHealth = reflection.healthRelated as unknown;
+    reflection.healthRelated = rawHealth === true || rawHealth === "true";
 
     // Store entry
     const { data: entry, error: insertError } = await adminClient

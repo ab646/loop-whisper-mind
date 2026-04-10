@@ -161,10 +161,10 @@ export default function JournalPage() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: i * 0.03 }}
                     onClick={() => navigate(`/journal/${entry.id}`)}
-                    className="w-full text-left space-y-2"
+                    className="w-full text-left rounded-2xl surface-low border border-border/10 overflow-hidden"
                   >
-                    {/* Entry card */}
-                    <div className="rounded-2xl surface-low p-4 space-y-3 border border-border/10">
+                    {/* Entry section */}
+                    <div className="p-4 space-y-3">
                       <div className="flex items-center gap-2.5">
                         <div className="w-7 h-7 rounded-full bg-on-surface/10 flex items-center justify-center">
                           <Pen size={13} className="text-on-surface" />
@@ -178,24 +178,24 @@ export default function JournalPage() {
                       </p>
                     </div>
 
-                    {/* Main loop card */}
+                    {/* Main loop section */}
                     {entry.mainLoop && (
-                      <div className="rounded-2xl surface-low p-4 space-y-2 border border-border/10">
+                      <div className="border-t border-border/10 p-4 space-y-2">
                         <div className="flex items-center gap-2.5">
                           <div className="w-7 h-7 rounded-full bg-on-surface flex items-center justify-center">
                             <RefreshCw size={13} className="text-background" />
                           </div>
                           <span className="text-on-surface font-display text-base font-semibold">Main loop</span>
                         </div>
-                        <p className="text-on-surface text-sm leading-relaxed font-body line-clamp-4">
+                        <p className="text-on-surface text-sm leading-relaxed font-body line-clamp-3">
                           {entry.mainLoop}
                         </p>
                       </div>
                     )}
 
-                    {/* Pattern card */}
+                    {/* Pattern section */}
                     {(entry.pattern || entry.tags.length > 0) && (
-                      <div className="rounded-2xl surface-low p-4 space-y-2.5 border border-border/10">
+                      <div className="border-t border-border/10 p-4 space-y-2.5">
                         <div className="flex items-center gap-2.5">
                           <div className="w-7 h-7 rounded-full bg-on-surface/10 flex items-center justify-center">
                             <Sparkles size={13} className="text-on-surface" />

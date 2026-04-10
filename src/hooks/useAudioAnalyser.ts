@@ -15,8 +15,8 @@ export function useAudioAnalyser(bars: number = 20) {
     disconnect();
     const ctx = new AudioContext();
     const analyser = ctx.createAnalyser();
-    analyser.fftSize = 64;
-    analyser.smoothingTimeConstant = 0.7;
+    analyser.fftSize = 128;
+    analyser.smoothingTimeConstant = 0.4;
 
     const source = ctx.createMediaStreamSource(stream);
     source.connect(analyser);

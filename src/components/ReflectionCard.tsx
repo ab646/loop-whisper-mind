@@ -9,7 +9,6 @@ interface ReflectionCardProps {
   knownVsAssumed: { known: string[]; assumed: string[] };
   repeatingPattern?: string | null;
   oneQuestion: string;
-  nextStep?: string;
   tags?: string[];
   themeAnswer?: string;
 }
@@ -48,7 +47,7 @@ function CollapsibleSection({ title, children, defaultOpen = false }: { title: s
   );
 }
 
-export function ReflectionCard({ mainLoop, feelings, knownVsAssumed, repeatingPattern, oneQuestion, nextStep, tags, themeAnswer }: ReflectionCardProps) {
+export function ReflectionCard({ mainLoop, feelings, knownVsAssumed, repeatingPattern, oneQuestion, tags, themeAnswer }: ReflectionCardProps) {
   const feedbackId = useMemo(() => {
     const text = (oneQuestion + mainLoop).substring(0, 50);
     let hash = 0;
@@ -120,16 +119,9 @@ export function ReflectionCard({ mainLoop, feelings, knownVsAssumed, repeatingPa
       </CollapsibleSection>
 
       {/* Collapsible: Pattern */}
-      {(repeatingPattern || nextStep) && (
+      {repeatingPattern && (
         <CollapsibleSection title="Pattern">
-          {repeatingPattern && (
-            <p className="text-on-surface text-base leading-relaxed font-body">{repeatingPattern}</p>
-          )}
-          {nextStep && (
-            <p className="text-on-surface-variant text-sm leading-relaxed font-body mt-2">
-              Next step: {nextStep}
-            </p>
-          )}
+          <p className="text-on-surface text-base leading-relaxed font-body">{repeatingPattern}</p>
         </CollapsibleSection>
       )}
 

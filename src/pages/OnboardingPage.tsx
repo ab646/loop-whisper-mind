@@ -28,15 +28,15 @@ const steps: StepDef[] = [
   { type: "explain", screen: 3 },
   {
     type: "text",
-    title: "What should we call you?",
-    subtitle: "Just a first name is perfect.",
+    title: "What should I call you?",
+    subtitle: "First name works. Nothing fancy.",
     field: "display_name",
     placeholder: "Your name",
   },
   {
     type: "seed",
     title: "What's been on your mind?",
-    subtitle: "Pick one, or tell us in your own words.",
+    subtitle: "Pick one, or tell me in your own words.",
   },
 ];
 

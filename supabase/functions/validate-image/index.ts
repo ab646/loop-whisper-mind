@@ -17,7 +17,7 @@ interface ValidationResult {
 
 const VALIDATION_FALLBACK: ValidationResult = {
   valid: false,
-  reason: "Could not analyze the image. Please try again.",
+  reason: "I couldn't read this one. Try a screenshot of what's looping — a text, a note, something with words.",
   transcription: null,
 };
 
@@ -68,7 +68,7 @@ For the transcription:
 - If it's a photo (not text), describe what's happening emotionally in the scene
 - Make it read naturally as a journal entry someone could reflect on
 
-If rejecting, make the reason friendly and helpful.`,
+If rejecting, write the reason in Loop's voice: warm but direct, first-person ("I"), specific not generic. Never apologize, never say "sorry", never say "unfortunately". Tell the user what you'd actually need instead — e.g. "I can't work with this one. Try a screenshot of what's looping — a text, a note, something with words." Keep it under 25 words. Never use therapy-speak or coping advice.`,
         },
         {
           role: "user",

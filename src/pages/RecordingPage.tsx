@@ -68,10 +68,10 @@ export default function RecordingPage() {
           </div>
           <div className="text-center space-y-2">
             <h1 className="font-display text-xl text-on-surface">
-              Microphone Access Required
+              I can't hear you.
             </h1>
             <p className="text-on-surface-variant text-sm leading-relaxed max-w-xs">
-              Loop needs microphone access to record voice notes. Tap below to open Settings and enable it.
+              Loop listens. For that, it needs your mic. Tap Settings to let it in.
             </p>
           </div>
           <div className="flex flex-col gap-3 w-full max-w-xs">
@@ -123,7 +123,7 @@ export default function RecordingPage() {
 
   const handleStartOver = () => {
     reset();
-    start().catch(() => toast.error("Microphone permission denied"));
+    start().catch(() => toast.error("I can't reach your mic. Check Settings."));
   };
 
   const handleStop = async () => {

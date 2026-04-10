@@ -33,7 +33,6 @@ interface ReflectionMessage {
     knownVsAssumed: { known: string[]; assumed: string[] };
     repeatingPattern?: string | null;
     oneQuestion: string;
-    nextStep?: string;
     tags: string[];
   };
 }
@@ -166,7 +165,7 @@ export default function ChatPage() {
       if (valError) throw valError;
 
       if (!validation?.valid) {
-        toast.error(validation?.reason || "This image doesn't seem suitable for reflection. Try sharing something that reflects your thoughts or feelings.");
+        toast.error(validation?.reason || "Loop can't work with this image. Try a screenshot of what's looping — a text, a note, a conversation, something with words.");
         setImageValidating(false);
         return;
       }
@@ -207,7 +206,6 @@ export default function ChatPage() {
             knownVsAssumed: reflection.knownVsAssumed || { known: [], assumed: [] },
             repeatingPattern: reflection.repeatingPattern,
             oneQuestion: reflection.oneQuestion || "",
-            nextStep: reflection.nextStep,
             tags: reflection.tags || [],
           },
         },
@@ -266,7 +264,6 @@ export default function ChatPage() {
             knownVsAssumed: reflection.knownVsAssumed || { known: [], assumed: [] },
             repeatingPattern: reflection.repeatingPattern,
             oneQuestion: reflection.oneQuestion || "",
-            nextStep: reflection.nextStep,
             tags: reflection.tags || [],
           },
         },
@@ -377,7 +374,7 @@ export default function ChatPage() {
         {messages.length === 0 && isImageNew && (
           <div className="flex flex-col items-center justify-center min-h-[40vh] gap-4">
             <p className="font-display text-lg text-on-surface-variant italic text-center">
-              Processing your image...
+              Reading what's in here...
             </p>
           </div>
         )}
@@ -538,7 +535,7 @@ export default function ChatPage() {
               <div className="flex items-center justify-center gap-2">
                 <ScribblingLogo size={28} />
                 <span className="text-on-surface-variant text-sm italic font-display">
-                  Checking your image...
+                  Looking at what you shared...
                 </span>
               </div>
             </motion.div>

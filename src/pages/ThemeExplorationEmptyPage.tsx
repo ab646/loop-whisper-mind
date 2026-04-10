@@ -46,7 +46,7 @@ export default function ThemeExplorationEmptyPage() {
           className="flex items-center gap-3"
         >
           <div className="w-3 h-3 rounded-full border-2 border-mint animate-pulse-soft" />
-          <span className="label-uppercase text-[10px]">WAITING FOR FIRST RESONANCE</span>
+          <span className="label-uppercase text-[10px]">NOTHING REPEATING — YET</span>
         </motion.div>
 
         <motion.button

@@ -137,7 +137,7 @@ export default function InsightsPage() {
               Patterns in the quiet.
             </h2>
             <p className="text-on-surface-variant text-sm leading-relaxed max-w-xs mx-auto">
-              Reflect {threshold - progress} more time{threshold - progress !== 1 ? "s" : ""} to unlock your first patterns.
+              Talk through {threshold - progress} more loop{threshold - progress !== 1 ? "s" : ""} and I'll start showing you what keeps coming back.
             </p>
 
             {/* Progress dots */}

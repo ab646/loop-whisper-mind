@@ -24,11 +24,11 @@ export default function PatternsEmptyPage() {
           className="space-y-2 text-center"
         >
           <h2 className="font-display text-3xl text-on-surface leading-tight">
-            Your patterns are{" "}
-            <span className="text-mint italic">waiting to be seen.</span>
+            No patterns yet.{" "}
+            <span className="text-mint italic">Your brain hasn't looped enough.</span>
           </h2>
           <p className="text-on-surface-variant text-base leading-relaxed mt-4">
-            Once you start talking through your loops, I'll begin mapping your mental landscape.
+            Once you've talked through a few loops, I'll start showing you what keeps coming back.
           </p>
         </motion.div>
 
@@ -62,7 +62,7 @@ export default function PatternsEmptyPage() {
           transition={{ delay: 0.6 }}
           className="font-display text-base text-mint italic text-center mt-4"
         >
-          "The clarity you seek is already within you, just unmapped."
+          "You can't see the shape of a loop from inside it."
         </motion.p>
 
         <motion.button

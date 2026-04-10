@@ -104,10 +104,10 @@ export default function DeleteAccountDialog({
             >
               <DialogHeader className="text-center">
                 <DialogTitle className="text-on-surface text-lg">
-                  We'd love your feedback
+                  Before you go — what happened?
                 </DialogTitle>
                 <DialogDescription className="text-on-surface-variant text-sm">
-                  Why are you deleting your account? This helps us improve.
+                  Pick the closest reason. Optional context below if you want to say more.
                 </DialogDescription>
               </DialogHeader>
 

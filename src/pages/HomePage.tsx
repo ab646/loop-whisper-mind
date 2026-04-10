@@ -224,23 +224,23 @@ export default function HomePage() {
 
       <div ref={scrollContainerRef} className="flex min-h-0 flex-1 flex-col scroll-container px-5" style={{ paddingBottom: 'calc(var(--bottom-nav-height, calc(72px + env(safe-area-inset-bottom))) + 120px)' }}>
         <div className="shrink-0 flex flex-col items-center justify-center relative" style={{ height: '100svh' }}>
-          <motion.p
+          <motion.div
             animate={{ opacity: navigatingOut ? 0 : 1, y: navigatingOut ? -10 : 0 }}
             transition={{ duration: 0.3 }}
-            className="absolute top-[16%] font-display text-3xl font-normal text-on-surface text-center w-full"
+            className="absolute top-[16%] text-center w-full space-y-1"
           >
-            {getGreeting()}
-          </motion.p>
+            <p className="text-on-surface-variant text-sm tracking-wide">{getGreeting()}</p>
+            <h1 className="font-display text-3xl font-normal text-on-surface">
+              What's looping right now?
+            </h1>
+          </motion.div>
           <div className="flex flex-col items-center gap-5">
-            <VoiceOrb size="lg" onClick={handleNavigateToRecording} label={navigatingOut ? undefined : "START A LOOP"} layoutId="voice-orb" />
+            <VoiceOrb size="lg" onClick={handleNavigateToRecording} layoutId="voice-orb" />
             <motion.div
               animate={{ opacity: navigatingOut ? 0 : 1, y: navigatingOut ? 10 : 0 }}
               transition={{ duration: 0.3 }}
-              className="text-center space-y-1"
+              className="text-center"
             >
-              <h2 className="font-display text-xl text-on-surface leading-tight">
-                What's looping right now?
-              </h2>
               <p className="font-display text-sm text-mint italic">
                 Your brain is full. Talk it out.
               </p>

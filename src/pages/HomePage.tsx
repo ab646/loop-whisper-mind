@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
-import { ChevronRight, ChevronDown } from "lucide-react";
+import { motion, useScroll, useTransform } from "framer-motion";
+import { ChevronRight } from "lucide-react";
 
 function getGreeting(): string {
   const hour = new Date().getHours();
@@ -10,9 +10,9 @@ function getGreeting(): string {
   if (hour < 17) return "Good afternoon";
   return "Good evening";
 }
+
 import { ScribblingLogo } from "@/components/LoopLogo";
-import { AppHeader } from "@/components/AppHeader";
-import { VoiceOrb } from "@/components/VoiceOrb";
+import { AmbientOrb } from "@/components/AmbientOrb";
 import { FullScreenLoader } from "@/components/FullScreenLoader";
 import { ChatInput } from "@/components/ChatInput";
 import { supabase } from "@/integrations/supabase/client";
@@ -61,10 +61,29 @@ function groupEntries(entries: EntryPreview[]): [string, EntryPreview[]][] {
   return order.map((g) => [g, groups[g]]);
 }
 
+function mapEntry(e: any): EntryPreview {
+  const d = new Date(e.created_at);
+  const now = new Date();
+  const diffDays = Math.floor((now.getTime() - d.getTime()) / 86400000);
+  let dateLabel: string;
+  if (diffDays === 0) dateLabel = "Today";
+  else if (diffDays === 1) dateLabel = "Yesterday";
+  else dateLabel = d.toLocaleDateString("en-US", { weekday: "long", day: "numeric", month: "short", year: "numeric" });
+
+  return {
+    id: e.id,
+    date: dateLabel,
+    time: d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }),
+    mainLoop: e.reflection?.mainLoop || e.content?.substring(0, 120) || "",
+    tags: e.tags || [],
+    createdAt: e.created_at,
+    hasReflection: !!e.reflection,
+  };
+}
 
 export default function HomePage() {
   const navigate = useNavigate();
-  const { session, profile } = useAuth();
+  const { session } = useAuth();
   const { createEntry, loading: creatingLoop } = useCreateLoop();
   const [entries, setEntries] = useState<EntryPreview[]>([]);
   const [loading, setLoading] = useState(true);
@@ -74,19 +93,14 @@ export default function HomePage() {
   const [loadingMore, setLoadingMore] = useState(false);
   const sentinelRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const firstEntryRef = useRef<HTMLButtonElement>(null);
-  const emptyStateRef = useRef<HTMLDivElement>(null);
-  const chatInputRef = useRef<HTMLDivElement>(null);
-  const [navigatingOut, setNavigatingOut] = useState(false);
 
-  useEffect(() => {
-    setNavigatingOut(false);
-  }, []);
+  // Scroll-driven orb fade
+  const { scrollY } = useScroll({ container: scrollContainerRef });
+  const scrollProgress = useTransform(scrollY, [0, typeof window !== "undefined" ? window.innerHeight * 0.6 : 500], [0, 1]);
 
-  const handleNavigateToRecording = () => {
-    setNavigatingOut(true);
-    setTimeout(() => navigate("/recording"), 350);
-  };
+  // Greeting text fades with scroll too
+  const greetingOpacity = useTransform(scrollProgress, [0, 0.4], [1, 0]);
+  const greetingY = useTransform(scrollProgress, [0, 0.4], [0, -30]);
 
   useEffect(() => {
     if (!session) return;
@@ -103,27 +117,7 @@ export default function HomePage() {
         if (fetchError) throw fetchError;
 
         if (data) {
-          setEntries(
-            data.map((e: any) => {
-              const d = new Date(e.created_at);
-              const now = new Date();
-              const diffDays = Math.floor((now.getTime() - d.getTime()) / 86400000);
-              let dateLabel: string;
-              if (diffDays === 0) dateLabel = "Today";
-              else if (diffDays === 1) dateLabel = "Yesterday";
-              else dateLabel = d.toLocaleDateString("en-US", { weekday: "long", day: "numeric", month: "short", year: "numeric" });
-
-              return {
-                id: e.id,
-                date: dateLabel,
-                time: d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }),
-                mainLoop: e.reflection?.mainLoop || e.content?.substring(0, 120) || "",
-                tags: e.tags || [],
-                createdAt: e.created_at,
-                hasReflection: !!e.reflection,
-              };
-            })
-          );
+          setEntries(data.map(mapEntry));
           setHasMore(data.length === 20);
           setError(null);
         }
@@ -147,28 +141,7 @@ export default function HomePage() {
       .range(entries.length, entries.length + 19);
 
     if (data) {
-      setEntries((prev) => [
-        ...prev,
-        ...data.map((e: any) => {
-          const d = new Date(e.created_at);
-          const now = new Date();
-          const diffDays = Math.floor((now.getTime() - d.getTime()) / 86400000);
-          let dateLabel: string;
-          if (diffDays === 0) dateLabel = "Today";
-          else if (diffDays === 1) dateLabel = "Yesterday";
-          else dateLabel = d.toLocaleDateString("en-US", { weekday: "long", day: "numeric", month: "short", year: "numeric" });
-
-          return {
-            id: e.id,
-            date: dateLabel,
-            time: d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }),
-            mainLoop: e.reflection?.mainLoop || e.content?.substring(0, 120) || "",
-            tags: e.tags || [],
-            createdAt: e.created_at,
-            hasReflection: !!e.reflection,
-          };
-        }),
-      ]);
+      setEntries((prev) => [...prev, ...data.map(mapEntry)]);
       setHasMore(data.length === 20);
     }
     setLoadingMore(false);
@@ -187,26 +160,12 @@ export default function HomePage() {
     return () => observer.disconnect();
   }, [loadMore]);
 
-  const recentLoopsRef = useRef<HTMLSpanElement>(null);
-  const hasAlignedRef = useRef(false);
-
-  useEffect(() => {
-    if (loading || hasAlignedRef.current) return;
-    const container = scrollContainerRef.current;
-    if (container) {
-      container.scrollTop = 0;
-      hasAlignedRef.current = true;
-    }
-  }, [loading]);
-
   const handleSend = async (text: string) => {
     const entryId = await createEntry({ content: text });
     if (entryId) navigate(`/chat/${entryId}`);
   };
 
   const handleImageSelected = async (imageDataUrl: string) => {
-    // For images, navigate to a new chat page that handles image validation
-    // We pass the image via router state since it's a one-time handoff
     navigate(`/chat/image`, { state: { prefillImage: imageDataUrl } });
   };
 
@@ -215,55 +174,47 @@ export default function HomePage() {
   }
 
   const groupedEntries = groupEntries(entries);
-  const firstGroup = groupedEntries[0]?.[0];
 
   return (
-    <div
-      className="flex h-full min-h-0 flex-col mesh-gradient-bg relative overflow-hidden isolate"
-    >
+    <div className="flex h-full min-h-0 flex-col mesh-gradient-bg relative overflow-hidden isolate">
+      <div
+        ref={scrollContainerRef}
+        className="flex min-h-0 flex-1 flex-col scroll-container relative"
+        style={{ paddingBottom: 'calc(var(--bottom-nav-height, calc(72px + env(safe-area-inset-bottom))) + 120px)' }}
+      >
+        {/* Ambient orb — painted into background, fades on scroll */}
+        <AmbientOrb
+          scrollProgress={scrollProgress}
+          onClick={() => navigate("/recording")}
+        />
 
-      <div ref={scrollContainerRef} className="flex min-h-0 flex-1 flex-col scroll-container px-5" style={{ paddingBottom: 'calc(var(--bottom-nav-height, calc(72px + env(safe-area-inset-bottom))) + 120px)' }}>
-        <div className="shrink-0 flex flex-col items-center justify-center relative" style={{ height: '100svh' }}>
-          <motion.p
-            animate={{ opacity: navigatingOut ? 0 : 1, y: navigatingOut ? -10 : 0 }}
-            transition={{ duration: 0.3 }}
-            className="absolute top-[16%] font-display text-3xl font-normal text-on-surface text-center w-full"
-          >
+        {/* Floating greeting text over the glow */}
+        <motion.div
+          className="relative z-10 flex flex-col items-center text-center px-5 pointer-events-none"
+          style={{ paddingTop: "12svh", opacity: greetingOpacity, y: greetingY }}
+        >
+          <p className="font-display text-3xl font-normal text-on-surface mb-2">
             {getGreeting()}
-          </motion.p>
-          <div className="flex flex-col items-center gap-5">
-            <VoiceOrb size="lg" onClick={handleNavigateToRecording} label={navigatingOut ? undefined : "START A LOOP"} layoutId="voice-orb" />
-            <motion.div
-              animate={{ opacity: navigatingOut ? 0 : 1, y: navigatingOut ? 10 : 0 }}
-              transition={{ duration: 0.3 }}
-              className="text-center space-y-1"
-            >
-              <h2 className="font-display text-xl text-on-surface leading-tight">
-                What's looping right now?
-              </h2>
-              <p className="font-display text-sm text-mint italic">
-                Your brain is full. Talk it out.
-              </p>
-            </motion.div>
+          </p>
+        </motion.div>
 
-            {/* Pulsating scroll arrow */}
-            <motion.div
-              animate={{ opacity: navigatingOut ? 0 : 1 }}
-              transition={{ duration: 0.2 }}
-              className="mt-4"
-            >
-              <motion.div
-                animate={{ y: [0, 6, 0] }}
-                transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-              >
-                <ChevronDown size={20} className="text-on-surface-variant/50" />
-              </motion.div>
-            </motion.div>
-          </div>
-        </div>
+        {/* Tagline below orb */}
+        <motion.div
+          className="relative z-10 flex flex-col items-center text-center px-5 pointer-events-none"
+          style={{ paddingTop: "32svh", opacity: greetingOpacity, y: greetingY }}
+        >
+          <h2 className="font-display text-xl text-on-surface leading-tight">
+            What's looping right now?
+          </h2>
+          <p className="font-display text-sm text-mint italic mt-1">
+            Your brain is full. Talk it out.
+          </p>
+          <span className="label-uppercase text-mint mt-3 text-[10px]">START A LOOP</span>
+        </motion.div>
 
-        <div className="space-y-3 pb-4 shrink-0">
-          <span ref={recentLoopsRef} className="label-uppercase">RECENT LOOPS</span>
+        {/* Loop cards — start at ~75% of first viewport, overlapping the glow */}
+        <div className="relative z-10 px-5 space-y-3 pb-4" style={{ marginTop: "12svh" }}>
+          <span className="label-uppercase">RECENT LOOPS</span>
           {loading ? (
             <div className="flex justify-center py-8">
               <ScribblingLogo size={24} />
@@ -280,7 +231,6 @@ export default function HomePage() {
             </motion.button>
           ) : entries.length === 0 ? (
             <motion.div
-              ref={emptyStateRef}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               className="rounded-2xl surface-low p-6 text-center space-y-3"
@@ -298,7 +248,6 @@ export default function HomePage() {
                   {groupItems.map((entry, i) => (
                     <motion.button
                       key={entry.id}
-                      ref={i === 0 && group === firstGroup ? firstEntryRef : undefined}
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: i * 0.04 }}
@@ -337,10 +286,8 @@ export default function HomePage() {
         </div>
       </div>
 
-      <motion.div
-        ref={chatInputRef}
-        animate={{ opacity: navigatingOut ? 0 : 1 }}
-        transition={{ duration: 0.25 }}
+      {/* Chat input */}
+      <div
         className="absolute left-0 right-0 z-40 px-0"
         style={{ bottom: 'max(var(--keyboard-height, 0px), calc(var(--bottom-nav-height, calc(72px + env(safe-area-inset-bottom))) + 12px))' }}
       >
@@ -350,7 +297,7 @@ export default function HomePage() {
           onVoice={() => navigate("/recording")}
           placeholder="Type your thoughts..."
         />
-      </motion.div>
+      </div>
     </div>
   );
 }

@@ -101,3 +101,62 @@ export function isLikelyWhisperHallucination(text: string): boolean {
     .trim();
   return WHISPER_HALLUCINATION_PHRASES.has(normalized);
 }
+
+/**
+ * Detect Whisper "stuck decoding" / repetition hallucinations.
+ *
+ * This is a separate failure mode from the artifact-phrase type above.
+ * Whisper's beam search can lock onto a single token when given silent,
+ * ambient, or very quiet audio, producing outputs like "la la la la..."
+ * or "you you you you..." for hundreds or thousands of tokens. The
+ * phrase-list check cannot catch these because the output is long and
+ * has no fixed form.
+ *
+ * Detection strategy (two independent signals, either triggers rejection):
+ *   1. Unique-token ratio < UNIQUE_TOKEN_RATIO_FLOOR
+ *      Normal human journaling speech has 40–70% unique words in a short
+ *      window. Stuck-decoding collapses this to under 5%.
+ *   2. Single most-frequent token makes up > DOMINANT_TOKEN_CEILING of
+ *      all tokens. Catches cases where the ratio is masked by a small
+ *      amount of variation ("la la la la uh la la la la").
+ *
+ * We intentionally only run this check on transcripts with at least
+ * MIN_WORDS_FOR_REPETITION_CHECK words — short entries can legitimately
+ * repeat themselves ("I don't know I don't know I don't know") and we
+ * don't want to reject valid emotional expression.
+ *
+ * Reference: OpenAI's own Whisper decoder uses a `compression_ratio`
+ * threshold (default 2.4) internally to detect this failure mode and
+ * trigger retry at a higher temperature. The unique-token-ratio check
+ * is a simpler client-side approximation.
+ */
+const UNIQUE_TOKEN_RATIO_FLOOR = 0.15;
+const DOMINANT_TOKEN_CEILING = 0.5;
+const MIN_WORDS_FOR_REPETITION_CHECK = 20;
+
+export function isRepetitiveHallucination(text: string): boolean {
+  const words = text
+    .trim()
+    .toLowerCase()
+    .replace(/[.,!?;:]/g, "")
+    .split(/\s+/)
+    .filter(Boolean);
+
+  if (words.length < MIN_WORDS_FOR_REPETITION_CHECK) return false;
+
+  const unique = new Set(words);
+  const uniqueRatio = unique.size / words.length;
+  if (uniqueRatio < UNIQUE_TOKEN_RATIO_FLOOR) return true;
+
+  const frequency = new Map<string, number>();
+  let maxFreq = 0;
+  for (const word of words) {
+    const next = (frequency.get(word) ?? 0) + 1;
+    frequency.set(word, next);
+    if (next > maxFreq) maxFreq = next;
+  }
+  const dominantRatio = maxFreq / words.length;
+  if (dominantRatio > DOMINANT_TOKEN_CEILING) return true;
+
+  return false;
+}

@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { MicOff, Pause, Play, RotateCcw, Square } from "lucide-react";
-import { Waveform } from "@/components/Waveform";
+
 import { FullScreenLoader } from "@/components/FullScreenLoader";
 import { useAudioRecorder } from "@/hooks/useAudioRecorder";
 import { useAudioAnalyser } from "@/hooks/useAudioAnalyser";

@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Settings } from "lucide-react";
 import { ScribblingLogo } from "@/components/LoopLogo";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -115,10 +115,13 @@ export default function JournalPage() {
         className="flex-1 scroll-container px-5 space-y-10 pt-6"
         style={{ paddingBottom: 'calc(var(--bottom-nav-height, calc(72px + env(safe-area-inset-bottom))) + 32px)' }}
       >
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex items-center justify-between">
           <h1 className="font-display text-3xl text-on-surface leading-tight tracking-tight">
             Journal
           </h1>
+          <button onClick={() => navigate("/profile")} className="text-on-surface-variant">
+            <Settings size={20} />
+          </button>
         </motion.div>
 
         {loading ? (

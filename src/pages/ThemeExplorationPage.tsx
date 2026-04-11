@@ -439,30 +439,35 @@ export default function ThemeExplorationPage() {
             )}
 
 
-            {/* Inline input */}
-            <div className="flex items-center gap-2 rounded-xl surface-high px-4 py-3 border border-border/20">
-              <input
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && askQuestion(input)}
-                placeholder="Type your own reflection..."
-                className="flex-1 bg-transparent text-on-surface placeholder:text-on-surface-variant text-sm outline-none"
-              />
-              <button
-                onClick={() => askQuestion(input)}
-                disabled={!input.trim() || askingQuestion}
-                className="w-7 h-7 rounded-full orb-gradient flex items-center justify-center disabled:opacity-50"
-              >
-                {askingQuestion ? (
-                  <ScribblingLogo size={14} />
-                ) : (
-                  <ArrowUp size={14} className="text-primary-foreground" />
-                )}
-              </button>
-            </div>
-
           </div>
         </motion.div>
+      </div>
+
+      {/* Fixed input above keyboard/nav */}
+      <div
+        className="absolute left-0 right-0 z-40 px-5 pb-2"
+        style={{ bottom: 'max(var(--keyboard-height, 0px), calc(var(--bottom-nav-height, calc(72px + env(safe-area-inset-bottom))) + 12px))' }}
+      >
+        <div className="flex items-center gap-2 rounded-xl surface-high px-4 py-3 border border-border/20">
+          <input
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && askQuestion(input)}
+            placeholder="Type your own reflection..."
+            className="flex-1 bg-transparent text-on-surface placeholder:text-on-surface-variant text-sm outline-none"
+          />
+          <button
+            onClick={() => askQuestion(input)}
+            disabled={!input.trim() || askingQuestion}
+            className="w-7 h-7 rounded-full orb-gradient flex items-center justify-center disabled:opacity-50"
+          >
+            {askingQuestion ? (
+              <ScribblingLogo size={14} />
+            ) : (
+              <ArrowUp size={14} className="text-primary-foreground" />
+            )}
+          </button>
+        </div>
       </div>
     </div>
   );

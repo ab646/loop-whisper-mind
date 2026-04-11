@@ -5,7 +5,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 interface ChatInputProps {
   onSend: (text: string, imageUrl?: string) => void;
   onImageSelected?: (imageDataUrl: string) => void;
-  onVoice: () => void;
+  onVoice?: () => void;
   placeholder?: string;
   defaultValue?: string;
   /** Controlled value – when provided, component is fully controlled. */

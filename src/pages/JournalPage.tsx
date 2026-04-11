@@ -113,7 +113,7 @@ export default function JournalPage() {
   return (
     <div className="h-full min-h-0 mesh-gradient-bg flex flex-col overflow-hidden relative">
       <div
-        className="flex-1 min-h-0 scroll-container px-5 flex flex-col gap-10 pt-6"
+        className="flex-1 min-h-0 scroll-container px-5 flex flex-col gap-6 pt-4"
         style={{ paddingBottom: 'calc(var(--bottom-nav-height, calc(72px + env(safe-area-inset-bottom))) + 32px)' }}
       >
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
@@ -139,7 +139,7 @@ export default function JournalPage() {
           </motion.div>
         ) : (
           grouped.map(([group, items]) => (
-            <div key={group} className="space-y-3">
+            <div key={group} className="space-y-2">
               {/* Day header */}
               <h2 className="font-display text-xl font-semibold">
                 {group.includes(", ") ? (
@@ -153,7 +153,7 @@ export default function JournalPage() {
               </h2>
 
               {/* Entry cards */}
-              <div className="space-y-3">
+              <div className="space-y-2">
                 {items.map((entry, i) => (
                   <motion.button
                     key={entry.id}
@@ -163,8 +163,8 @@ export default function JournalPage() {
                     onClick={() => navigate(`/journal/${entry.id}`)}
                     className="w-full text-left rounded-2xl surface-low border border-border/10 overflow-hidden"
                   >
-                    {/* Header — single row: icon + JOURNAL + Summary + time */}
-                    <div className="flex items-center gap-2.5 px-4 py-3">
+                    {/* Header — time + chevron */}
+                    <div className="flex items-center gap-2.5 px-4 pt-3 pb-1">
                       <span className="text-on-surface-variant/60 text-xs font-body shrink-0">
                         {new Date(entry.createdAt).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}
                       </span>
@@ -177,9 +177,6 @@ export default function JournalPage() {
                         {entry.displayContent || entry.content.substring(0, 300)}
                       </p>
                     </div>
-
-
-
                   </motion.button>
                 ))}
               </div>

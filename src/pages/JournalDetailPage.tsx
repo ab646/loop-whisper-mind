@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowLeft, MoreVertical, Trash2, ArrowUp } from "lucide-react";
+import { getCountryCode } from "@/lib/locale";
 import { ReflectionCard } from "@/components/ReflectionCard";
 import { CyclingLoader } from "@/components/CyclingLoader";
 import { FullScreenLoader } from "@/components/FullScreenLoader";

@@ -1,11 +1,15 @@
 import { motion } from "framer-motion";
-import { KeyRound, Download, Trash2, LogOut } from "lucide-react";
+import { KeyRound, Download, Trash2, LogOut, Bell } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { Switch } from "@/components/ui/switch";
 import DeleteAccountDialog from "@/components/DeleteAccountDialog";
+import { scheduleAdaptiveNotification } from "@/lib/adaptive-notifications";
+import { Capacitor } from "@capacitor/core";
+import { LocalNotifications } from "@capacitor/local-notifications";
 
 export default function ProfilePage() {
   const navigate = useNavigate();
@@ -17,7 +21,56 @@ export default function ProfilePage() {
   const [exporting, setExporting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [notificationsEnabled, setNotificationsEnabled] = useState(false);
+  const [notificationsLoading, setNotificationsLoading] = useState(false);
+  const isNative = Capacitor.isNativePlatform();
 
+  useEffect(() => {
+    if (profile) {
+      setNotificationsEnabled((profile as any).notifications_enabled ?? false);
+    }
+  }, [profile]);
+
+  const handleToggleNotifications = async (enabled: boolean) => {
+    if (!user) return;
+    setNotificationsLoading(true);
+
+    if (enabled && isNative) {
+      const permResult = await LocalNotifications.requestPermissions();
+      if (permResult.display !== "granted") {
+        toast.error("Please enable notifications in your device settings");
+        setNotificationsLoading(false);
+        return;
+      }
+    }
+
+    const { error } = await supabase
+      .from("profiles")
+      .update({ notifications_enabled: enabled } as any)
+      .eq("user_id", user.id);
+
+    if (error) {
+      toast.error("Failed to update notification preference");
+      setNotificationsLoading(false);
+      return;
+    }
+
+    setNotificationsEnabled(enabled);
+
+    if (enabled && isNative) {
+      await scheduleAdaptiveNotification();
+      toast.success("Notifications enabled");
+    } else if (!enabled && isNative) {
+      await LocalNotifications.cancel({ notifications: [{ id: 1001 }] }).catch(() => {});
+      toast.success("Notifications disabled");
+    } else if (enabled && !isNative) {
+      toast.success("Notifications will activate on the mobile app");
+    } else {
+      toast.success("Notifications disabled");
+    }
+
+    setNotificationsLoading(false);
+  };
   const handleChangePassword = async () => {
     if (newPassword.length < 6) {
       toast.error("Password must be at least 6 characters");
@@ -128,6 +181,28 @@ export default function ProfilePage() {
 
         {/* Actions */}
         <div className="space-y-3">
+          {/* Notifications */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.03 }}
+            className="w-full rounded-2xl surface-low p-5 flex items-center justify-between"
+          >
+            <div className="flex items-center gap-3">
+              <Bell size={18} className="text-on-surface-variant" />
+              <div>
+                <span className="text-on-surface text-sm font-semibold">Daily Reminders</span>
+                <p className="text-on-surface-variant text-xs mt-0.5">
+                  {isNative ? "Get a gentle nudge to reflect" : "Available on the mobile app"}
+                </p>
+              </div>
+            </div>
+            <Switch
+              checked={notificationsEnabled}
+              onCheckedChange={handleToggleNotifications}
+              disabled={notificationsLoading}
+            />
+          </motion.div>
           {/* Change Password */}
           <motion.button
             initial={{ opacity: 0, y: 10 }}

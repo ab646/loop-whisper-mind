@@ -84,6 +84,7 @@ export type Database = {
           display_name: string | null
           id: string
           mantra: string | null
+          notifications_enabled: boolean
           onboarding_complete: boolean
           updated_at: string
           urgency_filter: boolean
@@ -96,6 +97,7 @@ export type Database = {
           display_name?: string | null
           id?: string
           mantra?: string | null
+          notifications_enabled?: boolean
           onboarding_complete?: boolean
           updated_at?: string
           urgency_filter?: boolean
@@ -108,6 +110,7 @@ export type Database = {
           display_name?: string | null
           id?: string
           mantra?: string | null
+          notifications_enabled?: boolean
           onboarding_complete?: boolean
           updated_at?: string
           urgency_filter?: boolean

@@ -61,7 +61,7 @@ export default function JournalDetailPage() {
   const [loading, setLoading] = useState(true);
 
   // Exploration wizard state
-  const [explorationMessages, setExplorationMessages] = useState<{ role: "user" | "ai"; content: string }[]>([]);
+  const [explorationMessages, setExplorationMessages] = useState<{ role: "user" | "ai" | "guard"; content: string; guardClass?: string }[]>([]);
   const [explorationInput, setExplorationInput] = useState("");
   const [inputFocused, setInputFocused] = useState(false);
   const [explorationLoading, setExplorationLoading] = useState(false);

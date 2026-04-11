@@ -1,0 +1,1 @@
+ALTER TABLE public.profiles ALTER COLUMN notifications_enabled SET DEFAULT true;

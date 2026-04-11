@@ -164,16 +164,16 @@ async function aiClassify(content: string): Promise<InputClass> {
 // ---------------------------------------------------------------------------
 
 const HOSTILE_MESSAGE =
-  "I'm not going to read this as a loop — it doesn't sound like one. If you're frustrated with me or with Loop, that's fair. When you're ready, tell me what's actually on your mind and I'll meet you there.";
+  "Not a loop — just heat. Come back when there's a thought you can't put down.";
 
 const META_MESSAGE =
-  "That's a question about the app, not a loop. I'm built for one thing: helping you see the shape of a thought you can't put down. Try sharing what's actually rattling around right now.";
+  "That's a question about the app, not a loop. Tell me what's actually rattling around.";
 
 const TOO_THIN_MESSAGE =
-  "There's not quite enough here for me to see what's looping. Try saying a bit more — even one extra sentence about what's going on or how it feels.";
+  "Not enough here to see what's looping. Say a bit more.";
 
 const CRISIS_MESSAGE =
-  "What you just shared sounds heavy, and I'm not the right tool for this moment. Please reach out to a person — a crisis line, a clinician, or someone you trust — right now.";
+  "This sounds heavy, and I'm not the right tool for it. Please reach out to a person right now.";
 
 function messageFor(cls: InputClass): string | undefined {
   switch (cls) {

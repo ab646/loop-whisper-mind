@@ -156,12 +156,17 @@ export function ReflectionCard({ mainLoop, feelings, knownVsAssumed, repeatingPa
 
       {/* Tags */}
       {tags && tags.length > 0 && (
-        <div className="flex flex-wrap gap-2 pt-2">
-          {tags.map((tag) => (
-            <span key={tag} className="tag-pill">
-              {tag.replace(/_/g, " ").trim().toLowerCase().replace(/^\w/, (char) => char.toUpperCase())}
-            </span>
-          ))}
+        <div className="space-y-2.5 pt-2">
+          {tags.map((tag) => {
+            const Icon = getTagIcon(tag);
+            const label = tag.replace(/_/g, " ").trim().toLowerCase().replace(/^\w/, (char) => char.toUpperCase());
+            return (
+              <div key={tag} className="flex items-center gap-3">
+                <Icon size={18} className="text-mint shrink-0" />
+                <span className="text-on-surface text-sm font-body">{label}</span>
+              </div>
+            );
+          })}
         </div>
       )}
 

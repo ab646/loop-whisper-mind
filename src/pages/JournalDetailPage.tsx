@@ -300,7 +300,7 @@ export default function JournalDetailPage() {
       {reflection && (
         <div
           className="absolute inset-x-0 z-[60] w-full max-w-md mx-auto px-4"
-          style={{ bottom: 'max(var(--keyboard-height, 0px), calc(var(--bottom-nav-height, calc(72px + env(safe-area-inset-bottom))) + 12px))' }}
+          style={{ bottom: 'max(var(--keyboard-height, 0px), calc(var(--bottom-nav-height, calc(72px + env(safe-area-inset-bottom))) + 16px))' }}
         >
           <motion.div
             layout

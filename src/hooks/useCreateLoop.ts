@@ -62,6 +62,22 @@ export function useCreateLoop() {
       });
 
       if (error) throw error;
+
+      // Handle input guard responses (crisis, hostile, meta, too_thin)
+      if (data?.guard) {
+        if (data.guard.class === "crisis") {
+          // Navigate to a crisis response — don't show as error
+          setLoading(false);
+          return null; // HomePage will need to handle crisis card separately
+        }
+        // For hostile, meta_or_scope, too_thin — show the soft message
+        toast(data.guard.message || "Try sharing a bit more about what's on your mind.", {
+          duration: 5000,
+        });
+        setLoading(false);
+        return null;
+      }
+
       if (data?.error) {
         toast.error(data.error);
         setLoading(false);

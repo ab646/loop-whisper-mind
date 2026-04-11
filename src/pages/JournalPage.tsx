@@ -167,6 +167,7 @@ export default function JournalPage() {
                       <span className="text-on-surface-variant/60 text-xs font-body shrink-0">
                         {new Date(entry.createdAt).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}
                       </span>
+                      <ArrowUpRight className="ml-auto text-on-surface-variant/40 shrink-0" size={16} />
                     </div>
 
                     {/* Summary content */}

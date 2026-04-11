@@ -159,10 +159,13 @@ export default function JournalDetailPage() {
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="shrink-0 text-center pt-4 pb-6 space-y-0.5"
+        className="shrink-0 text-center pt-4 pb-6 space-y-1.5 flex flex-col items-center"
       >
         <p className="text-on-surface-variant text-[10px] tracking-[0.2em] uppercase font-semibold">{dayLabel}</p>
         <h1 className="font-display text-2xl text-on-surface">{weekday}</h1>
+        <span className="mt-1 inline-block rounded-full surface-low border border-border/20 px-3 py-0.5 text-on-surface-variant text-[10px] tracking-wider uppercase font-semibold">
+          {date.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}
+        </span>
       </motion.div>
 
       {/* Scrollable content */}
@@ -175,12 +178,9 @@ export default function JournalDetailPage() {
           transition={{ delay: 0.05 }}
           className="rounded-2xl surface-low p-5 space-y-3 border border-border/10"
         >
-          <div className="flex items-center justify-between">
+          <div className="flex items-center">
             <span className="label-uppercase text-mint">
               {entry.entryType === "voice" ? "Voice Entry" : "Journal"}
-            </span>
-            <span className="text-on-surface-variant text-[10px] tracking-wider uppercase font-semibold">
-              {date.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}
             </span>
           </div>
           <div className="space-y-3">

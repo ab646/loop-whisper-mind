@@ -79,8 +79,13 @@ export default function ProfilePage() {
     setNotificationsEnabled(enabled);
 
     if (enabled && isNative) {
-      await scheduleAdaptiveNotification();
-      toast.success("Notifications enabled");
+      const time = await scheduleAdaptiveNotification();
+      if (time) {
+        const timeStr = `${String(time.hour).padStart(2, "0")}:${String(time.minute).padStart(2, "0")}`;
+        toast.success(`Daily reminder set for ${timeStr}`);
+      } else {
+        toast.success("Notifications enabled");
+      }
     } else if (!enabled && isNative) {
       await LocalNotifications.cancel({ notifications: [{ id: 1001 }] }).catch(() => {});
       toast.success("Notifications disabled");

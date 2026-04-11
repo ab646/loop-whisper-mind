@@ -1,33 +1,45 @@
 
 
-## Problem
+## Redesign: Fact vs Story Section
 
-The onboarding bottom buttons (Continue/Back) aren't properly pinned to the bottom on iOS. The root layout uses `h-screen` (100vh), which on iOS Safari/Capacitor includes the area behind the status bar and home indicator, causing miscalculation. Additionally, the content area for Screen 3 ("Patterns emerge") has significant content that can push buttons offscreen — the `scroll-container` class allows scrolling but the `justify-center` on the flex parent fights against it when content overflows.
+The current layout stacks Fact and Story vertically in a collapsible, which makes it feel like a list rather than a meaningful contrast. The goal is to make the **tension between what happened and what you told yourself** visually immediate.
 
-## Plan
+### Approach: Side-by-Side Contrast Cards
 
-### File: `src/pages/OnboardingPage.tsx`
+Replace the vertical list with two side-by-side cards on desktop (stacked on mobile) that visually oppose each other using color, shape, and typography.
 
-1. **Replace `h-screen` with `h-[100dvh]`** on the outer container — `dvh` (dynamic viewport height) correctly accounts for iOS browser chrome and home indicator, unlike `100vh`.
+### Design
 
-2. **Change content area from `justify-center` to `justify-start pt-8` for seed/text steps, keep `justify-center` for explain steps** — or simpler: switch to `overflow-y-auto` with content that naturally fills from top, using `my-auto` on the inner motion.div to center when content is short, but allowing scroll when it's tall.
+```text
+┌─────────────────────────────────────────────┐
+│  FACT VS STORY                          ▾   │
+│                                             │
+│  ┌── mint border ──────┐ ┌── purple border ─┐│
+│  │  FACT               │ │  STORY           ││
+│  │                     │ │                  ││
+│  │  • You feel raw     │ │  People are      ││
+│  │    and tired        │ │  pushing you     ││
+│  │                     │ │  away            ││
+│  │  • Social inter-    │ │                  ││
+│  │    actions felt     │ │  You are "too    ││
+│  │    different        │ │  much"           ││
+│  └─────────────────────┘ └──────────────────┘│
+└─────────────────────────────────────────────┘
+```
 
-3. **Restructure the content area**: Change `flex-1 min-h-0 flex flex-col justify-center` to `flex-1 min-h-0 overflow-y-auto` and let content center itself via auto margins. This ensures:
-   - Short content (explain screens 1, 2, name input) centers vertically
-   - Tall content (explain screen 3, seed selection with textarea) scrolls without pushing buttons off-screen
+- **Fact card**: Subtle mint/teal tinted background, solid mint left border, normal weight text
+- **Story card**: Subtle purple/lavender tinted background, solid purple left border, italic text
+- On mobile (<640px): stack vertically with a subtle "vs" divider between them
+- Keep the collapsible accordion behavior (collapsed by default)
 
-4. **Bottom container**: Keep `shrink-0` with safe-area padding. Add a subtle top border or background to visually separate it from scrollable content above.
+### Changes
 
-### Technical Details
+**File: `src/components/ReflectionCard.tsx`**
+- Replace the Fact vs Story content inside `CollapsibleSection` (lines 115-135)
+- Use a `grid grid-cols-1 sm:grid-cols-2 gap-3` layout
+- Fact card: `rounded-xl bg-mint/5 border border-mint/20 p-4` with mint dot bullets
+- Story card: `rounded-xl bg-tertiary/5 border border-tertiary/20 p-4` with left-border accent on each item, italic text
+- Remove the vertical stacking and add the two-panel layout
 
-- `h-[100dvh]` is well-supported on iOS 15.4+ and all modern browsers
-- The `min-h-0` on the content flex child is critical — it allows the child to shrink below its content size, enabling overflow scroll
-- Each explain screen's content will get `min-h-full flex flex-col justify-center` wrapper so short screens still center, while Screen 3 can scroll
-
-### Screens Affected
-- **Screen 1 (You talk)**: Short content, will center — no issue
-- **Screen 2 (Loop reflects)**: Medium content, will center — no issue  
-- **Screen 3 (Patterns emerge)**: Tall content, will scroll within the area above the fixed buttons
-- **Screen 4 (Name input)**: Short content, centers — keyboard handling already in place
-- **Screen 5 (Seed selection)**: Medium-tall content, may need scroll when "Something else" textarea is open
+No backend or database changes needed. Single file edit.
 

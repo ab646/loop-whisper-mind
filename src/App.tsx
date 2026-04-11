@@ -14,7 +14,7 @@ import { StatusBar, Style } from "@capacitor/status-bar";
 import { supabase } from "@/integrations/supabase/client";
 import { scheduleAdaptiveNotification } from "@/lib/adaptive-notifications";
 import HomePage from "./pages/HomePage";
-import ChatPage from "./pages/ChatPage";
+
 import RecordingPage from "./pages/RecordingPage";
 import InsightsPage from "./pages/InsightsPage";
 import ThemeExplorationPage from "./pages/ThemeExplorationPage";
@@ -88,7 +88,7 @@ function AppRoutes() {
 
           {/* Protected */}
           <Route path="/" element={<ProtectedRoute><HomePage /></ProtectedRoute>} />
-          <Route path="/chat/:id" element={<ProtectedRoute><ChatPage /></ProtectedRoute>} />
+          
           <Route path="/recording" element={<ProtectedRoute><RecordingPage /></ProtectedRoute>} />
           <Route path="/journal" element={<ProtectedRoute><JournalPage /></ProtectedRoute>} />
           <Route path="/journal/:id" element={<ProtectedRoute><JournalDetailPage /></ProtectedRoute>} />

@@ -30,7 +30,7 @@ interface Reflection {
   repeatingPattern: string | null;
   temporalShift: string | null;
   oneQuestion: string;
-  tags: string[];
+  tags: (string | { label: string; icon: string })[];
   // Candidate 7th loop type — health/somatic anxiety (Salkovskis & Warwick, 1986).
   // Tracked as a soft detector flag while we measure how common these loops are
   // before promoting it to a first-class loopType. See Notion: AI Intelligence Layer.

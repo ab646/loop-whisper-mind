@@ -237,7 +237,7 @@ export default function RecordingPage() {
         analytics.reflectionReceived({ responseTimeMs: Date.now() - reflectStart, entryId, entryType: "voice" });
         analytics.entrySaved(entryId);
         recalculateAfterEntry();
-        navigate(`/chat/${entryId}`);
+        navigate(`/journal/${entryId}`);
       } else {
         navigate(-1);
       }

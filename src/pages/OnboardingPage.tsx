@@ -113,7 +113,7 @@ export default function OnboardingPage() {
       const entryId = await createEntry({ content: initialText });
       setLoading(false);
       if (entryId) {
-        navigate(`/chat/${entryId}`);
+        navigate(`/journal/${entryId}`);
       } else {
         navigate("/");
       }

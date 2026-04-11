@@ -4,7 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import DeleteAccountDialog from "@/components/DeleteAccountDialog";
 
 export default function ProfilePage() {
@@ -17,7 +17,6 @@ export default function ProfilePage() {
   const [exporting, setExporting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
-
 
   const handleChangePassword = async () => {
     if (newPassword.length < 6) {
@@ -40,7 +39,6 @@ export default function ProfilePage() {
     }
   };
 
-  // Fix #15: Include reflections in data export
   const handleExportData = async () => {
     if (!user) return;
     setExporting(true);
@@ -84,7 +82,6 @@ export default function ProfilePage() {
     toast.success("Data exported");
   };
 
-  // Fix #14: Delete account via edge function (removes auth user too)
   const handleDeleteAccount = async (reason: string, details: string) => {
     if (!user) return;
     setDeleting(true);
@@ -129,55 +126,6 @@ export default function ProfilePage() {
 
         {/* Actions */}
         <div className="space-y-3">
-          {/* Notifications */}
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.03 }}
-            className="w-full rounded-2xl surface-low p-5 flex items-center justify-between"
-          >
-            <div className="flex items-center gap-3">
-              <Bell size={18} className="text-on-surface-variant" />
-              <span className="text-on-surface text-sm font-semibold">Daily Reminders</span>
-            </div>
-            <Switch
-              checked={notificationsEnabled}
-              onCheckedChange={handleToggleNotifications}
-              disabled={notificationsLoading}
-            />
-          </motion.div>
-
-          {/* Permission denied banner */}
-          <AnimatePresence>
-            {permissionDenied && isNative && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                exit={{ opacity: 0, height: 0 }}
-                className="rounded-2xl surface-low border border-destructive/20 p-5 space-y-3"
-              >
-                <div className="flex items-start gap-3">
-                  <Bell size={18} className="text-destructive shrink-0 mt-0.5" />
-                  <div className="space-y-1">
-                    <p className="text-on-surface text-sm font-semibold">
-                      Notifications are blocked
-                    </p>
-                    <p className="text-on-surface-variant text-xs leading-relaxed">
-                      You previously denied notification access. To receive daily reminders, re-enable them in your device settings.
-                    </p>
-                  </div>
-                </div>
-                <button
-                  onClick={openAppSettings}
-                  className="w-full flex items-center justify-center gap-2 rounded-xl surface-high border border-border/20 py-3 text-mint text-sm font-semibold"
-                >
-                  <Settings size={16} />
-                  Open Settings
-                </button>
-              </motion.div>
-            )}
-          </AnimatePresence>
-
           {/* Change Password */}
           <motion.button
             initial={{ opacity: 0, y: 10 }}

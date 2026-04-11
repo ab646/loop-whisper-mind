@@ -19,6 +19,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCreateLoop } from "@/hooks/useCreateLoop";
 import { toast } from "sonner";
+import { CrisisCard, CrisisResources } from "@/components/CrisisCard";
+import { useLocation } from "react-router-dom";
 
 interface EntryPreview {
   id: string;
@@ -65,6 +67,7 @@ function groupEntries(entries: EntryPreview[]): [string, EntryPreview[]][] {
 
 export default function HomePage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { session, profile } = useAuth();
   const { createEntry, loading: creatingLoop } = useCreateLoop();
   const [entries, setEntries] = useState<EntryPreview[]>([]);
@@ -79,9 +82,16 @@ export default function HomePage() {
   const emptyStateRef = useRef<HTMLDivElement>(null);
   const chatInputRef = useRef<HTMLDivElement>(null);
   const [navigatingOut, setNavigatingOut] = useState(false);
+  const [crisisData, setCrisisData] = useState<{ message: string; resources: CrisisResources } | null>(null);
 
   useEffect(() => {
     setNavigatingOut(false);
+    // Check if we arrived here with crisis data from RecordingPage
+    if (location.state?.crisis) {
+      setCrisisData(location.state.crisis);
+      // Clear the state so it doesn't persist on refresh
+      window.history.replaceState({}, "");
+    }
   }, []);
 
   const handleNavigateToRecording = () => {
@@ -202,7 +212,11 @@ export default function HomePage() {
 
   const handleSend = async (text: string) => {
     const result = await createEntry({ content: text });
-    if (result?.entryId) navigate(`/journal/${result.entryId}`);
+    if (result?.guard?.class === "crisis" && result.guard.resources) {
+      setCrisisData({ message: result.guard.message, resources: result.guard.resources });
+    } else if (result?.entryId) {
+      navigate(`/journal/${result.entryId}`);
+    }
   };
 
   const [imageProcessing, setImageProcessing] = useState(false);
@@ -253,6 +267,25 @@ export default function HomePage() {
       setImageProcessing(false);
     }
   };
+
+  if (crisisData) {
+    return (
+      <div className="h-screen mesh-gradient-bg flex flex-col items-center justify-center px-5">
+        <div className="w-full max-w-md space-y-6">
+          <CrisisCard message={crisisData.message} resources={crisisData.resources} />
+          <motion.button
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3 }}
+            onClick={() => setCrisisData(null)}
+            className="w-full text-center text-on-surface-variant text-sm py-3"
+          >
+            Return to Loop
+          </motion.button>
+        </div>
+      </div>
+    );
+  }
 
   if (creatingLoop || imageProcessing) {
     return <FullScreenLoader mode="reflection" />;

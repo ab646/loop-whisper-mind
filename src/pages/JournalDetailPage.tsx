@@ -219,16 +219,6 @@ export default function JournalDetailPage() {
             transition={{ delay: 0.25 }}
             className="space-y-4"
           >
-            <div className="flex items-start gap-3">
-              <div className="w-8 h-8 rounded-full orb-gradient flex items-center justify-center shrink-0">
-                <span className="text-primary-foreground text-xs">✦</span>
-              </div>
-              <div>
-                <p className="text-on-surface-variant text-sm">
-                  Want to go deeper? Ask a follow-up, or add more context.
-                </p>
-              </div>
-            </div>
 
             <div className="rounded-2xl surface-low p-4 space-y-3">
               {explorationMessages.map((msg, i) => (

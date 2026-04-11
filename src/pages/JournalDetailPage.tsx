@@ -160,7 +160,7 @@ export default function JournalDetailPage() {
   };
 
   if (loading) return <FullScreenLoader mode="reflection" />;
-  if (!entry) return <div className="h-screen mesh-gradient-bg flex items-center justify-center"><p className="text-on-surface-variant">Entry not found</p></div>;
+  if (!entry) return <div className="h-[100dvh] mesh-gradient-bg flex items-center justify-center"><p className="text-on-surface-variant">Entry not found</p></div>;
 
   const date = new Date(entry.createdAt);
   const dayLabel = date.toLocaleDateString("en-US", { day: "numeric", month: "long" }).toUpperCase();

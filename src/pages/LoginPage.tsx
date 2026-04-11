@@ -137,7 +137,7 @@ export default function LoginPage() {
 
   if (showConfirmation) {
     return (
-      <div className="h-screen mesh-gradient-bg flex flex-col items-center justify-center px-6 overflow-hidden">
+      <div className="h-[100dvh] mesh-gradient-bg flex flex-col items-center justify-center px-6 overflow-hidden" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

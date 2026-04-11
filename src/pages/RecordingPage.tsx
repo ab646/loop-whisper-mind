@@ -108,7 +108,11 @@ export default function RecordingPage() {
               whileTap={{ scale: 0.95 }}
               onClick={async () => {
                 if (Capacitor.isNativePlatform()) {
-                  window.location.href = "app-settings:";
+                  try {
+                    await NativeSettings.openIOS({ option: IOSSettings.App });
+                  } catch {
+                    toast.error("Couldn't open settings");
+                  }
                   return;
                 }
 

@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { KeyRound, Download, Trash2, LogOut, Bell, ExternalLink, LifeBuoy, Settings } from "lucide-react";
+import { KeyRound, Download, Trash2, LogOut, ExternalLink, LifeBuoy } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";

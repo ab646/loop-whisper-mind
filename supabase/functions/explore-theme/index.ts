@@ -54,33 +54,44 @@ serve(async (req) => {
     if (!theme) return errorResponse(req, "Theme required", 400);
 
     // ---------------------------------------------------------------
-    // INPUT GUARD — only run on follow-up questions. The unprompted
-    // theme analysis path has no user free-text input to classify.
+    // INPUT GUARD — follow-up questions only.
+    //
+    // A follow-up like "what should I do?" is NOT fresh journal content.
+    // It's a short question about the theme/entry we're already exploring,
+    // so the classifier's `too_thin` and `meta_or_scope` classes don't
+    // apply here — they'd incorrectly reject legitimate follow-ups with
+    // "Not enough here to see what's looping."
+    //
+    // We still gate on `crisis` (safety) and `hostile` (abuse). Everything
+    // else falls through to the theme analyzer, which has the full context
+    // of the theme + entries to ground its answer.
     // ---------------------------------------------------------------
     if (question?.trim()) {
       const guard = await classifyInput(question, { countryCode });
-      if (guard.class !== "journal") {
-        if (guard.class === "crisis") {
-          console.warn("[explore-theme] crisis classification", {
-            userId,
-            source: guard.source,
-            preview: question.substring(0, 80),
-          });
-          return jsonResponse(req, {
-            guard: {
-              class: guard.class,
-              message: guard.message,
-              resources: {
-                helpline: {
-                  ...CRISIS_RESOURCES.primary,
-                  url: buildHelplineUrl(countryCode),
-                },
-                us: CRISIS_RESOURCES.us,
-                emergency: CRISIS_RESOURCES.emergency,
+
+      if (guard.class === "crisis") {
+        console.warn("[explore-theme] crisis classification", {
+          userId,
+          source: guard.source,
+          preview: question.substring(0, 80),
+        });
+        return jsonResponse(req, {
+          guard: {
+            class: guard.class,
+            message: guard.message,
+            resources: {
+              helpline: {
+                ...CRISIS_RESOURCES.primary,
+                url: buildHelplineUrl(countryCode),
               },
+              us: CRISIS_RESOURCES.us,
+              emergency: CRISIS_RESOURCES.emergency,
             },
-          });
-        }
+          },
+        });
+      }
+
+      if (guard.class === "hostile") {
         return jsonResponse(req, {
           guard: {
             class: guard.class,
@@ -88,6 +99,9 @@ serve(async (req) => {
           },
         });
       }
+
+      // too_thin / meta_or_scope / journal → proceed. The theme analyzer
+      // grounds the answer in the existing theme + entries context.
     }
 
     const normalizedTheme = theme.trim();

@@ -76,7 +76,7 @@ export default function RecordingPage() {
 
   if (micDenied) {
     return (
-      <div className="flex flex-col h-screen mesh-gradient-bg relative overflow-hidden">
+      <div className="flex flex-col h-[100dvh] mesh-gradient-bg relative overflow-hidden" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
         <div className="flex-1 flex flex-col items-center justify-center gap-6 px-8 relative z-10">
           <div className="w-20 h-20 rounded-full surface-high border border-border/30 flex items-center justify-center">
             <MicOff size={32} className="text-on-surface-variant" />
@@ -267,7 +267,7 @@ export default function RecordingPage() {
   const avgLevel = levels.reduce((a, b) => a + b, 0) / (levels.length || 1);
 
   return (
-    <div className="flex flex-col h-screen mesh-gradient-bg relative overflow-hidden">
+    <div className="flex flex-col h-[100dvh] mesh-gradient-bg relative overflow-hidden" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
       <div className="flex-1 flex flex-col items-center relative z-10">
         {/* Top text area — positioned to match homepage layout */}
         <div className="flex flex-col items-center mt-auto mb-6">

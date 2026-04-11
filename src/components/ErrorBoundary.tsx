@@ -41,7 +41,7 @@ export class ErrorBoundary extends Component<Props, State> {
               }}
               className="px-6 py-2 rounded-full orb-gradient text-primary-foreground text-sm font-semibold"
             >
-              Back to home
+              Return to Loop
             </button>
           </div>
         </div>

@@ -261,17 +261,17 @@ export default function ProfilePage() {
             <span className="text-on-surface-variant">›</span>
           </motion.button>
 
-          {/* Delete Account */}
+          {/* Sign Out */}
           <motion.button
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.15 }}
-            onClick={() => setShowDeleteConfirm(true)}
+            onClick={handleSignOut}
             className="w-full rounded-2xl surface-low p-5 flex items-center justify-between"
           >
             <div className="flex items-center gap-3">
-              <Trash2 size={18} className="text-destructive" />
-              <span className="text-destructive text-sm font-semibold">Delete Account</span>
+              <LogOut size={18} className="text-on-surface-variant" />
+              <span className="text-on-surface text-sm font-semibold">Sign Out</span>
             </div>
             <span className="text-on-surface-variant">›</span>
           </motion.button>
@@ -284,18 +284,18 @@ export default function ProfilePage() {
           deleting={deleting}
         />
 
-        {/* Sign out */}
+        {/* Delete Account */}
         <div className="flex flex-col items-center gap-2 py-6">
           <motion.button
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2 }}
             whileTap={{ scale: 0.95 }}
-            onClick={handleSignOut}
+            onClick={() => setShowDeleteConfirm(true)}
             className="flex items-center gap-2 text-destructive text-sm font-semibold"
           >
-            <LogOut size={16} />
-            Sign Out
+            <Trash2 size={16} />
+            Delete Account
           </motion.button>
         </div>
       </div>

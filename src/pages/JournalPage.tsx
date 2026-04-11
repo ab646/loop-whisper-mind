@@ -169,6 +169,12 @@ export default function JournalPage() {
                       </span>
                     </div>
 
+                    {/* Summary content */}
+                    <div className="border-t border-border/10 px-4 py-3">
+                      <p className="text-on-surface text-sm leading-relaxed line-clamp-3 font-body">
+                        {entry.summary || entry.content.substring(0, 200)}
+                      </p>
+                    </div>
 
 
 

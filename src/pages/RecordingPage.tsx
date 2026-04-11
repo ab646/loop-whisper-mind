@@ -381,7 +381,7 @@ export default function RecordingPage() {
         </div>
 
         {/* Timer — smaller, below orb */}
-        <div className="flex flex-col items-center gap-4 mb-4 pb-[env(safe-area-inset-bottom)]">
+        <div className="flex flex-col items-center gap-4 mb-4" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 16px)' }}>
           <span className="text-on-surface-variant text-sm font-body font-medium tracking-widest tabular-nums">
             {formatTime(duration)}
           </span>

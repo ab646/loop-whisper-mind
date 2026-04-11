@@ -1,7 +1,36 @@
 import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Heart, Shield, Search, Zap, Brain, CloudRain, Eye, MessageCircle, Flame, Lock, Users, Target, Repeat, AlertTriangle, Frown, type LucideIcon } from "lucide-react";
 import { FeedbackButtons } from "@/components/FeedbackButtons";
+
+const TAG_ICON_MAP: Record<string, LucideIcon> = {
+  rejection: Frown,
+  attachment: Heart,
+  validation: Eye,
+  control: Lock,
+  abandonment: CloudRain,
+  perfectionism: Target,
+  self_worth: Shield,
+  boundaries: Shield,
+  communication: MessageCircle,
+  trust: Users,
+  anxiety: Brain,
+  anger: Flame,
+  fear: AlertTriangle,
+  pattern: Repeat,
+  trigger: Zap,
+  avoidance: Shield,
+  rumination: Brain,
+  comparison: Search,
+};
+
+function getTagIcon(tag: string): LucideIcon {
+  const key = tag.toLowerCase().replace(/\s+/g, "_");
+  for (const [keyword, icon] of Object.entries(TAG_ICON_MAP)) {
+    if (key.includes(keyword)) return icon;
+  }
+  return Repeat;
+}
 
 interface ReflectionCardProps {
   mainLoop: string;

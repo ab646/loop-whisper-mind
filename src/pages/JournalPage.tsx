@@ -9,6 +9,7 @@ import { useAuth } from "@/contexts/AuthContext";
 interface JournalEntry {
   id: string;
   content: string;
+  displayContent: string | null;
   summary: string;
   mainLoop: string;
   pattern: string | null;
@@ -60,7 +61,7 @@ export default function JournalPage() {
       try {
         const { data, error } = await supabase
           .from("entries")
-          .select("id, content, reflection, tags, created_at, entry_type")
+          .select("id, content, display_content, reflection, tags, created_at, entry_type")
           .eq("user_id", session.user.id)
           .neq("entry_type", "theme-exploration")
           .order("created_at", { ascending: false })
@@ -83,7 +84,7 @@ export default function JournalPage() {
     setLoadingMore(true);
     const { data } = await supabase
       .from("entries")
-      .select("id, content, reflection, tags, created_at, entry_type")
+      .select("id, content, display_content, reflection, tags, created_at, entry_type")
       .eq("user_id", session.user.id)
       .neq("entry_type", "theme-exploration")
       .order("created_at", { ascending: false })
@@ -201,6 +202,7 @@ function mapEntry(e: any): JournalEntry {
   return {
     id: e.id,
     content: e.content || "",
+    displayContent: e.display_content || null,
     summary: reflection?.summary || "",
     mainLoop: reflection?.mainLoop || "",
     pattern: reflection?.repeatingPattern || null,

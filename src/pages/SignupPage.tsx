@@ -1,14 +1,25 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import { Eye, EyeOff, Check, X } from "lucide-react";
 import { StaticLogo } from "@/components/LoopLogo";
 import { supabase } from "@/integrations/supabase/client";
 import { signInWithOAuth } from "@/lib/native-auth";
 import { toast } from "sonner";
 
+function PasswordRule({ met, label }: { met: boolean; label: string }) {
+  return (
+    <div className="flex items-center gap-2 text-xs font-body">
+      {met ? <Check size={12} className="text-mint" /> : <X size={12} className="text-on-surface-variant/50" />}
+      <span className={met ? "text-mint" : "text-on-surface-variant/70"}>{label}</span>
+    </div>
+  );
+}
+
 export default function SignupPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [socialLoading, setSocialLoading] = useState<string | null>(null);
   const navigate = useNavigate();
@@ -113,15 +124,31 @@ export default function SignupPage() {
           </div>
           <div className="space-y-2">
             <label className="label-uppercase text-[10px]">PASSWORD</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              minLength={6}
-              className="w-full rounded-xl surface-high border border-border/40 px-4 py-3 text-on-surface text-base font-body outline-none focus:ring-1 focus:ring-mint placeholder:text-on-surface-variant"
-              placeholder="At least 6 characters"
-            />
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                minLength={6}
+                className="w-full rounded-xl surface-high border border-border/40 px-4 py-3 pr-12 text-on-surface text-base font-body outline-none focus:ring-1 focus:ring-mint placeholder:text-on-surface-variant"
+                placeholder="At least 6 characters"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-on-surface transition-colors p-1"
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
+            {password.length > 0 && (
+              <div className="space-y-1 pt-1">
+                <PasswordRule met={password.length >= 6} label="At least 6 characters" />
+                <PasswordRule met={/[A-Z]/.test(password)} label="One uppercase letter" />
+                <PasswordRule met={/[0-9]/.test(password)} label="One number" />
+              </div>
+            )}
           </div>
 
           <div className="pt-2">

@@ -26,7 +26,7 @@ interface ReflectionCardProps {
   knownVsAssumed: { known: string[]; assumed: string[] };
   repeatingPattern?: string | null;
   oneQuestion: string;
-  tags?: string[];
+  tags?: (string | { label: string; icon: string })[];
   themeAnswer?: string;
 }
 
@@ -145,11 +145,12 @@ export function ReflectionCard({ mainLoop, feelings, knownVsAssumed, repeatingPa
       {/* Tags */}
       {tags && tags.length > 0 && (
         <div className="flex flex-wrap gap-2 pt-2">
-          {tags.map((tag) => {
-            const Icon = getTagIcon(tag);
-            const label = tag.replace(/_/g, " ").trim().toLowerCase().replace(/^\w/, (char) => char.toUpperCase());
+          {tags.map((tag, i) => {
+            const isObj = typeof tag === "object" && tag !== null;
+            const label = isObj ? tag.label : tag.replace(/_/g, " ").trim().toLowerCase().replace(/^\w/, (c: string) => c.toUpperCase());
+            const Icon = isObj ? getIcon(tag.icon) : Repeat;
             return (
-              <span key={tag} className="tag-pill inline-flex items-center gap-1.5">
+              <span key={isObj ? tag.label : `${tag}-${i}`} className="tag-pill inline-flex items-center gap-1.5">
                 <Icon size={12} className="text-mint" />
                 {label}
               </span>

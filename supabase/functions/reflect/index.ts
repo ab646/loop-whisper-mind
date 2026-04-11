@@ -118,8 +118,8 @@ If the person is stuck in the past or future, note it:
 - null if they're present-focused
 
 ## TAGS
-Assign 1-3 UPPERCASE tags from this taxonomy (use exactly these when applicable):
-AMBIGUITY, REJECTION, SELF-DOUBT, CONTROL, DECISION PARALYSIS, SAFETY, VALIDATION, OVERWHELM, SHAME, LONELINESS, AVOIDANCE, REASSURANCE, ATTACHMENT, STUCKNESS, LONGING, WORK ANXIETY, PERFECTIONISM, PEOPLE-PLEASING, BOUNDARIES, IMPOSTER, COMPARISON, BURNOUT, GRIEF, IDENTITY, CHANGE
+Assign 1-3 descriptive pattern labels (Title Case, 2-4 words each) that name the specific psychological pattern at play. Examples: "Fear of Rejection", "Need for Validation", "Avoidance of Conflict", "Decision Paralysis", "Attachment Anxiety", "Perfectionist Self-Criticism", "People-Pleasing Overload", "Boundary Confusion", "Imposter Spiral", "Burnout Denial", "Grief Avoidance", "Identity Uncertainty", "Control Seeking", "Shame Rumination", "Loneliness Loop".
+Be specific to what the user shared — don't use generic single-word labels.
 
 ## HEALTH-ANXIETY DETECTOR (soft flag)
 Set \`healthRelated\` to true when the entry shows a health-anxiety loop — the pattern Salkovskis & Warwick (1986) describe as repeatedly checking bodily sensations, Googling symptoms, or interpreting normal sensations as dangerous.

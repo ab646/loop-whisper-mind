@@ -20,7 +20,7 @@ import InsightsPage from "./pages/InsightsPage";
 import ThemeExplorationPage from "./pages/ThemeExplorationPage";
 import ProfilePage from "./pages/ProfilePage";
 import LoginPage from "./pages/LoginPage";
-import SignupPage from "./pages/SignupPage";
+
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 import OnboardingPage from "./pages/OnboardingPage";

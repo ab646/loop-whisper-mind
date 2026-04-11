@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowLeft, MoreVertical, Trash2, ArrowUp } from "lucide-react";
+import { getCountryCode } from "@/lib/locale";
 import { ReflectionCard } from "@/components/ReflectionCard";
 import { CyclingLoader } from "@/components/CyclingLoader";
 import { FullScreenLoader } from "@/components/FullScreenLoader";
@@ -61,7 +62,7 @@ export default function JournalDetailPage() {
   const [loading, setLoading] = useState(true);
 
   // Exploration wizard state
-  const [explorationMessages, setExplorationMessages] = useState<{ role: "user" | "ai"; content: string }[]>([]);
+  const [explorationMessages, setExplorationMessages] = useState<{ role: "user" | "ai" | "guard"; content: string; guardClass?: string }[]>([]);
   const [explorationInput, setExplorationInput] = useState("");
   const [inputFocused, setInputFocused] = useState(false);
   const [explorationLoading, setExplorationLoading] = useState(false);
@@ -104,9 +105,18 @@ export default function JournalDetailPage() {
     const theme = entry?.tags?.[0] || "reflection";
     try {
       const { data, error } = await supabase.functions.invoke("explore-theme", {
-        body: { theme: theme.toLowerCase(), question },
+        body: { theme: theme.toLowerCase(), question, countryCode: getCountryCode() },
       });
       if (error) throw error;
+
+      // Handle input guard responses
+      if (data?.guard) {
+        const guardMessage = data.guard.message || "I can only reflect on journal thoughts.";
+        setExplorationMessages((prev) => [...prev, { role: "guard", content: guardMessage, guardClass: data.guard.class }]);
+        setExplorationLoading(false);
+        return;
+      }
+
       const answer = data?.answer || data?.connectedBelief || "I couldn't generate a reflection for that.";
       setExplorationMessages((prev) => [...prev, { role: "ai", content: answer }]);
     } catch {
@@ -269,6 +279,10 @@ export default function JournalDetailPage() {
                     <div className="rounded-2xl surface-high px-4 py-3 max-w-[85%]">
                       <p className="text-on-surface text-sm leading-relaxed">{msg.content}</p>
                     </div>
+                  </div>
+                ) : msg.role === "guard" ? (
+                  <div className="rounded-2xl p-4 space-y-2 border-l-4 border-secondary/30 surface-container">
+                    <p className="text-on-surface-variant text-sm leading-relaxed font-body italic">{msg.content}</p>
                   </div>
                 ) : (
                   <div className="rounded-2xl p-4 space-y-2 border-l-4 border-mint/30 surface-container">

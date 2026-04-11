@@ -24,6 +24,8 @@ interface EntryData {
   tags: string[];
   createdAt: string;
   entryType: string;
+  userId: string;
+  voiceDuration: string | null;
 }
 
 /** Clean up raw user text: remove filler words, paragraph nicely */
@@ -81,6 +83,8 @@ export default function JournalDetailPage() {
           tags: data.tags || [],
           createdAt: data.created_at,
           entryType: data.entry_type,
+          userId: data.user_id,
+          voiceDuration: data.voice_duration,
         });
       }
       setLoading(false);
@@ -112,13 +116,46 @@ export default function JournalDetailPage() {
   };
 
   const handleDelete = async () => {
-    if (!id) return;
+    if (!entry) return;
+
+    const deletedEntry = {
+      id: entry.id,
+      content: entry.content,
+      reflection: entry.reflection,
+      tags: entry.tags,
+      created_at: entry.createdAt,
+      entry_type: entry.entryType,
+      user_id: entry.userId,
+      voice_duration: entry.voiceDuration,
+    };
+
+    const { error } = await supabase
+      .from("entries")
+      .delete()
+      .eq("id", entry.id)
+      .eq("user_id", entry.userId);
+
+    if (error) {
+      toast.error("Failed to delete entry");
+      return;
+    }
+
     navigate("/journal");
     toast("Entry deleted", {
-      action: { label: "Undo", onClick: () => navigate(`/journal/${id}`) },
+      action: {
+        label: "Undo",
+        onClick: async () => {
+          const { error: undoError } = await supabase.from("entries").insert(deletedEntry);
+
+          if (undoError) {
+            toast.error("Couldn't restore entry");
+            return;
+          }
+
+          navigate(`/journal/${entry.id}`);
+        },
+      },
       duration: 5000,
-      onAutoClose: async () => { await supabase.from("entries").delete().eq("id", id); },
-      onDismiss: async () => { await supabase.from("entries").delete().eq("id", id); },
     });
   };
 

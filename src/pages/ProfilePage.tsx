@@ -1,11 +1,15 @@
 import { motion } from "framer-motion";
-import { KeyRound, Download, Trash2, LogOut } from "lucide-react";
+import { KeyRound, Download, Trash2, LogOut, Bell } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { Switch } from "@/components/ui/switch";
 import DeleteAccountDialog from "@/components/DeleteAccountDialog";
+import { scheduleAdaptiveNotification } from "@/lib/adaptive-notifications";
+import { Capacitor } from "@capacitor/core";
+import { LocalNotifications } from "@capacitor/local-notifications";
 
 export default function ProfilePage() {
   const navigate = useNavigate();

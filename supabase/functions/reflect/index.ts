@@ -241,10 +241,11 @@ serve(async (req) => {
       { temperature: 0.4, maxTokens: 1024 }
     );
 
-    // Validate and normalize tags
-    reflection.tags = (reflection.tags || []).map((t: string) =>
-      t.trim()
-    );
+    // Validate and normalize tags — support both old string[] and new {label,icon}[] formats
+    reflection.tags = (reflection.tags || []).map((t: any) => {
+      if (typeof t === "string") return { label: t.trim(), icon: "repeat" };
+      return { label: (t.label || "").trim(), icon: (t.icon || "repeat").trim() };
+    });
 
     // Normalize intensityScore to 0-5 integer
     const raw = Number(reflection.intensityScore);

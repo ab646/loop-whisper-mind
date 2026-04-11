@@ -38,8 +38,9 @@ import { supabase } from "@/integrations/supabase/client";
  */
 export function ReturnToLoopAppBanner() {
   const [visible, setVisible] = useState(false);
-  const [tokens, setTokens] = useState<{ accessToken: string; refreshToken: string } | null>(null);
+  const [deepLink, setDeepLink] = useState<string | null>(null);
   const [dismissed, setDismissed] = useState(false);
+  const [returning, setReturning] = useState(false);
 
   useEffect(() => {
     // Rule 1: never render inside the Capacitor native shell.
@@ -69,10 +70,8 @@ export function ReturnToLoopAppBanner() {
       const session = data?.session;
       if (cancelled) return;
       if (!session?.access_token || !session?.refresh_token) return;
-      setTokens({
-        accessToken: session.access_token,
-        refreshToken: session.refresh_token,
-      });
+      const hash = `access_token=${encodeURIComponent(session.access_token)}&refresh_token=${encodeURIComponent(session.refresh_token)}&token_type=bearer`;
+      setDeepLink(`app.loop.journal://callback#${hash}`);
       setVisible(true);
     })();
 
@@ -82,13 +81,29 @@ export function ReturnToLoopAppBanner() {
   }, []);
 
   const handleReturn = useCallback(() => {
-    if (!tokens) return;
-    const hash = `access_token=${encodeURIComponent(tokens.accessToken)}&refresh_token=${encodeURIComponent(tokens.refreshToken)}&token_type=bearer`;
-    const deepLink = `app.loop.journal://callback#${hash}`;
-    // This runs inside a real user gesture (onClick), so iOS will honor
-    // the custom URL scheme and hand control back to the native app.
-    window.location.href = deepLink;
-  }, [tokens]);
+    // The actual navigation is handled by the <a href> — iOS honors
+    // custom URL schemes on real HTML anchor clicks inside
+    // SFSafariViewController, but silently blocks JS-driven
+    // window.location.href = "customscheme://...".
+    //
+    // We only flip visual state here so the user sees immediate
+    // feedback, and set up a JS fallback after a short delay in
+    // case the native app for some reason doesn't pick up the
+    // custom scheme (e.g. older iOS).
+    setReturning(true);
+    if (deepLink) {
+      window.setTimeout(() => {
+        // Fallback: if we're still here 1.2s after the tap, try the
+        // JS navigation too. On iOS that may trigger an "Open in Loop?"
+        // prompt the user can confirm.
+        try {
+          window.location.assign(deepLink);
+        } catch {
+          // ignore
+        }
+      }, 1200);
+    }
+  }, [deepLink]);
 
   const handleDismiss = useCallback(() => {
     setDismissed(true);
@@ -99,7 +114,7 @@ export function ReturnToLoopAppBanner() {
     }
   }, []);
 
-  if (!visible || dismissed || !tokens) return null;
+  if (!visible || dismissed || !deepLink) return null;
 
   return (
     <div
@@ -115,18 +130,27 @@ export function ReturnToLoopAppBanner() {
     >
       <div className="rounded-2xl bg-on-surface text-surface shadow-xl px-4 py-3 flex items-center gap-3">
         <div className="flex-1 min-w-0">
-          <p className="font-medium text-sm leading-tight">You're signed in</p>
+          <p className="font-medium text-sm leading-tight">
+            {returning ? "Returning to Loop…" : "You're signed in"}
+          </p>
           <p className="text-xs opacity-80 leading-tight mt-0.5">
-            Tap to return to the Loop app
+            {returning ? "Opening the native app" : "Tap to return to the Loop app"}
           </p>
         </div>
-        <button
-          type="button"
+        {/*
+          Using a real anchor tag (not a button + window.location.href)
+          because SFSafariViewController silently blocks JS-driven
+          custom-scheme navigation, even inside a user gesture. A
+          genuine <a href="customscheme://..."> click is honored.
+        */}
+        <a
+          href={deepLink}
           onClick={handleReturn}
-          className="shrink-0 rounded-full bg-surface text-on-surface font-medium text-sm px-4 py-2 active:opacity-80 transition-opacity"
+          className="shrink-0 rounded-full bg-surface text-on-surface font-medium text-sm px-4 py-2 active:opacity-80 transition-opacity no-underline"
+          style={{ textDecoration: "none" }}
         >
           Open Loop
-        </button>
+        </a>
         <button
           type="button"
           onClick={handleDismiss}

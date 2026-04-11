@@ -230,7 +230,8 @@ export default function RecordingPage() {
       // Now call reflect
       setCurrentStep("reflecting");
       const reflectStart = Date.now();
-      const entryId = await createEntry({ content: trimmed, entryType: "voice" });
+      const result = await createEntry({ content: trimmed, entryType: "voice" });
+      const entryId = result?.entryId;
 
       if (entryId) {
         analytics.recordingCompleted(duration);

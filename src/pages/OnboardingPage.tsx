@@ -110,7 +110,8 @@ export default function OnboardingPage() {
 
     // Create the first loop entry if seed text was selected
     if (initialText.trim()) {
-      const entryId = await createEntry({ content: initialText });
+      const result = await createEntry({ content: initialText });
+      const entryId = result?.entryId;
       setLoading(false);
       if (entryId) {
         navigate(`/journal/${entryId}`);

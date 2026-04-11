@@ -201,8 +201,8 @@ export default function HomePage() {
   }, [loading]);
 
   const handleSend = async (text: string) => {
-    const entryId = await createEntry({ content: text });
-    if (entryId) navigate(`/journal/${entryId}`);
+    const result = await createEntry({ content: text });
+    if (result?.entryId) navigate(`/journal/${result.entryId}`);
   };
 
   const [imageProcessing, setImageProcessing] = useState(false);
@@ -244,9 +244,9 @@ export default function HomePage() {
       }
 
       const transcribedText = validation.transcription || "[Image content]";
-      const entryId = await createEntry({ content: transcribedText, entryType: "image" });
+      const result = await createEntry({ content: transcribedText, entryType: "image" });
       setImageProcessing(false);
-      if (entryId) navigate(`/journal/${entryId}`);
+      if (result?.entryId) navigate(`/journal/${result.entryId}`);
     } catch (e) {
       console.error("Image processing error:", e);
       toast.error("Failed to process image");

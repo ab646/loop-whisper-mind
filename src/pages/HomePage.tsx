@@ -222,7 +222,7 @@ export default function HomePage() {
       className="flex h-full min-h-0 flex-col mesh-gradient-bg relative overflow-hidden isolate"
     >
 
-      <div ref={scrollContainerRef} className="flex min-h-0 flex-1 flex-col scroll-container px-5" style={{ paddingBottom: 'calc(var(--bottom-nav-height, calc(72px + env(safe-area-inset-bottom))) + 120px)' }}>
+      <div ref={scrollContainerRef} className="flex min-h-0 flex-1 flex-col overflow-hidden px-5" style={{ paddingBottom: 'calc(var(--bottom-nav-height, calc(72px + env(safe-area-inset-bottom))) + 120px)' }}>
         <div className="shrink-0 flex flex-col items-center justify-center relative" style={{ height: '100svh' }}>
           <motion.div
             animate={{ opacity: navigatingOut ? 0 : 1, y: navigatingOut ? -10 : 0 }}

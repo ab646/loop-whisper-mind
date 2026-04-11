@@ -56,8 +56,21 @@ export default function RecordingPage() {
     start().then(() => {
       analytics.recordingStarted();
     }).catch((err) => {
-      console.warn("Mic permission denied:", err);
-      setMicDenied(true);
+      console.error("Recording start failed:", err);
+      // Only show mic denied screen if it's actually a permission error
+      const msg = err?.message?.toLowerCase() ?? "";
+      if (msg.includes("permission") || msg.includes("denied") || msg.includes("not allowed")) {
+        setMicDenied(true);
+      } else {
+        // Non-permission error — retry once
+        toast.error("Couldn't start recording. Trying again...");
+        setTimeout(() => {
+          start().catch((retryErr) => {
+            console.error("Retry failed:", retryErr);
+            setMicDenied(true);
+          });
+        }, 500);
+      }
     });
   }, []);
 

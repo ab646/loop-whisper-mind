@@ -139,7 +139,7 @@ export default function JournalPage() {
           </motion.div>
         ) : (
           grouped.map(([group, items]) => (
-            <div key={group} className="space-y-3">
+            <div key={group} className="flex flex-col gap-3">
               {/* Day header */}
               <h2 className="font-display text-xl font-semibold">
                 {group.includes(", ") ? (
@@ -153,7 +153,7 @@ export default function JournalPage() {
               </h2>
 
               {/* Entry cards */}
-              <div className="space-y-2.5">
+              <div className="flex flex-col gap-2.5">
                 {items.map((entry, i) => (
                   <motion.button
                     key={entry.id}

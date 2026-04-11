@@ -147,8 +147,8 @@ export function ReflectionCard({ mainLoop, feelings, knownVsAssumed, repeatingPa
         <div className="flex flex-wrap gap-2 pt-2">
           {tags.map((tag, i) => {
             const isObj = typeof tag === "object" && tag !== null;
-            const label = isObj ? tag.label : tag.replace(/_/g, " ").trim().toLowerCase().replace(/^\w/, (c: string) => c.toUpperCase());
-            const Icon = isObj ? getIcon(tag.icon) : Repeat;
+            const rawLabel = isObj ? (tag as { label: string; icon: string }).label : (tag as string).replace(/_/g, " ").trim().toLowerCase().replace(/^\w/, (c: string) => c.toUpperCase());
+            const Icon = isObj ? getIcon((tag as { label: string; icon: string }).icon) : Repeat;
             return (
               <span key={isObj ? tag.label : `${tag}-${i}`} className="tag-pill inline-flex items-center gap-1.5">
                 <Icon size={12} className="text-mint" />

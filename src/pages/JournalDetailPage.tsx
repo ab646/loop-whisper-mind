@@ -61,6 +61,7 @@ export default function JournalDetailPage() {
   // Exploration wizard state
   const [explorationMessages, setExplorationMessages] = useState<{ role: "user" | "ai"; content: string }[]>([]);
   const [explorationInput, setExplorationInput] = useState("");
+  const [inputFocused, setInputFocused] = useState(false);
   const [explorationLoading, setExplorationLoading] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
@@ -276,26 +277,45 @@ export default function JournalDetailPage() {
           className="absolute inset-x-0 z-[60] w-full max-w-md mx-auto px-4"
           style={{ bottom: 'max(var(--keyboard-height, 0px), calc(var(--bottom-nav-height, calc(72px + env(safe-area-inset-bottom))) + 12px))' }}
         >
-          <div className="flex items-center gap-2 rounded-xl surface-high px-4 py-3 border border-border/20 shadow-lg">
-            <input
-              value={explorationInput}
-              onChange={(e) => setExplorationInput(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleExplore(explorationInput)}
-              placeholder="Ask a follow-up..."
-              className="flex-1 bg-transparent text-on-surface placeholder:text-on-surface-variant text-sm outline-none"
-            />
+          {inputFocused || explorationInput.trim() ? (
+            <div className="flex items-center gap-2 rounded-xl surface-high px-4 py-3 border border-border/20 shadow-lg">
+              <input
+                value={explorationInput}
+                onChange={(e) => setExplorationInput(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleExplore(explorationInput)}
+                onFocus={() => setInputFocused(true)}
+                onBlur={() => setInputFocused(false)}
+                placeholder="Ask a follow-up..."
+                className="flex-1 bg-transparent text-on-surface placeholder:text-on-surface-variant text-sm outline-none"
+                autoFocus
+              />
+              <button
+                onClick={() => handleExplore(explorationInput)}
+                disabled={!explorationInput.trim() || explorationLoading}
+                className="w-7 h-7 rounded-full orb-gradient flex items-center justify-center disabled:opacity-50"
+              >
+                {explorationLoading ? (
+                  <ScribblingLogo size={14} />
+                ) : (
+                  <ArrowUp size={14} className="text-primary-foreground" />
+                )}
+              </button>
+            </div>
+          ) : (
             <button
-              onClick={() => handleExplore(explorationInput)}
-              disabled={!explorationInput.trim() || explorationLoading}
-              className="w-7 h-7 rounded-full orb-gradient flex items-center justify-center disabled:opacity-50"
+              onClick={() => setInputFocused(true)}
+              className="flex items-center gap-3 rounded-xl surface-high px-4 py-3 border border-border/20 shadow-lg w-full text-left"
             >
-              {explorationLoading ? (
-                <ScribblingLogo size={14} />
-              ) : (
-                <ArrowUp size={14} className="text-primary-foreground" />
-              )}
+              <div className="w-7 h-7 rounded-full orb-gradient flex items-center justify-center shrink-0">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="text-primary-foreground">
+                  <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="currentColor" />
+                </svg>
+              </div>
+              <span className="text-on-surface-variant text-sm">
+                Want to go deeper? Ask a follow-up, or add more context.
+              </span>
             </button>
-          </div>
+          )}
         </div>
       )}
     </div>

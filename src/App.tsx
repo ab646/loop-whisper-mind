@@ -30,6 +30,7 @@ import JournalDetailPage from "./pages/JournalDetailPage";
 import NotFound from "./pages/NotFound";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import ScrollToTop from "@/components/ScrollToTop";
+import { ReturnToLoopAppBanner } from "@/components/ReturnToLoopAppBanner";
 
 const queryClient = new QueryClient();
 
@@ -176,6 +177,7 @@ const App = () => {
           <BrowserRouter>
             <ScrollToTop />
             <AuthProvider>
+              <ReturnToLoopAppBanner />
               <AppRoutes />
             </AuthProvider>
           </BrowserRouter>

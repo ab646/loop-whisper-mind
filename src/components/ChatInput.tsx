@@ -70,7 +70,7 @@ export function ChatInput({ onSend, onImageSelected, onVoice, placeholder = "Typ
   const hasContent = text.trim();
 
   return (
-    <div className="px-4 pb-2 pt-2">
+    <div className="pb-2 pt-2">
       <div className="flex items-center gap-3 rounded-2xl surface-high px-4 py-3">
         <input
           ref={fileInputRef}

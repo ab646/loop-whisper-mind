@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronRight, ChevronDown } from "lucide-react";
+import { ChevronRight, ChevronDown, Mic } from "lucide-react";
 
 function getGreeting(): string {
   const hour = new Date().getHours();

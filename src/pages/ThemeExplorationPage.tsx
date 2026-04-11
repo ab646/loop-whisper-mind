@@ -446,7 +446,7 @@ export default function ThemeExplorationPage() {
       {/* Fixed input above keyboard */}
       <div
         className="absolute inset-x-0 z-[60] w-full max-w-md mx-auto px-4"
-        style={{ bottom: 'max(var(--keyboard-height, 0px), calc(var(--bottom-nav-height, calc(72px + env(safe-area-inset-bottom))) + 12px))' }}
+        style={{ bottom: 'max(var(--keyboard-height, 0px), env(safe-area-inset-bottom, 0px))' }}
       >
         <div className="flex items-center gap-2 rounded-xl surface-high px-4 py-3 border border-border/20 shadow-lg">
           <input

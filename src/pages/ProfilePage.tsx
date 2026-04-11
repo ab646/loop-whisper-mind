@@ -219,6 +219,38 @@ export default function ProfilePage() {
               disabled={notificationsLoading}
             />
           </motion.div>
+
+          {/* Permission denied banner */}
+          <AnimatePresence>
+            {permissionDenied && isNative && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                className="rounded-2xl surface-low border border-destructive/20 p-5 space-y-3"
+              >
+                <div className="flex items-start gap-3">
+                  <Bell size={18} className="text-destructive shrink-0 mt-0.5" />
+                  <div className="space-y-1">
+                    <p className="text-on-surface text-sm font-semibold">
+                      Notifications are blocked
+                    </p>
+                    <p className="text-on-surface-variant text-xs leading-relaxed">
+                      You previously denied notification access. To receive daily reminders, re-enable them in your device settings.
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={openAppSettings}
+                  className="w-full flex items-center justify-center gap-2 rounded-xl surface-high border border-border/20 py-3 text-mint text-sm font-semibold"
+                >
+                  <Settings size={16} />
+                  Open Settings
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
           {/* Change Password */}
           <motion.button
             initial={{ opacity: 0, y: 10 }}

@@ -233,7 +233,10 @@ export default function RecordingPage() {
       const result = await createEntry({ content: trimmed, entryType: "voice" });
       const entryId = result?.entryId;
 
-      if (entryId) {
+      if (result?.guard?.class === "crisis" && result.guard.resources) {
+        // Navigate to home with crisis data
+        navigate("/", { state: { crisis: { message: result.guard.message, resources: result.guard.resources } } });
+      } else if (entryId) {
         analytics.recordingCompleted(duration);
         analytics.reflectionReceived({ responseTimeMs: Date.now() - reflectStart, entryId, entryType: "voice" });
         analytics.entrySaved(entryId);

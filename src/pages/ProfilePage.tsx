@@ -295,7 +295,7 @@ export default function ProfilePage() {
           <span>·</span>
           <a href="https://loopmind.care/terms" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-on-surface transition-colors">Terms</a>
           <span>·</span>
-          <a href="https://loopmind.care/support" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-on-surface transition-colors">Support</a>
+          <a href="https://loopmind.care/support" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 underline underline-offset-2 hover:text-on-surface transition-colors">Support <ExternalLink size={10} /></a>
         </motion.div>
 
         {/* Delete Account */}

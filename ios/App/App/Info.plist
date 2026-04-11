@@ -60,5 +60,7 @@
 	</array>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Loop uses your microphone to record voice journal entries.</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 </dict>
 </plist>

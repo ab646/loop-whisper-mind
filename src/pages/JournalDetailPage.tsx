@@ -211,52 +211,49 @@ export default function JournalDetailPage() {
           </motion.div>
         )}
 
-        {/* Exploration wizard */}
-        {reflection && (
+        {/* Exploration messages */}
+        {reflection && explorationMessages.length > 0 && (
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.25 }}
-            className="space-y-4"
+            className="space-y-3"
           >
-
-            <div className="rounded-2xl surface-low p-4 space-y-3">
-              {explorationMessages.map((msg, i) => (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  {msg.role === "user" ? (
+            {explorationMessages.map((msg, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                {msg.role === "user" ? (
+                  <div className="flex justify-end">
+                    <div className="rounded-2xl surface-high px-4 py-3 max-w-[85%]">
+                      <p className="text-on-surface text-sm leading-relaxed">{msg.content}</p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="rounded-2xl p-4 space-y-2 border-l-4 border-mint/30 surface-container">
+                    <span className="label-uppercase text-mint">Reflection</span>
+                    <p className="text-on-surface text-sm leading-relaxed font-body">{msg.content}</p>
                     <div className="flex justify-end">
-                      <div className="rounded-2xl surface-high px-4 py-3 max-w-[85%]">
-                        <p className="text-on-surface text-sm leading-relaxed">{msg.content}</p>
-                      </div>
+                      <FeedbackButtons
+                        contentType="exploration-answer"
+                        contentId={`journal-explore-${id}-${i}`}
+                        contentPreview={msg.content}
+                      />
                     </div>
-                  ) : (
-                    <div className="rounded-2xl p-4 space-y-2 border-l-4 border-mint/30 surface-container">
-                      <span className="label-uppercase text-mint">Reflection</span>
-                      <p className="text-on-surface text-sm leading-relaxed font-body">{msg.content}</p>
-                      <div className="flex justify-end">
-                        <FeedbackButtons
-                          contentType="exploration-answer"
-                          contentId={`journal-explore-${id}-${i}`}
-                          contentPreview={msg.content}
-                        />
-                      </div>
-                    </div>
-                  )}
-                </motion.div>
-              ))}
+                  </div>
+                )}
+              </motion.div>
+            ))}
 
-              {explorationLoading && (
-                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="py-2">
-                  <CyclingLoader mode="reflection" size={20} layout="inline" />
-                </motion.div>
-              )}
-              <div ref={chatEndRef} />
-            </div>
+            {explorationLoading && (
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="py-2">
+                <CyclingLoader mode="reflection" size={20} layout="inline" />
+              </motion.div>
+            )}
+            <div ref={chatEndRef} />
           </motion.div>
         )}
       </div>

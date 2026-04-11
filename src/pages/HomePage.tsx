@@ -254,7 +254,7 @@ export default function HomePage() {
     }
   };
 
-  if (creatingLoop) {
+  if (creatingLoop || imageProcessing) {
     return <FullScreenLoader mode="reflection" />;
   }
 

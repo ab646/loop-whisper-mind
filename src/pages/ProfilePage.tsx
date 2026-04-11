@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { KeyRound, Download, Trash2, LogOut, Bell, ExternalLink } from "lucide-react";
+import { KeyRound, Download, Trash2, LogOut, Bell, ExternalLink, LifeBuoy } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -261,11 +261,28 @@ export default function ProfilePage() {
             <span className="text-on-surface-variant">›</span>
           </motion.button>
 
+          {/* Support */}
+          <motion.a
+            href="https://loopmind.care/support"
+            target="_blank"
+            rel="noopener noreferrer"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15 }}
+            className="w-full rounded-2xl surface-low p-5 flex items-center justify-between"
+          >
+            <div className="flex items-center gap-3">
+              <LifeBuoy size={18} className="text-on-surface-variant" />
+              <span className="text-on-surface text-sm font-semibold">Support</span>
+            </div>
+            <ExternalLink size={16} className="text-on-surface-variant" />
+          </motion.a>
+
           {/* Sign Out */}
           <motion.button
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.15 }}
+            transition={{ delay: 0.2 }}
             onClick={handleSignOut}
             className="w-full rounded-2xl surface-low p-5 flex items-center justify-between"
           >
@@ -288,14 +305,12 @@ export default function ProfilePage() {
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="flex items-center justify-center gap-4 text-xs text-on-surface-variant pt-4"
+          transition={{ delay: 0.25 }}
+          className="flex items-center justify-center gap-4 text-xs text-on-surface-variant pt-2"
         >
           <a href="https://loopmind.care/privacy" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-on-surface transition-colors">Privacy Policy</a>
           <span>·</span>
           <a href="https://loopmind.care/terms" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-on-surface transition-colors">Terms</a>
-          <span>·</span>
-          <a href="https://loopmind.care/support" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 underline underline-offset-2 hover:text-on-surface transition-colors">Support <ExternalLink size={10} /></a>
         </motion.div>
 
         {/* Delete Account */}

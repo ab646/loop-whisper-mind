@@ -90,28 +90,31 @@ serve(async (req) => {
       }
     }
 
-    const normalizedTheme = theme.toUpperCase().trim();
+    const normalizedTheme = theme.trim();
+    const themeLC = normalizedTheme.toLowerCase();
 
-    // Fetch entries tagged with this theme
-    const { data: entries } = await adminClient
-      .from("entries")
-      .select("content, reflection, tags, created_at")
-      .eq("user_id", userId)
-      .contains("tags", [normalizedTheme])
-      .order("created_at", { ascending: false })
-      .limit(20);
-
-    // Broader context from all entries
-    const { data: allEntries } = await adminClient
+    // Fetch all user entries — tags may be strings or {label,icon} objects,
+    // so we filter in code rather than using `contains`.
+    const { data: rawEntries } = await adminClient
       .from("entries")
       .select("content, reflection, tags, created_at")
       .eq("user_id", userId)
       .order("created_at", { ascending: false })
-      .limit(30);
+      .limit(50);
+
+    const allEntries = rawEntries || [];
+
+    // Filter entries matching this theme (case-insensitive, supports both formats)
+    const matchedEntries = allEntries.filter((e: any) =>
+      (e.tags || []).some((t: any) => {
+        const label = typeof t === "string" ? t : t?.label || "";
+        return label.toLowerCase().includes(themeLC);
+      })
+    );
 
     const now = new Date();
 
-    const themeEntries = (entries || [])
+    const themeEntries = matchedEntries
       .map((e: any) => {
         const ageHours =
           (now.getTime() - new Date(e.created_at).getTime()) / (1000 * 60 * 60);
@@ -125,8 +128,9 @@ serve(async (req) => {
       })
       .join("\n");
 
-    const otherEntries = (allEntries || [])
-      .filter((e: any) => !(e.tags || []).includes(normalizedTheme))
+    const matchedSet = new Set(matchedEntries.map((e: any) => e.created_at));
+    const otherEntries = allEntries
+      .filter((e: any) => !matchedSet.has(e.created_at))
       .slice(0, 10)
       .map(
         (e: any) =>
@@ -136,7 +140,7 @@ serve(async (req) => {
 
     // Use allEntries for week count since theme names are AI-generated
     // and may not match stored tags exactly
-    const weekCount = (allEntries || []).filter((e: any) => {
+    const weekCount = allEntries.filter((e: any) => {
       const age = (now.getTime() - new Date(e.created_at).getTime()) / (1000 * 60 * 60);
       return age < 168;
     }).length;
@@ -180,7 +184,7 @@ Return ONLY valid JSON. No markdown, no explanation.`;
         { role: "system", content: systemPrompt },
         {
           role: "user",
-          content: `Theme: ${normalizedTheme}\n\nEntries with this tag (${(entries || []).length} total, ${weekCount} this week):\n${themeEntries || "No entries yet"}\n\nOther recent entries for cross-reference:\n${otherEntries || "None"}`,
+      content: `Theme: ${normalizedTheme}\n\nEntries with this tag (${matchedEntries.length} total, ${weekCount} this week):\n${themeEntries || "No entries yet"}\n\nOther recent entries for cross-reference:\n${otherEntries || "None"}`,
         },
       ],
       THEME_FALLBACK,
@@ -193,7 +197,7 @@ Return ONLY valid JSON. No markdown, no explanation.`;
     // insights are AI-generated and don't always match stored tags exactly)
     const dayMap: Record<string, { count: number; intensitySum: number }> = {};
 
-    for (const e of allEntries || []) {
+    for (const e of allEntries) {
       const day = new Date(e.created_at).toISOString().split("T")[0];
       const reflection = (e.reflection || {}) as Record<string, any>;
       const oldMap: Record<string, number> = { low: 1, moderate: 3, high: 5 };

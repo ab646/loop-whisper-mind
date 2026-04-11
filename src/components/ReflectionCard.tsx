@@ -1,7 +1,36 @@
 import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Heart, Shield, Search, Zap, Brain, CloudRain, Eye, MessageCircle, Flame, Lock, Users, Target, Repeat, AlertTriangle, Frown, type LucideIcon } from "lucide-react";
 import { FeedbackButtons } from "@/components/FeedbackButtons";
+
+const TAG_ICON_MAP: Record<string, LucideIcon> = {
+  rejection: Frown,
+  attachment: Heart,
+  validation: Eye,
+  control: Lock,
+  abandonment: CloudRain,
+  perfectionism: Target,
+  self_worth: Shield,
+  boundaries: Shield,
+  communication: MessageCircle,
+  trust: Users,
+  anxiety: Brain,
+  anger: Flame,
+  fear: AlertTriangle,
+  pattern: Repeat,
+  trigger: Zap,
+  avoidance: Shield,
+  rumination: Brain,
+  comparison: Search,
+};
+
+function getTagIcon(tag: string): LucideIcon {
+  const key = tag.toLowerCase().replace(/\s+/g, "_");
+  for (const [keyword, icon] of Object.entries(TAG_ICON_MAP)) {
+    if (key.includes(keyword)) return icon;
+  }
+  return Repeat;
+}
 
 interface ReflectionCardProps {
   mainLoop: string;
@@ -127,12 +156,17 @@ export function ReflectionCard({ mainLoop, feelings, knownVsAssumed, repeatingPa
 
       {/* Tags */}
       {tags && tags.length > 0 && (
-        <div className="flex flex-wrap gap-2 pt-2">
-          {tags.map((tag) => (
-            <span key={tag} className="tag-pill">
-              {tag.replace(/_/g, " ").trim().toLowerCase().replace(/^\w/, (char) => char.toUpperCase())}
-            </span>
-          ))}
+        <div className="space-y-2.5 pt-2">
+          {tags.map((tag) => {
+            const Icon = getTagIcon(tag);
+            const label = tag.replace(/_/g, " ").trim().toLowerCase().replace(/^\w/, (char) => char.toUpperCase());
+            return (
+              <div key={tag} className="flex items-center gap-3">
+                <Icon size={18} className="text-mint shrink-0" />
+                <span className="text-on-surface text-sm font-body">{label}</span>
+              </div>
+            );
+          })}
         </div>
       )}
 

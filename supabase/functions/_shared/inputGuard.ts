@@ -173,7 +173,7 @@ const TOO_THIN_MESSAGE =
   "Not enough here to see what's looping. Say a bit more.";
 
 const CRISIS_MESSAGE =
-  "This sounds heavy, and I'm not the right tool for it. Please reach out to a person right now.";
+  "What you just shared sounds heavy, and I'm not the right tool for this moment. Please reach out to a person — a crisis line, a clinician, or someone you trust — right now.";
 
 function messageFor(cls: InputClass): string | undefined {
   switch (cls) {

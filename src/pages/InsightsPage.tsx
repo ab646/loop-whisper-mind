@@ -130,7 +130,7 @@ export default function InsightsPage() {
     const progress = Math.min(entryCount, threshold);
 
     return (
-      <div className="h-screen mesh-gradient-bg flex flex-col overflow-hidden" style={{ paddingBottom: 'var(--bottom-nav-height, calc(72px + env(safe-area-inset-bottom)))' }}>
+      <div className="h-full min-h-0 mesh-gradient-bg flex flex-col overflow-hidden" style={{ paddingBottom: 'var(--bottom-nav-height, calc(72px + env(safe-area-inset-bottom)))' }}>
         <div className="flex-1 px-5 flex flex-col items-center justify-center gap-6">
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="text-center space-y-4">
             <h2 className="font-display text-2xl text-on-surface leading-tight">
@@ -196,7 +196,7 @@ export default function InsightsPage() {
   const assumptionPercent = 100 - factPercent;
 
   return (
-    <div className="h-screen mesh-gradient-bg flex flex-col overflow-hidden relative">
+    <div className="h-full min-h-0 mesh-gradient-bg flex flex-col overflow-hidden relative">
       {/* Background haze */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-[10%] left-1/2 -translate-x-1/2 w-[500px] h-[400px] rounded-full bg-primary/[0.06] blur-[120px]" />
@@ -204,7 +204,7 @@ export default function InsightsPage() {
         <div className="absolute top-[75%] left-[65%] w-[300px] h-[300px] rounded-full bg-tertiary/[0.03] blur-[110px]" />
       </div>
 
-      <div className="flex-1 scroll-container pt-6 px-5 space-y-8 relative z-10" style={{ paddingBottom: 'calc(var(--bottom-nav-height, calc(72px + env(safe-area-inset-bottom))) + 32px)' }}>
+      <div className="flex-1 min-h-0 scroll-container pt-6 px-5 space-y-8 relative z-10" style={{ paddingBottom: 'calc(var(--bottom-nav-height, calc(72px + env(safe-area-inset-bottom))) + 32px)' }}>
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
           <h2 className="font-display text-3xl text-on-surface leading-tight tracking-tight">
             Patterns in the quiet.

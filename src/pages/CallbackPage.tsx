@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -10,20 +10,33 @@ import { supabase } from "@/integrations/supabase/client";
  *
  * Two scenarios:
  *
- * 1. NATIVE flow (iOS): Safari was opened by the Capacitor Browser plugin.
- *    After OAuth, Safari loads this URL. We redirect to the custom URL scheme
- *    (app.loop.journal://callback#...) which triggers the deep-link listener
- *    in App.tsx and brings the user back into the native app with tokens.
+ * 1. NATIVE flow (iOS): Safari / SFSafariViewController was opened by
+ *    the Capacitor Browser plugin. After OAuth, it loads this URL. We
+ *    try to auto-redirect to the custom URL scheme
+ *    (app.loop.journal://callback#...) which triggers the deep-link
+ *    listener in App.tsx and brings the user back into the native app.
  *
- * 2. WEB flow: The user is on the web app. We extract tokens from the hash,
- *    set the Supabase session, and navigate to "/".
+ *    On modern iOS, SFSafariViewController silently blocks a pure
+ *    `window.location.href = "app.loop.journal://..."` redirect when
+ *    there's no user gesture. To guarantee it works, after a short
+ *    delay we show a "Return to Loop" button. Tapping the button
+ *    IS a user gesture and iOS reliably honors the scheme redirect.
  *
- * To handle both: we always attempt the custom-scheme redirect first. On iOS
- * it opens the native app. On desktop/web it fails silently and we fall
- * through to the web session handler.
+ * 2. WEB flow: The user is on the web app. The auto-redirect will do
+ *    nothing, so we fall through to the web session handler, which
+ *    sets the Supabase session from the tokens and navigates to "/".
  */
 export default function CallbackPage() {
   const navigate = useNavigate();
+  const [showReturnButton, setShowReturnButton] = useState(false);
+  const [nativeUrl, setNativeUrl] = useState<string>("");
+  const [webFallbackFailed, setWebFallbackFailed] = useState(false);
+
+  const openInApp = useCallback(() => {
+    if (nativeUrl) {
+      window.location.href = nativeUrl;
+    }
+  }, [nativeUrl]);
 
   useEffect(() => {
     const handleCallback = async () => {
@@ -35,19 +48,31 @@ export default function CallbackPage() {
       const accessToken = params.get("access_token");
       const refreshToken = params.get("refresh_token");
 
-      if (accessToken && refreshToken) {
-        // Attempt to open the native app via custom URL scheme.
-        // On iOS (Safari opened by Capacitor), this will trigger the
-        // appUrlOpen deep-link and bring the user back to the native app.
-        // On desktop web, this will be ignored after a brief moment.
-        const nativeUrl = `app.loop.journal://callback#${fragment}`;
-        window.location.href = nativeUrl;
+      if (!accessToken || !refreshToken) {
+        // No tokens — something went wrong, send back to login
+        navigate("/login", { replace: true });
+        return;
+      }
 
-        // Give the native redirect a moment to fire. If we're still here
-        // after 1.5s, we're on web — handle the session directly.
-        await new Promise((resolve) => setTimeout(resolve, 1500));
+      // Build the native deep-link URL (used by the button below too).
+      const deepLink = `app.loop.journal://callback#${fragment}`;
+      setNativeUrl(deepLink);
 
-        // Web fallback: set the Supabase session from the tokens
+      // Attempt #1: auto-redirect. On iOS this MAY trigger the app
+      // scheme and reopen Loop. On modern iOS / SFSafariViewController
+      // this is commonly blocked silently with no user gesture, so we
+      // also schedule a tap-to-return fallback below.
+      window.location.href = deepLink;
+
+      // After a short grace period, if the app didn't take over, show
+      // the "Return to Loop" button (native) or fall through to web
+      // session handling (plain web).
+      setTimeout(async () => {
+        // If we're still mounted, the auto-redirect didn't capture us.
+        // Show the native return button AND try the web session
+        // fallback in parallel — whichever applies will handle it.
+        setShowReturnButton(true);
+
         const { error } = await supabase.auth.setSession({
           access_token: accessToken,
           refresh_token: refreshToken,
@@ -55,27 +80,63 @@ export default function CallbackPage() {
 
         if (error) {
           console.error("Failed to set session from callback:", error);
-          navigate("/login", { replace: true });
+          setWebFallbackFailed(true);
           return;
         }
 
+        // Web path: we're already in the React app at this origin,
+        // so navigate to home. On native (inside SFSafariViewController)
+        // this navigate is harmless — the user will still see the
+        // "Return to Loop" button until they tap it.
         navigate("/", { replace: true });
-      } else {
-        // No tokens — something went wrong, send back to login
-        navigate("/login", { replace: true });
-      }
+      }, 1500);
     };
 
     handleCallback();
   }, [navigate]);
 
   return (
-    <div className="h-screen mesh-gradient-bg flex items-center justify-center">
-      <div className="text-center space-y-3">
+    <div className="h-screen mesh-gradient-bg flex items-center justify-center px-6">
+      <div className="text-center space-y-5 max-w-sm">
         <h1 className="font-display text-2xl text-on-surface">Loop Mind</h1>
-        <p className="text-on-surface-variant text-sm animate-pulse-soft">
-          Signing you in...
-        </p>
+
+        {!showReturnButton && (
+          <p className="text-on-surface-variant text-sm animate-pulse-soft">
+            Signing you in...
+          </p>
+        )}
+
+        {showReturnButton && !webFallbackFailed && (
+          <>
+            <p className="text-on-surface-variant text-sm">
+              You're signed in. Tap below to return to Loop.
+            </p>
+            <button
+              onClick={openInApp}
+              className="w-full rounded-full bg-on-surface text-surface font-medium py-4 px-6 active:opacity-80 transition-opacity"
+            >
+              Return to Loop
+            </button>
+            <p className="text-on-surface-variant text-xs opacity-60">
+              If nothing happens, open the Loop app manually — you're
+              already signed in.
+            </p>
+          </>
+        )}
+
+        {webFallbackFailed && (
+          <>
+            <p className="text-on-surface-variant text-sm">
+              Something went wrong. Please try signing in again.
+            </p>
+            <button
+              onClick={() => navigate("/login", { replace: true })}
+              className="w-full rounded-full bg-on-surface text-surface font-medium py-4 px-6 active:opacity-80 transition-opacity"
+            >
+              Back to sign in
+            </button>
+          </>
+        )}
       </div>
     </div>
   );

@@ -22,20 +22,10 @@ export async function signInWithOAuth(
   }
 
   // On native, use Supabase OAuth directly with the system browser.
-  //
-  // IMPORTANT: we redirect straight to the app's custom URL scheme
-  // (`app.loop.journal://callback`) rather than bouncing through the
-  // web /callback page. Supabase issues this final redirect as an HTTP
-  // 302 from its OAuth callback handler, which iOS honors for custom
-  // URL schemes. A JavaScript `window.location.href` redirect from the
-  // web callback page (the previous approach) was being silently
-  // blocked by SFSafariViewController because it lacked a user gesture,
-  // leaving the user stranded in Safari after Google sign-in.
-  //
-  // This URL must be added to the Supabase project's allowed Redirect
-  // URLs (Authentication → URL Configuration) or Supabase will refuse
-  // to redirect to it.
-  const redirectTo = "app.loop.journal://callback";
+  // Redirect to the web app's /callback page, which then bounces back
+  // into the native app via the custom URL scheme. We use an https://
+  // URL because it's already in the Supabase redirect allowlist.
+  const redirectTo = "https://loop-whisper-mind.lovable.app/callback";
 
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider,

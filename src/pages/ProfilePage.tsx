@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { KeyRound, Download, Trash2, LogOut, Bell } from "lucide-react";
+import { KeyRound, Download, Trash2, LogOut, Bell, ExternalLink } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -284,12 +284,26 @@ export default function ProfilePage() {
           deleting={deleting}
         />
 
+        {/* Links */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="flex items-center justify-center gap-4 text-xs text-on-surface-variant pt-4"
+        >
+          <a href="https://loopmind.care/privacy" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-on-surface transition-colors">Privacy Policy</a>
+          <span>·</span>
+          <a href="https://loopmind.care/terms" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-on-surface transition-colors">Terms</a>
+          <span>·</span>
+          <a href="https://loopmind.care/support" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-on-surface transition-colors">Support</a>
+        </motion.div>
+
         {/* Delete Account */}
-        <div className="flex flex-col items-center gap-2 py-6">
+        <div className="flex flex-col items-center gap-2 py-4">
           <motion.button
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.2 }}
+            transition={{ delay: 0.25 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => setShowDeleteConfirm(true)}
             className="flex items-center gap-2 text-destructive text-sm font-semibold"

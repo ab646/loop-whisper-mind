@@ -1,4 +1,4 @@
-import { Mic, Send, Image } from "lucide-react";
+import { Mic, Send, Plus } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useState, useRef, useEffect, useCallback } from "react";
 
@@ -55,25 +55,24 @@ export function ChatInput({ onSend, onImageSelected, onVoice, placeholder = "I c
   return (
     <div className="px-4 pb-2 pt-2">
       <div className="flex items-center gap-3">
-        {/* Mic button — left circle */}
-        <button
-          onClick={onVoice}
-          disabled={disabled || imageUploading}
-          className="w-12 h-12 rounded-full surface-high border border-border/20 flex items-center justify-center shrink-0 disabled:opacity-50"
-        >
-          <Mic size={20} className="text-on-surface-variant" />
-        </button>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          capture="environment"
+          className="hidden"
+          onChange={handleFileSelect}
+        />
 
-        {/* Text input — pill */}
-        <div className="flex-1 flex items-center rounded-full surface-high border border-border/20 px-4 py-3 min-h-[48px]">
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            capture="environment"
-            className="hidden"
-            onChange={handleFileSelect}
-          />
+        {/* Text input — pill with + button inside */}
+        <div className="flex-1 flex items-center rounded-full surface-high border border-border/20 px-2 py-2 min-h-[48px] gap-2">
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            disabled={disabled || imageUploading}
+            className="w-8 h-8 rounded-full bg-muted flex items-center justify-center shrink-0 disabled:opacity-50"
+          >
+            <Plus size={18} className="text-on-surface-variant" />
+          </button>
           <input
             ref={inputRef}
             value={text}
@@ -90,10 +89,10 @@ export function ChatInput({ onSend, onImageSelected, onVoice, placeholder = "I c
           />
         </div>
 
-        {/* Send button — right circle */}
+        {/* Right circle — Mic or Send */}
         <button
-          onClick={hasContent ? handleSend : () => fileInputRef.current?.click()}
-          disabled={hasContent ? disabled : (disabled || imageUploading)}
+          onClick={hasContent ? handleSend : onVoice}
+          disabled={disabled || imageUploading}
           className="w-12 h-12 rounded-full surface-high border border-border/20 flex items-center justify-center shrink-0 disabled:opacity-50"
         >
           <AnimatePresence mode="wait">
@@ -109,13 +108,13 @@ export function ChatInput({ onSend, onImageSelected, onVoice, placeholder = "I c
               </motion.div>
             ) : (
               <motion.div
-                key="image"
+                key="mic"
                 initial={{ scale: 0.8, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0.8, opacity: 0 }}
                 transition={{ duration: 0.12 }}
               >
-                <Image size={18} className="text-on-surface-variant" />
+                <Mic size={20} className="text-on-surface-variant" />
               </motion.div>
             )}
           </AnimatePresence>

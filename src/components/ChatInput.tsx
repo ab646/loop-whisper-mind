@@ -105,35 +105,19 @@ export function ChatInput({ onSend, onImageSelected, onVoice, placeholder = "Typ
           rows={1}
           className="flex-1 bg-transparent text-foreground placeholder:text-on-surface-variant text-base outline-none font-body resize-none leading-relaxed max-h-[120px] disabled:opacity-50"
         />
-        <AnimatePresence mode="wait">
-          {hasContent ? (
-            <motion.button
-              key="send"
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.8, opacity: 0 }}
-              transition={{ duration: 0.15 }}
-              onClick={handleSend}
-              disabled={disabled}
-              className="w-9 h-9 rounded-full bg-mint flex items-center justify-center shrink-0 disabled:opacity-50"
-            >
-              <ArrowUp size={18} className="text-primary-foreground" />
-            </motion.button>
-          ) : (
-            <motion.button
-              key="mic"
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.8, opacity: 0 }}
-              transition={{ duration: 0.15 }}
-              onClick={onVoice}
-              disabled={disabled || imageUploading}
-              className="w-9 h-9 rounded-full orb-gradient flex items-center justify-center shrink-0 disabled:opacity-50"
-            >
-              <Mic size={16} className="text-primary-foreground" />
-            </motion.button>
-          )}
-        </AnimatePresence>
+        {hasContent && (
+          <motion.button
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.8, opacity: 0 }}
+            transition={{ duration: 0.15 }}
+            onClick={handleSend}
+            disabled={disabled}
+            className="w-9 h-9 rounded-full bg-mint flex items-center justify-center shrink-0 disabled:opacity-50"
+          >
+            <ArrowUp size={18} className="text-primary-foreground" />
+          </motion.button>
+        )}
       </div>
     </div>
   );

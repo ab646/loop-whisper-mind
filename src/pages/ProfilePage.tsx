@@ -21,7 +21,7 @@ export default function ProfilePage() {
   const [exporting, setExporting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
-  const [notificationsEnabled, setNotificationsEnabled] = useState(false);
+  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [notificationsLoading, setNotificationsLoading] = useState(false);
   const isNative = Capacitor.isNativePlatform();
 

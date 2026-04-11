@@ -26,14 +26,14 @@ function getDateGroup(dateStr: string): string {
   const diffDays = Math.round((today.getTime() - entryDate.getTime()) / 86400000);
 
   if (diffDays <= 0) {
-    const day = d.toLocaleDateString("en-US", { day: "numeric", month: "short" });
+    const day = d.toLocaleDateString("en-US", { day: "numeric", month: "long" });
     return `Today, ${day}`;
   }
   if (diffDays === 1) {
-    const day = d.toLocaleDateString("en-US", { day: "numeric", month: "short" });
+    const day = d.toLocaleDateString("en-US", { day: "numeric", month: "long" });
     return `Yesterday, ${day}`;
   }
-  return d.toLocaleDateString("en-US", { weekday: "long", day: "numeric", month: "short" });
+  return d.toLocaleDateString("en-US", { weekday: "long", day: "numeric", month: "long" });
 }
 
 function groupEntries(entries: JournalEntry[]): [string, JournalEntry[]][] {

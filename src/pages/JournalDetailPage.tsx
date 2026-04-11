@@ -159,7 +159,7 @@ export default function JournalDetailPage() {
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="shrink-0 text-center pb-4 space-y-0.5"
+        className="shrink-0 text-center pt-4 pb-6 space-y-0.5"
       >
         <p className="text-on-surface-variant text-[10px] tracking-[0.2em] uppercase font-semibold">{dayLabel}</p>
         <h1 className="font-display text-2xl text-on-surface">{weekday}</h1>

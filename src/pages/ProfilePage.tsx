@@ -160,8 +160,8 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="h-screen mesh-gradient-bg flex flex-col overflow-hidden">
-      <div className="flex-1 scroll-container pt-6 px-5 space-y-6" style={{ paddingBottom: 'calc(var(--bottom-nav-height, calc(72px + env(safe-area-inset-bottom))) + 32px)' }}>
+    <div className="h-full min-h-0 mesh-gradient-bg flex flex-col overflow-hidden">
+      <div className="flex-1 min-h-0 scroll-container pt-6 px-5 space-y-6" style={{ paddingBottom: 'calc(var(--bottom-nav-height, calc(72px + env(safe-area-inset-bottom))) + 32px)' }}>
         {/* Profile card */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}

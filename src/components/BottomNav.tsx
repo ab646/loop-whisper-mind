@@ -15,12 +15,12 @@ export function BottomNav() {
   const navigate = useNavigate();
   const navRef = useRef<HTMLElement>(null);
 
-  const hiddenPaths = ["/recording", "/login", "/signup", "/onboarding", "/forgot-password", "/reset-password"];
-  const hiddenPrefixes: string[] = [];
+  const visiblePaths = ["/", "/journal", "/insights", "/profile"];
+  const visiblePrefixes = ["/journal/", "/theme/"];
 
   const shouldHide =
-    hiddenPaths.includes(location.pathname) ||
-    hiddenPrefixes.some((prefix) => location.pathname.startsWith(prefix));
+    !visiblePaths.includes(location.pathname) &&
+    !visiblePrefixes.some((prefix) => location.pathname.startsWith(prefix));
 
   useLayoutEffect(() => {
     if (shouldHide) {

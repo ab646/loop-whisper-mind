@@ -345,9 +345,9 @@ export default function HomePage() {
           </div>
           <button
             onClick={() => navigate("/recording")}
-            className="w-11 h-11 rounded-full orb-gradient flex items-center justify-center shrink-0 mb-2"
+            className="text-on-surface-variant hover:text-mint transition-colors mb-4"
           >
-            <Mic size={18} className="text-primary-foreground" />
+            <Mic size={22} />
           </button>
         </div>
       </motion.div>

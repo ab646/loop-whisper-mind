@@ -13,10 +13,21 @@ interface CreateLoopOptions {
   entryType?: string;
 }
 
+export interface GuardResponse {
+  class: string;
+  message: string;
+  resources?: any;
+}
+
+export interface CreateLoopResult {
+  entryId?: string;
+  guard?: GuardResponse;
+}
+
 export function useCreateLoop() {
   const [loading, setLoading] = useState(false);
 
-  const createEntry = async ({ content, entryType = "text" }: CreateLoopOptions): Promise<string | null> => {
+  const createEntry = async ({ content, entryType = "text" }: CreateLoopOptions): Promise<CreateLoopResult | null> => {
     const trimmed = content.trim();
 
     // ── Scenario A: empty content ──────────────────────────────────
@@ -66,9 +77,8 @@ export function useCreateLoop() {
       // Handle input guard responses (crisis, hostile, meta, too_thin)
       if (data?.guard) {
         if (data.guard.class === "crisis") {
-          // Navigate to a crisis response — don't show as error
           setLoading(false);
-          return null; // HomePage will need to handle crisis card separately
+          return { guard: data.guard };
         }
         // For hostile, meta_or_scope, too_thin — show the soft message
         toast(data.guard.message || "Try sharing a bit more about what's on your mind.", {
@@ -92,7 +102,7 @@ export function useCreateLoop() {
       }
 
       setLoading(false);
-      return entryId;
+      return { entryId };
     } catch (e) {
       console.error("useCreateLoop error:", e);
       toast.error(e instanceof Error ? e.message : "Failed to process reflection");

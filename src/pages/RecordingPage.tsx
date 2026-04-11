@@ -363,7 +363,7 @@ export default function RecordingPage() {
         </div>
 
         {/* Timer — smaller, below orb */}
-        <div className="flex flex-col items-center gap-4 mb-8">
+        <div className="flex flex-col items-center gap-4 mb-4 pb-[env(safe-area-inset-bottom)]">
           <span className="text-on-surface-variant text-sm font-body font-medium tracking-widest tabular-nums">
             {formatTime(duration)}
           </span>

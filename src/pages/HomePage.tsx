@@ -246,19 +246,6 @@ export default function HomePage() {
               </p>
             </motion.div>
 
-            {/* Pulsating scroll arrow */}
-            <motion.div
-              animate={{ opacity: navigatingOut ? 0 : 1 }}
-              transition={{ duration: 0.2 }}
-              className="mt-4"
-            >
-              <motion.div
-                animate={{ y: [0, 6, 0] }}
-                transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-              >
-                <ChevronDown size={20} className="text-on-surface-variant/50" />
-              </motion.div>
-            </motion.div>
           </div>
         </div>
 

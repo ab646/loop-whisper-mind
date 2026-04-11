@@ -183,11 +183,6 @@ export default function JournalDetailPage() {
               {date.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}
             </span>
           </div>
-          {reflection?.mainLoop && (
-            <h2 className="font-display text-lg text-on-surface font-semibold leading-snug">
-              {reflection.mainLoop}
-            </h2>
-          )}
           <div className="space-y-3">
             {paragraphs.map((p, i) => (
               <p key={i} className="text-on-surface text-[15px] leading-[1.75] font-body">

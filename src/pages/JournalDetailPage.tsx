@@ -119,8 +119,20 @@ export default function JournalDetailPage() {
 
       // Handle input guard responses
       if (data?.guard) {
-        const guardMessage = data.guard.message || "I can only reflect on journal thoughts.";
-        setExplorationMessages((prev) => [...prev, { role: "guard", content: guardMessage, guardClass: data.guard.class }]);
+        if (data.guard.class === "crisis") {
+          setExplorationMessages((prev) => [...prev, {
+            role: "guard" as const,
+            guardClass: "crisis" as const,
+            message: data.guard.message || "",
+            resources: data.guard.resources,
+          }]);
+        } else {
+          setExplorationMessages((prev) => [...prev, {
+            role: "guard" as const,
+            guardClass: data.guard.class as "hostile" | "meta_or_scope" | "too_thin",
+            message: data.guard.message || "I can only reflect on journal thoughts.",
+          }]);
+        }
         setExplorationLoading(false);
         return;
       }

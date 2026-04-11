@@ -8,6 +8,8 @@ import { CyclingLoader } from "@/components/CyclingLoader";
 import { FullScreenLoader } from "@/components/FullScreenLoader";
 import { ScribblingLogo } from "@/components/LoopLogo";
 import { FeedbackButtons } from "@/components/FeedbackButtons";
+import { CrisisCard, type CrisisResources } from "@/components/CrisisCard";
+import { SoftResponseCard } from "@/components/SoftResponseCard";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";

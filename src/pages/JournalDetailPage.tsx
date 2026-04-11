@@ -171,7 +171,7 @@ export default function JournalDetailPage() {
   return (
     <div className="h-full min-h-0 mesh-gradient-bg flex flex-col overflow-hidden relative">
       {/* Header */}
-      <div className="shrink-0 flex items-center justify-between px-4 pb-2 sticky top-0 z-30 mesh-gradient-bg" style={{ paddingTop: "max(env(safe-area-inset-top), 16px)" }}>
+      <div className="shrink-0 flex items-center justify-between px-4 py-2 sticky top-0 z-30 mesh-gradient-bg">
         <button onClick={() => navigate("/journal")} className="text-on-surface-variant hover:text-mint transition-colors w-8">
           <ArrowLeft size={22} />
         </button>

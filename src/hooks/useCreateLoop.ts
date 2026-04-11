@@ -69,6 +69,7 @@ export function useCreateLoop() {
           confidence,
           wordCount,
           previousMessages: [],
+          countryCode: navigator.language?.split("-")[1]?.toUpperCase() || undefined,
         },
       });
 

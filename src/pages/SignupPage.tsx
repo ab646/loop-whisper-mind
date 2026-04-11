@@ -47,20 +47,33 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="h-screen mesh-gradient-bg flex flex-col items-center justify-center px-6">
+    <div className="h-[100dvh] mesh-gradient-bg flex flex-col items-center px-6 overflow-y-auto pt-[max(env(safe-area-inset-top),24px)]" style={{ paddingBottom: 'max(var(--keyboard-height, 0px), calc(env(safe-area-inset-bottom) + 24px))' }}>
+      {/* Spacer — top */}
+      <div className="flex-1 min-h-4" />
+
+      {/* Hero — centered in remaining space */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-sm space-y-8"
+        className="flex flex-col items-center space-y-2"
       >
-        <div className="flex flex-col items-center space-y-3">
-          <StaticLogo size={80} />
-          <h1 className="font-display text-3xl text-on-surface">Loop Mind</h1>
-          <p className="font-display text-base text-mint italic">
-            Talk it out. See the pattern.
-          </p>
-        </div>
+        <StaticLogo size={64} className="sm:w-24 sm:h-24" />
+        <h1 className="font-display text-2xl sm:text-3xl text-on-surface">Loop Mind</h1>
+        <p className="font-display text-sm sm:text-base text-mint italic">
+          Talk it out. See the pattern.
+        </p>
+      </motion.div>
 
+      {/* Spacer — bottom */}
+      <div className="flex-1 min-h-4" />
+
+      {/* Form — anchored to bottom */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+        className="w-full max-w-sm space-y-4 pb-6"
+      >
         {/* Social login buttons */}
         <div className="space-y-3">
           <motion.button
@@ -77,7 +90,6 @@ export default function SignupPage() {
             </svg>
             {socialLoading === "google" ? "Connecting..." : "Continue with Google"}
           </motion.button>
-
         </div>
 
         {/* Divider */}
@@ -87,7 +99,7 @@ export default function SignupPage() {
           <div className="flex-1 h-px bg-border/30" />
         </div>
 
-        <form onSubmit={handleSignup} className="space-y-4">
+        <form onSubmit={handleSignup} className="space-y-3">
           <div className="space-y-2">
             <label className="label-uppercase text-[10px]">EMAIL</label>
             <input
@@ -112,14 +124,16 @@ export default function SignupPage() {
             />
           </div>
 
-          <motion.button
-            whileTap={{ scale: 0.97 }}
-            type="submit"
-            disabled={loading}
-            className="w-full rounded-xl orb-gradient py-3.5 text-primary-foreground font-body font-semibold text-sm uppercase tracking-wider disabled:opacity-50"
-          >
-            {loading ? "Creating account..." : "Get Started"}
-          </motion.button>
+          <div className="pt-2">
+            <motion.button
+              whileTap={{ scale: 0.97 }}
+              type="submit"
+              disabled={loading}
+              className="w-full rounded-xl orb-gradient py-3.5 text-primary-foreground font-body font-semibold text-sm uppercase tracking-wider disabled:opacity-50"
+            >
+              {loading ? "Creating account..." : "Get Started"}
+            </motion.button>
+          </div>
         </form>
 
         <p className="text-center text-on-surface-variant text-sm font-body py-3">

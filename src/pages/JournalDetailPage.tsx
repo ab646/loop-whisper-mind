@@ -105,9 +105,18 @@ export default function JournalDetailPage() {
     const theme = entry?.tags?.[0] || "reflection";
     try {
       const { data, error } = await supabase.functions.invoke("explore-theme", {
-        body: { theme: theme.toLowerCase(), question },
+        body: { theme: theme.toLowerCase(), question, countryCode: getCountryCode() },
       });
       if (error) throw error;
+
+      // Handle input guard responses
+      if (data?.guard) {
+        const guardMessage = data.guard.message || "I can only reflect on journal thoughts.";
+        setExplorationMessages((prev) => [...prev, { role: "guard", content: guardMessage, guardClass: data.guard.class }]);
+        setExplorationLoading(false);
+        return;
+      }
+
       const answer = data?.answer || data?.connectedBelief || "I couldn't generate a reflection for that.";
       setExplorationMessages((prev) => [...prev, { role: "ai", content: answer }]);
     } catch {

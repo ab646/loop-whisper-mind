@@ -1,10 +1,20 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import { Eye, EyeOff, Check, X } from "lucide-react";
 import { StaticLogo } from "@/components/LoopLogo";
 import { supabase } from "@/integrations/supabase/client";
 import { signInWithOAuth } from "@/lib/native-auth";
 import { toast } from "sonner";
+
+function PasswordRule({ met, label }: { met: boolean; label: string }) {
+  return (
+    <div className="flex items-center gap-2 text-xs font-body">
+      {met ? <Check size={12} className="text-mint" /> : <X size={12} className="text-on-surface-variant/50" />}
+      <span className={met ? "text-mint" : "text-on-surface-variant/70"}>{label}</span>
+    </div>
+  );
+}
 
 export default function LoginPage() {
   const [mode, setMode] = useState<"login" | "signup">("signup");
@@ -12,6 +22,8 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showConfirm, setShowConfirm] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [socialLoading, setSocialLoading] = useState<string | null>(null);
   const [showConfirmation, setShowConfirmation] = useState(false);
@@ -123,7 +135,6 @@ export default function LoginPage() {
 
   const isLogin = mode === "login";
 
-  // Fix #2: Confirmation screen after signup
   if (showConfirmation) {
     return (
       <div className="h-screen mesh-gradient-bg flex flex-col items-center justify-center px-6 overflow-hidden">
@@ -231,16 +242,32 @@ export default function LoginPage() {
           </div>
           <div className="space-y-2">
             <label className="label-uppercase text-[10px]">PASSWORD</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              onFocus={scrollOnFocus}
-              required
-              minLength={mode === "signup" ? 6 : undefined}
-              className="w-full rounded-xl surface-high border border-border/40 px-4 py-3 text-on-surface text-base font-body outline-none focus:ring-1 focus:ring-mint placeholder:text-on-surface-variant"
-              placeholder={mode === "signup" ? "At least 6 characters" : "••••••••"}
-            />
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                onFocus={scrollOnFocus}
+                required
+                minLength={mode === "signup" ? 6 : undefined}
+                className="w-full rounded-xl surface-high border border-border/40 px-4 py-3 pr-12 text-on-surface text-base font-body outline-none focus:ring-1 focus:ring-mint placeholder:text-on-surface-variant"
+                placeholder={mode === "signup" ? "At least 6 characters" : "••••••••"}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-on-surface transition-colors p-1"
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
+            {mode === "signup" && password.length > 0 && (
+              <div className="space-y-1 pt-1">
+                <PasswordRule met={password.length >= 6} label="At least 6 characters" />
+                <PasswordRule met={/[A-Z]/.test(password)} label="One uppercase letter" />
+                <PasswordRule met={/[0-9]/.test(password)} label="One number" />
+              </div>
+            )}
           </div>
 
           {/* Confirm password for signup */}
@@ -253,16 +280,25 @@ export default function LoginPage() {
                 className="space-y-2 overflow-hidden"
               >
                 <label className="label-uppercase text-[10px]">CONFIRM PASSWORD</label>
-                <input
-                  type="password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  onFocus={scrollOnFocus}
-                  required
-                  minLength={6}
-                  className="w-full rounded-xl surface-high border border-border/40 px-4 py-3 text-on-surface text-base font-body outline-none focus:ring-1 focus:ring-mint placeholder:text-on-surface-variant"
-                  placeholder="Re-enter your password"
-                />
+                <div className="relative">
+                  <input
+                    type={showConfirmPassword ? "text" : "password"}
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    onFocus={scrollOnFocus}
+                    required
+                    minLength={6}
+                    className="w-full rounded-xl surface-high border border-border/40 px-4 py-3 pr-12 text-on-surface text-base font-body outline-none focus:ring-1 focus:ring-mint placeholder:text-on-surface-variant"
+                    placeholder="Re-enter your password"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-on-surface transition-colors p-1"
+                  >
+                    {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
                 {confirmPassword && password !== confirmPassword && (
                   <p className="text-destructive text-xs font-body">Passwords don't match</p>
                 )}

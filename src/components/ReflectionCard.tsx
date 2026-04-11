@@ -111,7 +111,7 @@ export function ReflectionCard({ mainLoop, feelings, knownVsAssumed, repeatingPa
       )}
 
       {/* Collapsible: Fact vs Story — Loop's differentiator */}
-      <CollapsibleSection title="Fact vs Story" defaultOpen>
+      <CollapsibleSection title="Fact vs Story">
         <div className="space-y-4">
           <div className="space-y-2">
             <span className="label-uppercase text-mint text-[10px]">Fact</span>
@@ -137,7 +137,7 @@ export function ReflectionCard({ mainLoop, feelings, knownVsAssumed, repeatingPa
 
       {/* Collapsible: Pattern */}
       {repeatingPattern && (
-        <CollapsibleSection title="Pattern">
+        <CollapsibleSection title="Pattern" defaultOpen>
           <p className="text-on-surface text-base leading-relaxed font-body">{repeatingPattern}</p>
         </CollapsibleSection>
       )}

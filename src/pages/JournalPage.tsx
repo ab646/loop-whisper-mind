@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowUpRight } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import { ScribblingLogo } from "@/components/LoopLogo";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -167,7 +167,7 @@ export default function JournalPage() {
                       <span className="text-on-surface-variant/60 text-xs font-body shrink-0">
                         {new Date(entry.createdAt).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}
                       </span>
-                      <ArrowUpRight className="ml-auto text-on-surface-variant/40 shrink-0" size={16} />
+                      <ChevronRight className="ml-auto text-on-surface-variant/40 shrink-0" size={16} />
                     </div>
 
                     {/* Summary content */}

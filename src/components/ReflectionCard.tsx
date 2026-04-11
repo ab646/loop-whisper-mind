@@ -1,35 +1,23 @@
 import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown, Heart, Shield, Search, Zap, Brain, CloudRain, Eye, MessageCircle, Flame, Lock, Users, Target, Repeat, AlertTriangle, Frown, type LucideIcon } from "lucide-react";
+import { ChevronDown, Heart, Shield, Search, Zap, Brain, CloudRain, Eye, MessageCircle, Flame, Lock, Users, Target, Repeat, AlertTriangle, Frown, Compass, Anchor, Hourglass, Scale, Ghost, BatteryLow, HandHeart, Puzzle, Orbit, Sparkles, Shrink, Layers, Moon, Sun, Trees, Waves, DoorOpen, Footprints, Infinity, Unplug, RotateCcw, Swords, type LucideIcon } from "lucide-react";
 import { FeedbackButtons } from "@/components/FeedbackButtons";
 
-const TAG_ICON_MAP: Record<string, LucideIcon> = {
-  rejection: Frown,
-  attachment: Heart,
-  validation: Eye,
-  control: Lock,
-  abandonment: CloudRain,
-  perfectionism: Target,
-  self_worth: Shield,
-  boundaries: Shield,
-  communication: MessageCircle,
-  trust: Users,
-  anxiety: Brain,
-  anger: Flame,
-  fear: AlertTriangle,
-  pattern: Repeat,
-  trigger: Zap,
-  avoidance: Shield,
-  rumination: Brain,
-  comparison: Search,
+const ICON_MAP: Record<string, LucideIcon> = {
+  heart: Heart, shield: Shield, search: Search, zap: Zap, brain: Brain,
+  "cloud-rain": CloudRain, eye: Eye, "message-circle": MessageCircle,
+  flame: Flame, lock: Lock, users: Users, target: Target, repeat: Repeat,
+  "alert-triangle": AlertTriangle, frown: Frown, swords: Swords,
+  compass: Compass, anchor: Anchor, hourglass: Hourglass, scale: Scale,
+  ghost: Ghost, "battery-low": BatteryLow, "hand-heart": HandHeart,
+  puzzle: Puzzle, orbit: Orbit, sparkles: Sparkles, shrink: Shrink,
+  layers: Layers, moon: Moon, sun: Sun, trees: Trees, waves: Waves,
+  "door-open": DoorOpen, footprints: Footprints, infinity: Infinity,
+  unplug: Unplug, "rotate-ccw": RotateCcw,
 };
 
-function getTagIcon(tag: string): LucideIcon {
-  const key = tag.toLowerCase().replace(/\s+/g, "_");
-  for (const [keyword, icon] of Object.entries(TAG_ICON_MAP)) {
-    if (key.includes(keyword)) return icon;
-  }
-  return Repeat;
+function getIcon(name: string): LucideIcon {
+  return ICON_MAP[name] || Repeat;
 }
 
 interface ReflectionCardProps {
@@ -38,7 +26,7 @@ interface ReflectionCardProps {
   knownVsAssumed: { known: string[]; assumed: string[] };
   repeatingPattern?: string | null;
   oneQuestion: string;
-  tags?: string[];
+  tags?: (string | { label: string; icon: string })[];
   themeAnswer?: string;
 }
 
@@ -157,13 +145,14 @@ export function ReflectionCard({ mainLoop, feelings, knownVsAssumed, repeatingPa
       {/* Tags */}
       {tags && tags.length > 0 && (
         <div className="flex flex-wrap gap-2 pt-2">
-          {tags.map((tag) => {
-            const Icon = getTagIcon(tag);
-            const label = tag.replace(/_/g, " ").trim().toLowerCase().replace(/^\w/, (char) => char.toUpperCase());
+          {tags.map((tag, i) => {
+            const isObj = typeof tag === "object" && tag !== null;
+            const rawLabel = isObj ? (tag as { label: string; icon: string }).label : (tag as string).replace(/_/g, " ").trim().toLowerCase().replace(/^\w/, (c: string) => c.toUpperCase());
+            const Icon = isObj ? getIcon((tag as { label: string; icon: string }).icon) : Repeat;
             return (
-              <span key={tag} className="tag-pill inline-flex items-center gap-1.5">
+              <span key={isObj ? (tag as { label: string; icon: string }).label : `${tag}-${i}`} className="tag-pill inline-flex items-center gap-1.5">
                 <Icon size={12} className="text-mint" />
-                {label}
+                {rawLabel}
               </span>
             );
           })}

@@ -297,7 +297,7 @@ export default function JournalDetailPage() {
                 <span className="text-primary-foreground text-xs">✦</span>
               </div>
               <span className="text-on-surface-variant text-sm">
-                Want to go deeper? Ask a follow-up, or add more context.
+                Want to go deeper? Ask a follow-up
               </span>
             </button>
           )}

@@ -164,9 +164,6 @@ export default function JournalPage() {
                   >
                     {/* Header — single row: icon + JOURNAL + Summary + time */}
                     <div className="flex items-center gap-2.5 px-4 py-3">
-                      <div className="w-7 h-7 rounded-full bg-on-surface/10 flex items-center justify-center shrink-0">
-                        <Pen size={13} className="text-on-surface" />
-                      </div>
                       <span className="text-on-surface-variant/60 text-xs font-medium tracking-widest uppercase font-body shrink-0">
                         Journal
                       </span>

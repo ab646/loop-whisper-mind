@@ -1,5 +1,5 @@
-import { motion } from "framer-motion";
-import { KeyRound, Download, Trash2, LogOut, Bell, ExternalLink, LifeBuoy } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { KeyRound, Download, Trash2, LogOut, Bell, ExternalLink, LifeBuoy, Settings } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -10,6 +10,7 @@ import DeleteAccountDialog from "@/components/DeleteAccountDialog";
 import { scheduleAdaptiveNotification } from "@/lib/adaptive-notifications";
 import { Capacitor } from "@capacitor/core";
 import { LocalNotifications } from "@capacitor/local-notifications";
+import { NativeSettings, IOSSettings } from "capacitor-native-settings";
 
 export default function ProfilePage() {
   const navigate = useNavigate();

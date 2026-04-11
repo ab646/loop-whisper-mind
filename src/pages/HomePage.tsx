@@ -18,6 +18,7 @@ import { ChatInput } from "@/components/ChatInput";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCreateLoop } from "@/hooks/useCreateLoop";
+import { toast } from "sonner";
 
 interface EntryPreview {
   id: string;

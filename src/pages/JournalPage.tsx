@@ -164,9 +164,6 @@ export default function JournalPage() {
                   >
                     {/* Header — single row: icon + JOURNAL + Summary + time */}
                     <div className="flex items-center gap-2.5 px-4 py-3">
-                      <span className="text-on-surface-variant/60 text-xs font-medium tracking-widest uppercase font-body shrink-0">
-                        Journal
-                      </span>
                       <span className="text-on-surface-variant/60 text-xs font-body ml-auto shrink-0">
                         {new Date(entry.createdAt).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}
                       </span>

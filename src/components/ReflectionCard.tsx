@@ -93,51 +93,29 @@ export function ReflectionCard({ mainLoop, feelings, knownVsAssumed, repeatingPa
         </CollapsibleSection>
       )}
 
-      {/* Fact vs Assumption — inspired by trends visualization */}
-      <CollapsibleSection title="Fact vs Assumption" defaultOpen>
-        {(() => {
-          const factCount = knownVsAssumed.known.length;
-          const assumptionCount = knownVsAssumed.assumed.length;
-          const total = factCount + assumptionCount || 1;
-          const factPct = Math.round((factCount / total) * 100);
-          const assumptionPct = 100 - factPct;
-
-          return (
-            <div className="grid grid-cols-2 gap-4">
-              {/* Facts column */}
-              <div className="space-y-2">
-                <div className="flex items-baseline gap-2">
-                  <span className="font-display text-sm text-mint font-semibold">Facts</span>
-                  <span className="font-display text-2xl text-on-surface font-bold">{factPct}%</span>
-                </div>
-                <div className="h-1.5 rounded-full bg-surface-container overflow-hidden">
-                  <div className="h-full rounded-full bg-mint" style={{ width: `${factPct}%` }} />
-                </div>
-                {knownVsAssumed.known[0] && (
-                  <p className="text-on-surface-variant text-sm italic leading-relaxed font-body">
-                    "{knownVsAssumed.known[0]}"
-                  </p>
-                )}
-              </div>
-
-              {/* Assumptions column */}
-              <div className="space-y-2">
-                <div className="flex items-baseline gap-2">
-                  <span className="font-display text-sm text-tertiary font-semibold">Assumptions</span>
-                  <span className="font-display text-2xl text-on-surface font-bold">{assumptionPct}%</span>
-                </div>
-                <div className="h-1.5 rounded-full bg-surface-container overflow-hidden">
-                  <div className="h-full rounded-full bg-tertiary" style={{ width: `${assumptionPct}%` }} />
-                </div>
-                {knownVsAssumed.assumed[0] && (
-                  <p className="text-on-surface-variant text-sm italic leading-relaxed font-body">
-                    "{knownVsAssumed.assumed[0]}"
-                  </p>
-                )}
-              </div>
+      {/* Collapsible: Fact vs Story — Loop's differentiator */}
+      <CollapsibleSection title="Fact vs Story" defaultOpen>
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <span className="label-uppercase text-mint text-[10px]">Fact</span>
+            <ul className="space-y-2">
+              {knownVsAssumed.known.map((item, i) => (
+                <li key={`k-${i}`} className="flex items-start gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-mint mt-2 shrink-0" />
+                  <span className="text-on-surface text-base">{item}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div className="space-y-2">
+            <span className="label-uppercase text-on-surface-variant text-[10px]">Story</span>
+            <div className="border-l-2 border-on-surface-variant/30 pl-3 space-y-2">
+              {knownVsAssumed.assumed.map((item, i) => (
+                <p key={`a-${i}`} className="text-on-surface-variant text-base italic">{item}</p>
+              ))}
             </div>
-          );
-        })()}
+          </div>
+        </div>
       </CollapsibleSection>
 
       {/* Collapsible: Pattern */}

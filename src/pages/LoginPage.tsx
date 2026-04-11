@@ -156,28 +156,38 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="h-[100dvh] mesh-gradient-bg flex flex-col items-center px-6 overflow-y-auto py-6 pt-[max(env(safe-area-inset-top),24px)]" style={{ paddingBottom: 'max(var(--keyboard-height, 0px), calc(env(safe-area-inset-bottom) + 24px))' }}>
+    <div className="h-[100dvh] mesh-gradient-bg flex flex-col items-center px-6 overflow-y-auto pt-[max(env(safe-area-inset-top),24px)]" style={{ paddingBottom: 'max(var(--keyboard-height, 0px), calc(env(safe-area-inset-bottom) + 24px))' }}>
+      {/* Logo area - sticks to top */}
+      <motion.div
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="w-full max-w-sm flex flex-col items-center py-6 sm:py-10 shrink-0"
+      >
+        <StaticLogo size={64} className="sm:hidden" />
+        <StaticLogo size={96} className="hidden sm:block" />
+        <h1 className="font-display text-2xl sm:text-3xl text-on-surface mt-2">Loop Mind</h1>
+        <AnimatePresence mode="wait">
+          <motion.p
+            key={mode}
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -6 }}
+            className="font-display text-sm sm:text-base text-mint italic mt-1"
+          >
+            {isLogin ? "Welcome back." : "Talk it out. See the pattern."}
+          </motion.p>
+        </AnimatePresence>
+      </motion.div>
+
+      {/* Spacer pushes form to bottom */}
+      <div className="flex-1 min-h-4" />
+
+      {/* Form area - anchored to bottom */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-sm space-y-5"
+        className="w-full max-w-sm space-y-5 pb-6"
       >
-        <div className="flex flex-col items-center space-y-2">
-          <StaticLogo size={96} />
-          <h1 className="font-display text-3xl text-on-surface">Loop Mind</h1>
-          <AnimatePresence mode="wait">
-            <motion.p
-              key={mode}
-              initial={{ opacity: 0, y: 6 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -6 }}
-              className="font-display text-base text-mint italic"
-            >
-              {isLogin ? "Welcome back." : "Talk it out. See the pattern."}
-            </motion.p>
-          </AnimatePresence>
-        </div>
-
         {/* Social login */}
         <div className="space-y-2">
           <motion.button
@@ -194,7 +204,6 @@ export default function LoginPage() {
             </svg>
             {socialLoading === "google" ? "Connecting..." : "Continue with Google"}
           </motion.button>
-
         </div>
 
         {/* Divider */}
@@ -288,7 +297,6 @@ export default function LoginPage() {
             {isLogin ? "Sign up" : "Sign in"}
           </button>
         </p>
-
       </motion.div>
     </div>
   );

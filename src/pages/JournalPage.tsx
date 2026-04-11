@@ -173,7 +173,7 @@ export default function JournalPage() {
                     {/* Summary content */}
                     <div className="px-4 py-3">
                       <p className="text-on-surface text-sm leading-relaxed line-clamp-3 font-body">
-                        {entry.summary || entry.content.substring(0, 200)}
+                        {entry.summary || entry.mainLoop || entry.content.substring(0, 200)}
                       </p>
                     </div>
 

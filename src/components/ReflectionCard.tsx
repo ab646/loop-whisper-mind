@@ -150,9 +150,9 @@ export function ReflectionCard({ mainLoop, feelings, knownVsAssumed, repeatingPa
             const rawLabel = isObj ? (tag as { label: string; icon: string }).label : (tag as string).replace(/_/g, " ").trim().toLowerCase().replace(/^\w/, (c: string) => c.toUpperCase());
             const Icon = isObj ? getIcon((tag as { label: string; icon: string }).icon) : Repeat;
             return (
-              <span key={isObj ? tag.label : `${tag}-${i}`} className="tag-pill inline-flex items-center gap-1.5">
+              <span key={isObj ? (tag as { label: string; icon: string }).label : `${tag}-${i}`} className="tag-pill inline-flex items-center gap-1.5">
                 <Icon size={12} className="text-mint" />
-                {label}
+                {rawLabel}
               </span>
             );
           })}

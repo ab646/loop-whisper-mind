@@ -157,11 +157,14 @@ export default function LoginPage() {
 
   return (
     <div className="h-[100dvh] mesh-gradient-bg flex flex-col items-center px-6 overflow-y-auto pt-[max(env(safe-area-inset-top),24px)]" style={{ paddingBottom: 'max(var(--keyboard-height, 0px), calc(env(safe-area-inset-bottom) + 24px))' }}>
-      {/* Hero — sticks to top, shrinks on small screens */}
+      {/* Spacer — top */}
+      <div className="flex-1 min-h-4" />
+
+      {/* Hero — centered in remaining space */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="flex flex-col items-center space-y-2 pt-6 pb-4 sm:pt-10 sm:pb-6"
+        className="flex flex-col items-center space-y-2"
       >
         <StaticLogo size={64} className="sm:w-24 sm:h-24" />
         <h1 className="font-display text-2xl sm:text-3xl text-on-surface">Loop Mind</h1>
@@ -178,7 +181,7 @@ export default function LoginPage() {
         </AnimatePresence>
       </motion.div>
 
-      {/* Spacer pushes form to bottom */}
+      {/* Spacer — bottom */}
       <div className="flex-1 min-h-4" />
 
       {/* Form — anchored to bottom */}

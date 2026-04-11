@@ -24,6 +24,7 @@ export default function ProfilePage() {
   const [deleting, setDeleting] = useState(false);
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [notificationsLoading, setNotificationsLoading] = useState(false);
+  const [permissionDenied, setPermissionDenied] = useState(false);
   const isNative = Capacitor.isNativePlatform();
 
   useEffect(() => {
@@ -32,6 +33,24 @@ export default function ProfilePage() {
     }
   }, [profile]);
 
+  // Check current permission status on mount (native only)
+  useEffect(() => {
+    if (!isNative) return;
+    LocalNotifications.checkPermissions().then((result) => {
+      if (result.display === "denied") {
+        setPermissionDenied(true);
+      }
+    }).catch(() => {});
+  }, [isNative]);
+
+  const openAppSettings = async () => {
+    try {
+      await NativeSettings.openIOS({ option: IOSSettings.App });
+    } catch {
+      toast.error("Couldn't open settings");
+    }
+  };
+
   const handleToggleNotifications = async (enabled: boolean) => {
     if (!user) return;
     setNotificationsLoading(true);
@@ -39,10 +58,11 @@ export default function ProfilePage() {
     if (enabled && isNative) {
       const permResult = await LocalNotifications.requestPermissions();
       if (permResult.display !== "granted") {
-        toast.error("Please enable notifications in your device settings");
+        setPermissionDenied(true);
         setNotificationsLoading(false);
         return;
       }
+      setPermissionDenied(false);
     }
 
     const { error } = await supabase

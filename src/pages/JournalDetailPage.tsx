@@ -307,9 +307,7 @@ export default function JournalDetailPage() {
               className="flex items-center gap-3 rounded-xl surface-high px-4 py-3 border border-border/20 shadow-lg w-full text-left"
             >
               <div className="w-7 h-7 rounded-full orb-gradient flex items-center justify-center shrink-0">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="text-primary-foreground">
-                  <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="currentColor" />
-                </svg>
+                <span className="text-primary-foreground text-xs">✦</span>
               </div>
               <span className="text-on-surface-variant text-sm">
                 Want to go deeper? Ask a follow-up, or add more context.

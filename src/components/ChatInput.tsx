@@ -1,4 +1,4 @@
-import { Mic, ArrowUp, X, Image } from "lucide-react";
+import { ArrowUp, Image } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useState, useRef, useEffect, useCallback } from "react";
 

@@ -170,10 +170,10 @@ export default function JournalPage() {
                       <ChevronRight className="ml-auto text-on-surface-variant/40 shrink-0" size={16} />
                     </div>
 
-                    {/* Summary content */}
+                    {/* Summary content — prefer display_content for a richer preview */}
                     <div className="px-4 pb-3">
                       <p className="text-on-surface text-sm leading-relaxed line-clamp-3 font-body">
-                        {entry.summary || entry.content.substring(0, 200)}
+                        {entry.displayContent || entry.content.substring(0, 300)}
                       </p>
                     </div>
 

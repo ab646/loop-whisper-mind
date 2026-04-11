@@ -181,6 +181,28 @@ export default function ProfilePage() {
 
         {/* Actions */}
         <div className="space-y-3">
+          {/* Notifications */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.03 }}
+            className="w-full rounded-2xl surface-low p-5 flex items-center justify-between"
+          >
+            <div className="flex items-center gap-3">
+              <Bell size={18} className="text-on-surface-variant" />
+              <div>
+                <span className="text-on-surface text-sm font-semibold">Daily Reminders</span>
+                <p className="text-on-surface-variant text-xs mt-0.5">
+                  {isNative ? "Get a gentle nudge to reflect" : "Available on the mobile app"}
+                </p>
+              </div>
+            </div>
+            <Switch
+              checked={notificationsEnabled}
+              onCheckedChange={handleToggleNotifications}
+              disabled={notificationsLoading}
+            />
+          </motion.div>
           {/* Change Password */}
           <motion.button
             initial={{ opacity: 0, y: 10 }}

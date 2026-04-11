@@ -8,6 +8,8 @@ import { CyclingLoader } from "@/components/CyclingLoader";
 import { FullScreenLoader } from "@/components/FullScreenLoader";
 import { ScribblingLogo } from "@/components/LoopLogo";
 import { FeedbackButtons } from "@/components/FeedbackButtons";
+import { CrisisCard, type CrisisResources } from "@/components/CrisisCard";
+import { SoftResponseCard } from "@/components/SoftResponseCard";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
@@ -62,7 +64,13 @@ export default function JournalDetailPage() {
   const [loading, setLoading] = useState(true);
 
   // Exploration wizard state
-  const [explorationMessages, setExplorationMessages] = useState<{ role: "user" | "ai" | "guard"; content: string; guardClass?: string }[]>([]);
+  const [explorationMessages, setExplorationMessages] = useState<
+    Array<
+      | { role: "user" | "ai"; content: string }
+      | { role: "guard"; guardClass: "crisis"; message: string; resources: CrisisResources }
+      | { role: "guard"; guardClass: "hostile" | "meta_or_scope" | "too_thin"; message: string }
+    >
+  >([]);
   const [explorationInput, setExplorationInput] = useState("");
   const [inputFocused, setInputFocused] = useState(false);
   const [explorationLoading, setExplorationLoading] = useState(false);
@@ -111,8 +119,20 @@ export default function JournalDetailPage() {
 
       // Handle input guard responses
       if (data?.guard) {
-        const guardMessage = data.guard.message || "I can only reflect on journal thoughts.";
-        setExplorationMessages((prev) => [...prev, { role: "guard", content: guardMessage, guardClass: data.guard.class }]);
+        if (data.guard.class === "crisis") {
+          setExplorationMessages((prev) => [...prev, {
+            role: "guard" as const,
+            guardClass: "crisis" as const,
+            message: data.guard.message || "",
+            resources: data.guard.resources,
+          }]);
+        } else {
+          setExplorationMessages((prev) => [...prev, {
+            role: "guard" as const,
+            guardClass: data.guard.class as "hostile" | "meta_or_scope" | "too_thin",
+            message: data.guard.message || "I can only reflect on journal thoughts.",
+          }]);
+        }
         setExplorationLoading(false);
         return;
       }
@@ -280,10 +300,10 @@ export default function JournalDetailPage() {
                       <p className="text-on-surface text-sm leading-relaxed">{msg.content}</p>
                     </div>
                   </div>
+                ) : msg.role === "guard" && msg.guardClass === "crisis" ? (
+                  <CrisisCard message={msg.message} resources={msg.resources} />
                 ) : msg.role === "guard" ? (
-                  <div className="rounded-2xl p-4 space-y-2 border-l-4 border-secondary/30 surface-container">
-                    <p className="text-on-surface-variant text-sm leading-relaxed font-body italic">{msg.content}</p>
-                  </div>
+                  <SoftResponseCard message={msg.message} variant={msg.guardClass} />
                 ) : (
                   <div className="rounded-2xl p-4 space-y-2 border-l-4 border-mint/30 surface-container">
                     <span className="label-uppercase text-mint">Reflection</span>

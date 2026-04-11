@@ -1,7 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { corsResponse, jsonResponse, errorResponse } from "../_shared/cors.ts";
 import { authenticateRequest, AuthError } from "../_shared/auth.ts";
-import { chatCompletionJSON, AIError } from "../_shared/ai.ts";
+import { chatCompletionJSON, beautifyEntry, AIError } from "../_shared/ai.ts";
 import { classifyInput, buildHelplineUrl, CRISIS_RESOURCES } from "../_shared/inputGuard.ts";
 
 /**
@@ -288,14 +288,32 @@ serve(async (req) => {
         ]
       : content;
 
-    const reflection = await chatCompletionJSON<Reflection>(
-      [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: userContent },
-      ],
-      { ...REFLECTION_FALLBACK, mainLoop: (content || "Image reflection").substring(0, 200) },
-      { temperature: 0.4, maxTokens: 1024 }
-    );
+    // Run reflection + beautification in parallel.
+    //
+    // IMPORTANT: `beautifyEntry` only receives the raw text. The reflection
+    // analysis always sees the *raw* content (`userContent`), never the
+    // beautified version, because speech-pattern signal (repetition,
+    // self-correction, trailing-off, run-on sentences) is diagnostic for
+    // the loop detector. The beautified string is used ONLY for the
+    // `display_content` column rendered in the journal UI.
+    //
+    // Images skip beautification — there's no meaningful text to format.
+    const beautifyPromise =
+      !imageUrl && typeof content === "string" && content.trim().length > 0
+        ? beautifyEntry(content)
+        : Promise.resolve("");
+
+    const [reflection, displayContent] = await Promise.all([
+      chatCompletionJSON<Reflection>(
+        [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userContent },
+        ],
+        { ...REFLECTION_FALLBACK, mainLoop: (content || "Image reflection").substring(0, 200) },
+        { temperature: 0.4, maxTokens: 1024 }
+      ),
+      beautifyPromise,
+    ]);
 
     // Validate and normalize tags — support both old string[] and new {label,icon}[] formats
     reflection.tags = (reflection.tags || []).map((t: any) => {
@@ -320,13 +338,18 @@ serve(async (req) => {
     const rawHealth = reflection.healthRelated as unknown;
     reflection.healthRelated = rawHealth === true || rawHealth === "true";
 
-    // Store entry
+    // Store entry.
+    //   - `content` is the raw, verbatim input (source of truth for reflect
+    //     and history/pattern detection).
+    //   - `display_content` is the AI-beautified version used only for
+    //     rendering the entry in the journal UI. Null for images.
     const { data: entry, error: insertError } = await adminClient
       .from("entries")
       .insert({
         user_id: userId,
         entry_type: imageUrl ? "image" : (entryType || "text"),
         content: content || "[Image]",
+        display_content: displayContent && displayContent.trim().length > 0 ? displayContent : null,
         reflection,
         tags: reflection.tags,
       })

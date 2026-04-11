@@ -23,6 +23,7 @@ import {
 interface EntryData {
   id: string;
   content: string;
+  displayContent: string | null;
   reflection: any;
   tags: string[];
   createdAt: string;
@@ -31,15 +32,34 @@ interface EntryData {
   voiceDuration: string | null;
 }
 
-/** Clean up raw user text: remove filler words, paragraph nicely */
-function beautifyText(raw: string): string[] {
+/**
+ * Split already-clean text (server-beautified `display_content`) into
+ * paragraphs for rendering. This is a dumb splitter — it trusts the input
+ * and only breaks on blank lines. No filler removal, no sentence guessing.
+ */
+function splitParagraphs(text: string): string[] {
+  const parts = text
+    .split(/\n{2,}/)
+    .map((p) => p.trim())
+    .filter(Boolean);
+  return parts.length > 0 ? parts : [text.trim()];
+}
+
+/**
+ * Legacy fallback used ONLY for rows that don't yet have `display_content`
+ * (i.e. entries created before the server-side beautifier shipped). This
+ * is a best-effort regex clean and is intentionally less aggressive than
+ * the server-side AI pass — it would be unsafe to run this on already-
+ * beautified text.
+ */
+function legacyBeautifyText(raw: string): string[] {
   const fillers = /\b(um|uh|like|you know|I mean|basically|actually|so yeah|kind of|sort of|I guess)\b/gi;
   let cleaned = raw.replace(fillers, "").replace(/\s{2,}/g, " ").trim();
-  
+
   // Split into paragraphs — on double newlines, or every ~2-3 sentences
   const parts = cleaned.split(/\n{2,}/);
   const paragraphs: string[] = [];
-  
+
   for (const part of parts) {
     const sentences = part.match(/[^.!?]+[.!?]+/g) || [part];
     let current = "";
@@ -52,7 +72,7 @@ function beautifyText(raw: string): string[] {
     }
     if (current.trim()) paragraphs.push(current.trim());
   }
-  
+
   return paragraphs.length > 0 ? paragraphs : [cleaned];
 }
 
@@ -88,6 +108,7 @@ export default function JournalDetailPage() {
         setEntry({
           id: data.id,
           content: data.content,
+          displayContent: data.display_content ?? null,
           reflection: data.reflection,
           tags: data.tags || [],
           createdAt: data.created_at,
@@ -196,7 +217,12 @@ export default function JournalDetailPage() {
   const dayLabel = date.toLocaleDateString("en-US", { day: "numeric", month: "long" }).toUpperCase();
   const weekday = date.toLocaleDateString("en-US", { weekday: "long" });
   const reflection = entry.reflection;
-  const paragraphs = beautifyText(entry.content);
+  // Prefer the server-side beautified `display_content` (AI pass that
+  // fixes punctuation, fillers, paragraphing without rewording). Fall
+  // back to the legacy regex beautifier for pre-beautification entries.
+  const paragraphs = entry.displayContent
+    ? splitParagraphs(entry.displayContent)
+    : legacyBeautifyText(entry.content);
 
   return (
     <div className="h-full min-h-0 mesh-gradient-bg flex flex-col overflow-hidden relative">

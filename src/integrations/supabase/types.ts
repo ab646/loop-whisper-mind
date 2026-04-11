@@ -18,6 +18,7 @@ export type Database = {
         Row: {
           content: string
           created_at: string
+          display_content: string | null
           entry_type: string
           id: string
           reflection: Json | null
@@ -28,6 +29,7 @@ export type Database = {
         Insert: {
           content: string
           created_at?: string
+          display_content?: string | null
           entry_type?: string
           id?: string
           reflection?: Json | null
@@ -38,6 +40,7 @@ export type Database = {
         Update: {
           content?: string
           created_at?: string
+          display_content?: string | null
           entry_type?: string
           id?: string
           reflection?: Json | null

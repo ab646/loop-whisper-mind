@@ -218,3 +218,101 @@ export class AIError extends Error {
     this.status = status;
   }
 }
+
+/**
+ * Beautify a raw user entry so it reads like a journal entry, while
+ * preserving the user's voice EXACTLY.
+ *
+ * Scope (what it does):
+ *   - Fix punctuation and capitalization
+ *   - Remove obvious speech fillers ("um", "uh", "like", "you know", etc.)
+ *   - Collapse stutters and repeated false-starts ("I I I thought" → "I thought")
+ *   - Break long run-on text into natural paragraphs at topic shifts
+ *   - Fix obvious typos (only unambiguous ones)
+ *
+ * Hard no-go (what it must NEVER do):
+ *   - Never reword, rephrase, summarize, or condense
+ *   - Never add information the user didn't say
+ *   - Never remove content (only fillers and stutters)
+ *   - Never translate
+ *   - Never "improve" tone, grammar beyond punctuation, or sentence flow
+ *   - Never add a title, header, or closing line
+ *   - Never wrap output in code fences or markdown
+ *
+ * The raw `content` column is the source of truth for the reflect
+ * pipeline. This beautified version lives in `display_content` and is
+ * used only for rendering the entry back to the user in the journal.
+ *
+ * Returns the beautified string, or the original raw content if the model
+ * fails, rate-limits, or refuses — so entry creation is never blocked.
+ */
+export async function beautifyEntry(raw: string): Promise<string> {
+  const trimmed = raw?.trim() ?? "";
+  if (!trimmed) return trimmed;
+
+  // Don't even bother on very short inputs — the rules below would add
+  // nothing and we'd just burn a model call.
+  if (trimmed.length < 40) return trimmed;
+
+  const systemPrompt = `You are a journal formatter. Your only job is to take a raw voice transcript or freely typed note and format it so it reads like a journal entry, while preserving the writer's voice EXACTLY.
+
+## What you DO
+- Fix punctuation and capitalization.
+- Remove obvious speech fillers: "um", "uh", "like" (when used as filler, not comparison), "you know", "I mean", "basically", "actually" (when filler), "so yeah", "kind of" / "sort of" (when filler), "I guess" (when filler).
+- Collapse stutters and false starts: "I I I was thinking" → "I was thinking". "it was, it was hard" → "it was hard".
+- Add paragraph breaks at natural topic shifts. Use a blank line between paragraphs.
+- Fix only obvious, unambiguous typos (e.g. "teh" → "the"). Leave everything else alone.
+
+## What you MUST NEVER DO
+- Never reword. Never rephrase. Never paraphrase. Never summarize. Never shorten.
+- Never add words, sentences, or ideas the writer didn't say.
+- Never remove any content beyond fillers and stutters.
+- Never "improve" grammar beyond punctuation — if they said "me and my sister went", leave it.
+- Never "improve" tone, warmth, or emotional register.
+- Never translate.
+- Never add a title, heading, bullets, bold, italics, or any markdown.
+- Never wrap output in code fences.
+- Never add an intro or outro line.
+- Never censor profanity, crisis language, or distressing content.
+- Never remove self-corrections that carry meaning ("I wasn't upset — well, I was, but") — these are important psychological signal and MUST stay.
+
+If you are unsure whether a change is safe, do not make the change.
+
+## Output format
+Return ONLY the beautified text. No preamble, no explanation, no quotation marks around the output, nothing else.
+
+If the input is already clean or too short to meaningfully beautify, return it unchanged.`;
+
+  try {
+    const result = await chatCompletion(
+      [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: trimmed },
+      ],
+      { temperature: 0.2, maxTokens: 2048 }
+    );
+
+    const cleaned = (result || "")
+      .replace(/^```[a-z]*\n?/i, "")
+      .replace(/\n?```\s*$/i, "")
+      .replace(/^["'\s]+|["'\s]+$/g, "")
+      .trim();
+
+    // Safety check: if the model returned something dramatically shorter
+    // than the input, it probably summarized — fall back to raw.
+    const rawLen = trimmed.length;
+    const outLen = cleaned.length;
+    if (!cleaned || outLen < rawLen * 0.6) {
+      console.warn("[beautifyEntry] output suspiciously short, falling back to raw", {
+        rawLen,
+        outLen,
+      });
+      return trimmed;
+    }
+
+    return cleaned;
+  } catch (e) {
+    console.warn("[beautifyEntry] failed, falling back to raw:", e);
+    return trimmed;
+  }
+}

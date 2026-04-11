@@ -64,7 +64,13 @@ export default function JournalDetailPage() {
   const [loading, setLoading] = useState(true);
 
   // Exploration wizard state
-  const [explorationMessages, setExplorationMessages] = useState<{ role: "user" | "ai" | "guard"; content: string; guardClass?: string }[]>([]);
+  const [explorationMessages, setExplorationMessages] = useState<
+    Array<
+      | { role: "user" | "ai"; content: string }
+      | { role: "guard"; guardClass: "crisis"; message: string; resources: CrisisResources }
+      | { role: "guard"; guardClass: "hostile" | "meta_or_scope" | "too_thin"; message: string }
+    >
+  >([]);
   const [explorationInput, setExplorationInput] = useState("");
   const [inputFocused, setInputFocused] = useState(false);
   const [explorationLoading, setExplorationLoading] = useState(false);

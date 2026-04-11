@@ -10,6 +10,7 @@ import { useCreateLoop } from "@/hooks/useCreateLoop";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Capacitor } from "@capacitor/core";
+import { NativeSettings, IOSSettings } from "capacitor-native-settings";
 import { analytics } from "@/lib/analytics";
 import { recalculateAfterEntry } from "@/lib/adaptive-notifications";
 import {
@@ -55,8 +56,21 @@ export default function RecordingPage() {
     start().then(() => {
       analytics.recordingStarted();
     }).catch((err) => {
-      console.warn("Mic permission denied:", err);
-      setMicDenied(true);
+      console.error("Recording start failed:", err);
+      // Only show mic denied screen if it's actually a permission error
+      const msg = err?.message?.toLowerCase() ?? "";
+      if (msg.includes("permission") || msg.includes("denied") || msg.includes("not allowed")) {
+        setMicDenied(true);
+      } else {
+        // Non-permission error — retry once
+        toast.error("Couldn't start recording. Trying again...");
+        setTimeout(() => {
+          start().catch((retryErr) => {
+            console.error("Retry failed:", retryErr);
+            setMicDenied(true);
+          });
+        }, 500);
+      }
     });
   }, []);
 
@@ -94,7 +108,11 @@ export default function RecordingPage() {
               whileTap={{ scale: 0.95 }}
               onClick={async () => {
                 if (Capacitor.isNativePlatform()) {
-                  window.location.href = "app-settings:";
+                  try {
+                    await NativeSettings.openIOS({ option: IOSSettings.App });
+                  } catch {
+                    toast.error("Couldn't open settings");
+                  }
                   return;
                 }
 

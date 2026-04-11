@@ -1,35 +1,23 @@
 import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown, Heart, Shield, Search, Zap, Brain, CloudRain, Eye, MessageCircle, Flame, Lock, Users, Target, Repeat, AlertTriangle, Frown, type LucideIcon } from "lucide-react";
+import { ChevronDown, Heart, Shield, Search, Zap, Brain, CloudRain, Eye, MessageCircle, Flame, Lock, Users, Target, Repeat, AlertTriangle, Frown, Compass, Anchor, Hourglass, Scale, Ghost, BatteryLow, HandHeart, Puzzle, Orbit, Sparkles, Shrink, Layers, Moon, Sun, Trees, Waves, DoorOpen, Footprints, Infinity, Unplug, RotateCcw, Swords, type LucideIcon } from "lucide-react";
 import { FeedbackButtons } from "@/components/FeedbackButtons";
 
-const TAG_ICON_MAP: Record<string, LucideIcon> = {
-  rejection: Frown,
-  attachment: Heart,
-  validation: Eye,
-  control: Lock,
-  abandonment: CloudRain,
-  perfectionism: Target,
-  self_worth: Shield,
-  boundaries: Shield,
-  communication: MessageCircle,
-  trust: Users,
-  anxiety: Brain,
-  anger: Flame,
-  fear: AlertTriangle,
-  pattern: Repeat,
-  trigger: Zap,
-  avoidance: Shield,
-  rumination: Brain,
-  comparison: Search,
+const ICON_MAP: Record<string, LucideIcon> = {
+  heart: Heart, shield: Shield, search: Search, zap: Zap, brain: Brain,
+  "cloud-rain": CloudRain, eye: Eye, "message-circle": MessageCircle,
+  flame: Flame, lock: Lock, users: Users, target: Target, repeat: Repeat,
+  "alert-triangle": AlertTriangle, frown: Frown, swords: Swords,
+  compass: Compass, anchor: Anchor, hourglass: Hourglass, scale: Scale,
+  ghost: Ghost, "battery-low": BatteryLow, "hand-heart": HandHeart,
+  puzzle: Puzzle, orbit: Orbit, sparkles: Sparkles, shrink: Shrink,
+  layers: Layers, moon: Moon, sun: Sun, trees: Trees, waves: Waves,
+  "door-open": DoorOpen, footprints: Footprints, infinity: Infinity,
+  unplug: Unplug, "rotate-ccw": RotateCcw,
 };
 
-function getTagIcon(tag: string): LucideIcon {
-  const key = tag.toLowerCase().replace(/\s+/g, "_");
-  for (const [keyword, icon] of Object.entries(TAG_ICON_MAP)) {
-    if (key.includes(keyword)) return icon;
-  }
-  return Repeat;
+function getIcon(name: string): LucideIcon {
+  return ICON_MAP[name] || Repeat;
 }
 
 interface ReflectionCardProps {

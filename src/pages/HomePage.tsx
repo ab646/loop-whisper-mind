@@ -332,15 +332,24 @@ export default function HomePage() {
         ref={chatInputRef}
         animate={{ opacity: navigatingOut ? 0 : 1 }}
         transition={{ duration: 0.25 }}
-        className="absolute left-0 right-0 z-40 px-0"
+        className="absolute left-0 right-0 z-40"
         style={{ bottom: 'max(var(--keyboard-height, 0px), calc(var(--bottom-nav-height, calc(72px + env(safe-area-inset-bottom))) + 12px))' }}
       >
-        <ChatInput
-          onSend={handleSend}
-          onImageSelected={handleImageSelected}
-          onVoice={() => navigate("/recording")}
-          placeholder="Type your thoughts..."
-        />
+        <div className="flex items-end gap-2 px-4">
+          <div className="flex-1 min-w-0">
+            <ChatInput
+              onSend={handleSend}
+              onImageSelected={handleImageSelected}
+              placeholder="Type your thoughts..."
+            />
+          </div>
+          <button
+            onClick={() => navigate("/recording")}
+            className="w-11 h-11 rounded-full orb-gradient flex items-center justify-center shrink-0 mb-2"
+          >
+            <Mic size={18} className="text-primary-foreground" />
+          </button>
+        </div>
       </motion.div>
     </div>
   );

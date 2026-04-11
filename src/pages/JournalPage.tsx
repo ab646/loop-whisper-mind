@@ -113,7 +113,7 @@ export default function JournalPage() {
   return (
     <div className="h-full min-h-0 mesh-gradient-bg flex flex-col overflow-hidden relative">
       <div
-        className="flex-1 min-h-0 scroll-container px-5 flex flex-col gap-6 pt-4"
+        className="flex-1 min-h-0 scroll-container px-5 flex flex-col gap-8 pt-5"
         style={{ paddingBottom: 'calc(var(--bottom-nav-height, calc(72px + env(safe-area-inset-bottom))) + 32px)' }}
       >
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
@@ -139,7 +139,7 @@ export default function JournalPage() {
           </motion.div>
         ) : (
           grouped.map(([group, items]) => (
-            <div key={group} className="space-y-2">
+            <div key={group} className="space-y-3">
               {/* Day header */}
               <h2 className="font-display text-xl font-semibold">
                 {group.includes(", ") ? (
@@ -153,7 +153,7 @@ export default function JournalPage() {
               </h2>
 
               {/* Entry cards */}
-              <div className="space-y-2">
+              <div className="space-y-2.5">
                 {items.map((entry, i) => (
                   <motion.button
                     key={entry.id}

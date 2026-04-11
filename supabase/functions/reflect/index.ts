@@ -242,7 +242,7 @@ serve(async (req) => {
 
     // Validate and normalize tags
     reflection.tags = (reflection.tags || []).map((t: string) =>
-      t.toUpperCase().trim()
+      t.trim()
     );
 
     // Normalize intensityScore to 0-5 integer

@@ -201,8 +201,8 @@ export default function HomePage() {
   }, [loading]);
 
   const handleSend = async (text: string) => {
-    const entryId = await createEntry({ content: text });
-    if (entryId) navigate(`/journal/${entryId}`);
+    const result = await createEntry({ content: text });
+    if (result?.entryId) navigate(`/journal/${result.entryId}`);
   };
 
   const [imageProcessing, setImageProcessing] = useState(false);

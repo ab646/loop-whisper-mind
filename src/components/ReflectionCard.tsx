@@ -125,10 +125,10 @@ export function ReflectionCard({ mainLoop, feelings, knownVsAssumed, repeatingPa
             </ul>
           </div>
           <div className="space-y-2">
-            <span className="label-uppercase text-on-surface-variant text-[10px]">Story</span>
-            <div className="border-l-2 border-on-surface-variant/30 pl-3 space-y-2">
+            <span className="label-uppercase text-tertiary text-[10px]">Story</span>
+            <div className="border-l-2 border-tertiary/30 pl-3 space-y-2">
               {knownVsAssumed.assumed.map((item, i) => (
-                <p key={`a-${i}`} className="text-on-surface-variant text-base italic">{item}</p>
+                <p key={`a-${i}`} className="text-tertiary/80 text-base italic">{item}</p>
               ))}
             </div>
           </div>

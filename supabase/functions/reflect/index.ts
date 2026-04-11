@@ -118,7 +118,8 @@ If the person is stuck in the past or future, note it:
 - null if they're present-focused
 
 ## TAGS
-Assign 1-3 descriptive pattern labels (Title Case, 2-4 words each) that name the specific psychological pattern at play. Examples: "Fear of Rejection", "Need for Validation", "Avoidance of Conflict", "Decision Paralysis", "Attachment Anxiety", "Perfectionist Self-Criticism", "People-Pleasing Overload", "Boundary Confusion", "Imposter Spiral", "Burnout Denial", "Grief Avoidance", "Identity Uncertainty", "Control Seeking", "Shame Rumination", "Loneliness Loop".
+Assign 1-3 descriptive pattern labels (Title Case, 2-4 words each) that name the specific psychological pattern at play. For each tag, also pick the most semantically fitting icon name from this exact list: heart, shield, search, zap, brain, cloud-rain, eye, message-circle, flame, lock, users, target, repeat, alert-triangle, frown, swords, compass, anchor, hourglass, scale, ghost, battery-low, hand-heart, puzzle, orbit, sparkles, shrink, layers, moon, sun, trees, waves, door-open, footprints, mirror, infinity, unplug, rotate-ccw.
+Return tags as objects: { "label": "Fear of Rejection", "icon": "heart" }.
 Be specific to what the user shared — don't use generic single-word labels.
 
 ## HEALTH-ANXIETY DETECTOR (soft flag)
@@ -160,7 +161,7 @@ Return ONLY a valid JSON object with these exact fields:
   "repeatingPattern": "If you see a pattern from their history, describe it in 1 sentence. Otherwise null.",
   "temporalShift": "If they're stuck in past or future, name it in 1 sentence. Otherwise null.",
   "oneQuestion": "A single reflective question that could crack the loop open. Not generic. Specific to what they said. This is the only place the user is invited to think further — DO NOT include advice, coping techniques, or prescriptive suggestions anywhere in the output.",
-  "tags": ["1-3 UPPERCASE tags from the taxonomy above"],
+  "tags": [{"label": "Pattern Name", "icon": "icon-name"}, ...],
   "healthRelated": "true if this is a health-anxiety loop per the detector rules above, false otherwise"
 }
 

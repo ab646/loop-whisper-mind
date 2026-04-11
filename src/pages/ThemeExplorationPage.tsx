@@ -6,11 +6,14 @@ import { CyclingLoader } from "@/components/CyclingLoader";
 import { FullScreenLoader } from "@/components/FullScreenLoader";
 import { AppHeader } from "@/components/AppHeader";
 import { FeedbackButtons } from "@/components/FeedbackButtons";
+import { CrisisCard, type CrisisResources } from "@/components/CrisisCard";
+import { SoftResponseCard } from "@/components/SoftResponseCard";
 import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { analytics } from "@/lib/analytics";
+import { getCountryCode } from "@/lib/locale";
 import { AreaChart, Area, XAxis, YAxis, ResponsiveContainer, Tooltip } from "recharts";
 
 const triggerIcons: Record<string, any> = {
@@ -81,7 +84,13 @@ export default function ThemeExplorationPage() {
   const [loading, setLoading] = useState(true);
   const [input, setInput] = useState("");
   const [askingQuestion, setAskingQuestion] = useState(false);
-  const [chatMessages, setChatMessages] = useState<{ role: "user" | "ai"; content: string }[]>([]);
+  const [chatMessages, setChatMessages] = useState<
+    Array<
+      | { role: "user" | "ai"; content: string }
+      | { role: "guard"; guardClass: "crisis"; message: string; resources: CrisisResources }
+      | { role: "guard"; guardClass: "hostile" | "meta_or_scope" | "too_thin"; message: string }
+    >
+  >([]);
   const [showSuggestions, setShowSuggestions] = useState(true);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
@@ -120,9 +129,36 @@ export default function ThemeExplorationPage() {
     setInput("");
     try {
       const { data, error } = await supabase.functions.invoke("explore-theme", {
-        body: { theme, question },
+        body: { theme, question, countryCode: getCountryCode() },
       });
       if (error) throw error;
+
+      // Input guard caught the question — render the matching card.
+      if (data?.guard) {
+        if (data.guard.class === "crisis") {
+          setChatMessages((prev) => [
+            ...prev,
+            {
+              role: "guard",
+              guardClass: "crisis",
+              message: data.guard.message || "",
+              resources: data.guard.resources,
+            },
+          ]);
+        } else {
+          setChatMessages((prev) => [
+            ...prev,
+            {
+              role: "guard",
+              guardClass: data.guard.class,
+              message: data.guard.message || "",
+            },
+          ]);
+        }
+        setAskingQuestion(false);
+        return;
+      }
+
       const answer = data?.answer || data?.connectedBelief || "I couldn't generate a reflection for that.";
       setChatMessages((prev) => [...prev, { role: "ai", content: answer }]);
 
@@ -359,13 +395,14 @@ export default function ThemeExplorationPage() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.3 }}
                   >
-                    {msg.role === "user" ? (
+                    {msg.role === "user" && (
                       <div className="flex justify-end">
                         <div className="rounded-2xl surface-high px-4 py-3 max-w-[85%]">
                           <p className="text-on-surface text-sm leading-relaxed">{msg.content}</p>
                         </div>
                       </div>
-                    ) : (
+                    )}
+                    {msg.role === "ai" && (
                       <div className="rounded-2xl p-4 space-y-2 border-l-4 border-mint/30 surface-container">
                         <span className="label-uppercase text-mint">Reflection</span>
                         <p className="text-on-surface text-sm leading-relaxed font-body">{msg.content}</p>
@@ -377,6 +414,12 @@ export default function ThemeExplorationPage() {
                           />
                         </div>
                       </div>
+                    )}
+                    {msg.role === "guard" && msg.guardClass === "crisis" && (
+                      <CrisisCard message={msg.message} resources={msg.resources} />
+                    )}
+                    {msg.role === "guard" && msg.guardClass !== "crisis" && (
+                      <SoftResponseCard message={msg.message} variant={msg.guardClass} />
                     )}
                   </motion.div>
                 ))}

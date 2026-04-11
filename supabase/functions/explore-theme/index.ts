@@ -2,6 +2,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { corsResponse, jsonResponse, errorResponse } from "../_shared/cors.ts";
 import { authenticateRequest, AuthError } from "../_shared/auth.ts";
 import { chatCompletionJSON, AIError } from "../_shared/ai.ts";
+import { classifyInput, buildHelplineUrl, CRISIS_RESOURCES } from "../_shared/inputGuard.ts";
 
 /**
  * Loop Theme Explorer
@@ -49,8 +50,45 @@ serve(async (req) => {
   try {
     const { userId, adminClient } = await authenticateRequest(req);
 
-    const { theme, question } = await req.json();
+    const { theme, question, countryCode } = await req.json();
     if (!theme) return errorResponse(req, "Theme required", 400);
+
+    // ---------------------------------------------------------------
+    // INPUT GUARD — only run on follow-up questions. The unprompted
+    // theme analysis path has no user free-text input to classify.
+    // ---------------------------------------------------------------
+    if (question?.trim()) {
+      const guard = await classifyInput(question, { countryCode });
+      if (guard.class !== "journal") {
+        if (guard.class === "crisis") {
+          console.warn("[explore-theme] crisis classification", {
+            userId,
+            source: guard.source,
+            preview: question.substring(0, 80),
+          });
+          return jsonResponse(req, {
+            guard: {
+              class: guard.class,
+              message: guard.message,
+              resources: {
+                helpline: {
+                  ...CRISIS_RESOURCES.primary,
+                  url: buildHelplineUrl(countryCode),
+                },
+                us: CRISIS_RESOURCES.us,
+                emergency: CRISIS_RESOURCES.emergency,
+              },
+            },
+          });
+        }
+        return jsonResponse(req, {
+          guard: {
+            class: guard.class,
+            message: guard.message,
+          },
+        });
+      }
+    }
 
     const normalizedTheme = theme.toUpperCase().trim();
 
@@ -112,7 +150,14 @@ serve(async (req) => {
 4. **Protective function**: Many recurring loops serve an unconscious purpose (e.g., perfectionism protects against criticism; avoidance protects against rejection). If you can identify one, name it. This is one of the most valuable insights you can offer.
 5. **Cross-theme connections**: Does this theme appear alongside other tags? What does that combination suggest?
 
-${question ? `## USER'S QUESTION\nThe user specifically asked: "${question}"\nAnswer this thoughtfully based on their data. Be specific, not generic.` : "## MODE\nProvide a deep unprompted analysis of this theme."}
+## EVIDENCE GROUNDING (HARD RULE)
+Every claim about the user must trace to an entry in the data block above. Specifically:
+- Never write "your data shows", "you tend to", "you always", "every time you", or any pattern claim unless at least two entries above support it.
+- Never invent biographical details, relationships, or symptoms not present in the entries.
+- If only 0–1 entries exist for this theme, mark patternInsight as a tentative observation about THIS entry only, not a pattern.
+- protectiveFunction may be null if you cannot identify one — do not invent.
+
+${question ? `## USER'S QUESTION\nThe user specifically asked: "${question}"\nAnswer this thoughtfully based on their data. Be specific, not generic. If their data does not contain enough evidence to answer, say so plainly rather than fabricating.` : "## MODE\nProvide a deep unprompted analysis of this theme."}
 
 ## OUTPUT FORMAT
 Return ONLY a valid JSON object:

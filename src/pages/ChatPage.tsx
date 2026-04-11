@@ -7,6 +7,8 @@ import { FullScreenLoader } from "@/components/FullScreenLoader";
 import { ScribblingLogo } from "@/components/LoopLogo";
 import { ChatInput } from "@/components/ChatInput";
 import { ReflectionCard } from "@/components/ReflectionCard";
+import { CrisisCard, type CrisisResources } from "@/components/CrisisCard";
+import { SoftResponseCard } from "@/components/SoftResponseCard";
 import { FeedbackButtons } from "@/components/FeedbackButtons";
 import { Waveform } from "@/components/Waveform";
 import { supabase } from "@/integrations/supabase/client";
@@ -14,6 +16,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { analytics } from "@/lib/analytics";
 import { recalculateAfterEntry } from "@/lib/adaptive-notifications";
+import { getCountryCode } from "@/lib/locale";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -36,7 +39,25 @@ interface ReflectionMessage {
     tags: string[];
   };
 }
-type Message = TextMessage | ImageMessage | VoiceMessage | ReflectionMessage;
+interface CrisisMessage {
+  id: string;
+  type: "crisis";
+  message: string;
+  resources: CrisisResources;
+}
+interface SoftMessage {
+  id: string;
+  type: "soft";
+  message: string;
+  variant: "hostile" | "meta_or_scope" | "too_thin";
+}
+type Message =
+  | TextMessage
+  | ImageMessage
+  | VoiceMessage
+  | ReflectionMessage
+  | CrisisMessage
+  | SoftMessage;
 
 export default function ChatPage() {
   const { id } = useParams();
@@ -181,6 +202,7 @@ export default function ChatPage() {
         body: {
           content: transcribedText,
           entryType: "image",
+          countryCode: getCountryCode(),
           previousMessages: messages
             .filter((m) => m.type === "text")
             .map((m) => ({ role: "user", content: (m as TextMessage).content })),
@@ -190,6 +212,13 @@ export default function ChatPage() {
       if (error) throw error;
       if (data?.error) {
         toast.error(data.error);
+        setLoading(false);
+        return;
+      }
+
+      // Input guard caught a non-journal input — render the appropriate card.
+      if (data?.guard) {
+        appendGuardMessage(data.guard);
         setLoading(false);
         return;
       }
@@ -225,6 +254,35 @@ export default function ChatPage() {
     }
   };
 
+  // Render a guard response (crisis / hostile / meta_or_scope / too_thin)
+  // as the appropriate message type. Never written to the entries table —
+  // the edge function already declined to store these.
+  const appendGuardMessage = (guard: any) => {
+    if (!guard || !guard.class) return;
+    if (guard.class === "crisis") {
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: crypto.randomUUID(),
+          type: "crisis",
+          message: guard.message || "",
+          resources: guard.resources,
+        },
+      ]);
+      analytics.reflectionReceived?.({ responseTimeMs: 0, entryId: null, entryType: "guard_crisis" } as any);
+      return;
+    }
+    setMessages((prev) => [
+      ...prev,
+      {
+        id: crypto.randomUUID(),
+        type: "soft",
+        message: guard.message || "",
+        variant: guard.class as SoftMessage["variant"],
+      },
+    ]);
+  };
+
   const handleSend = async (text: string) => {
     if (!text.trim() || loading || imageValidating) return;
 
@@ -239,6 +297,7 @@ export default function ChatPage() {
         body: {
           content: text,
           entryType: "text",
+          countryCode: getCountryCode(),
           previousMessages: messages
             .filter((m) => m.type === "text")
             .map((m) => ({ role: "user", content: (m as TextMessage).content })),
@@ -248,6 +307,13 @@ export default function ChatPage() {
       if (error) throw error;
       if (data?.error) {
         toast.error(data.error);
+        setLoading(false);
+        return;
+      }
+
+      // Input guard caught a non-journal input — render the appropriate card.
+      if (data?.guard) {
+        appendGuardMessage(data.guard);
         setLoading(false);
         return;
       }
@@ -295,9 +361,26 @@ export default function ChatPage() {
 
     try {
       const { data, error } = await supabase.functions.invoke("explore-theme", {
-        body: { theme: theme.toLowerCase(), question },
+        body: { theme: theme.toLowerCase(), question, countryCode: getCountryCode() },
       });
       if (error) throw error;
+
+      // Guard caught the follow-up question — surface the soft response in
+      // the inline exploration chat. Crisis is upgraded into the main
+      // message stream so the CrisisCard renders with full resources.
+      if (data?.guard) {
+        if (data.guard.class === "crisis") {
+          appendGuardMessage(data.guard);
+        } else {
+          setExplorationMessages((prev) => [
+            ...prev,
+            { role: "ai", content: data.guard.message || "" },
+          ]);
+        }
+        setExplorationLoading(false);
+        return;
+      }
+
       const answer = data?.answer || data?.connectedBelief || "I couldn't generate a reflection for that.";
       setExplorationMessages((prev) => [...prev, { role: "ai", content: answer }]);
     } catch (e) {
@@ -445,6 +528,16 @@ export default function ChatPage() {
               )}
               {msg.type === "reflection" && (
                 <div className="mt-2" data-reflection><ReflectionCard {...msg.data} /></div>
+              )}
+              {msg.type === "crisis" && (
+                <div className="mt-2" data-guard="crisis">
+                  <CrisisCard message={msg.message} resources={msg.resources} />
+                </div>
+              )}
+              {msg.type === "soft" && (
+                <div className="mt-2" data-guard={msg.variant}>
+                  <SoftResponseCard message={msg.message} variant={msg.variant} />
+                </div>
               )}
             </div>
           ))}

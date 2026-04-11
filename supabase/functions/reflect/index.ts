@@ -2,6 +2,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { corsResponse, jsonResponse, errorResponse } from "../_shared/cors.ts";
 import { authenticateRequest, AuthError } from "../_shared/auth.ts";
 import { chatCompletionJSON, AIError } from "../_shared/ai.ts";
+import { classifyInput, buildHelplineUrl, CRISIS_RESOURCES } from "../_shared/inputGuard.ts";
 
 /**
  * Loop Reflection Engine
@@ -145,6 +146,20 @@ If the input is too brief, context-free, or unclear to meaningfully analyze (e.g
 - Set oneQuestion to something that invites them to share more: "What's the story behind this?" or "What does this mean for you right now?"
 - Do NOT project emotions, metaphors, or significance onto ambiguous inputs
 
+## EVIDENCE GROUNDING (HARD RULE)
+You may ONLY make claims about the user's history if a PREVIOUS ENTRY in the context block above directly supports it. Specifically:
+- Never write phrases like "your data shows", "your pattern of", "you tend to", "you always", or "every time you", unless you can point to at least two relevant prior entries in the context block.
+- Never invent biographical detail, recurring themes, body symptoms, or relationships that are not in the current input or the prior entries.
+- If there are zero prior entries, treat this as the user's first interaction — do not refer to "patterns" at all.
+- repeatingPattern must be null unless you can mentally cite at least two prior entries from the context block that share the theme.
+
+## LENGTH MATCHING (HARD RULE)
+Response length must be proportional to input depth:
+- If the user's current input is under 15 words, mainLoop must be ONE sentence and under 25 words. feelings array must have at most 2 items. knownVsAssumed.known and assumed each at most 1 item. oneQuestion must be one short sentence.
+- If the input is 15–60 words, mainLoop is 1–2 sentences.
+- If the input is 60+ words, the full structure is fair game.
+- Never deliver a 60-word reflection on a 5-word input. The user will feel mis-read.
+
 ## OUTPUT FORMAT
 Return ONLY a valid JSON object with these exact fields:
 {
@@ -174,9 +189,50 @@ serve(async (req) => {
   try {
     const { userId, adminClient } = await authenticateRequest(req);
 
-    const { content, entryType, previousMessages, imageUrl } = await req.json();
+    const { content, entryType, previousMessages, imageUrl, countryCode } = await req.json();
     if (!content?.trim() && !imageUrl) {
       return errorResponse(req, "Content or image required", 400);
+    }
+
+    // ---------------------------------------------------------------
+    // INPUT GUARD — classify before reflecting.
+    // We only run the guard on text-only inputs. Image-bearing inputs
+    // go through validate-image upstream and have already been screened.
+    // ---------------------------------------------------------------
+    if (!imageUrl && content?.trim()) {
+      const guard = await classifyInput(content, { countryCode });
+      if (guard.class !== "journal") {
+        // Crisis case: include resources + deep-link
+        if (guard.class === "crisis") {
+          console.warn("[reflect] crisis classification", {
+            userId,
+            source: guard.source,
+            preview: content.substring(0, 80),
+          });
+          return jsonResponse(req, {
+            guard: {
+              class: guard.class,
+              message: guard.message,
+              resources: {
+                helpline: {
+                  ...CRISIS_RESOURCES.primary,
+                  url: buildHelplineUrl(countryCode),
+                },
+                us: CRISIS_RESOURCES.us,
+                emergency: CRISIS_RESOURCES.emergency,
+              },
+            },
+          });
+        }
+
+        // Hostile / meta / too_thin: short soft response, no entry stored
+        return jsonResponse(req, {
+          guard: {
+            class: guard.class,
+            message: guard.message,
+          },
+        });
+      }
     }
 
     // Fetch recent entries for pattern detection

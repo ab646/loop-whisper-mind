@@ -299,62 +299,66 @@ export default function JournalDetailPage() {
       {/* Fixed exploration input */}
       {reflection && (
         <div
-          className="absolute inset-x-0 z-[60] w-full max-w-md mx-auto px-4"
-          style={{ bottom: 'max(var(--keyboard-height, 0px), calc(var(--bottom-nav-height, calc(72px + env(safe-area-inset-bottom))) + 16px))' }}
+          className="fixed inset-x-0 z-[60] px-4"
+          style={{
+            bottom: 'max(calc(var(--keyboard-height, 0px) + 12px), calc(var(--bottom-nav-height, calc(72px + env(safe-area-inset-bottom))) + 16px))',
+          }}
         >
-          <motion.div
-            layout
-            transition={{ duration: 0.25, ease: "easeInOut" }}
-            className="rounded-xl surface-high px-4 py-3 border border-border/20 shadow-lg"
-          >
-            {inputFocused || explorationInput.trim() ? (
-              <motion.div
-                key="input"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.2 }}
-                className="flex items-center gap-2"
-              >
-                <input
-                  value={explorationInput}
-                  onChange={(e) => setExplorationInput(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && handleExplore(explorationInput)}
-                  onFocus={() => setInputFocused(true)}
-                  onBlur={() => setInputFocused(false)}
-                  placeholder="Ask a follow-up..."
-                  className="flex-1 bg-transparent text-on-surface placeholder:text-on-surface-variant text-sm outline-none"
-                  autoFocus
-                />
-                <button
-                  onClick={() => handleExplore(explorationInput)}
-                  disabled={!explorationInput.trim() || explorationLoading}
-                  className="w-7 h-7 rounded-full orb-gradient flex items-center justify-center disabled:opacity-50"
+          <div className="w-full max-w-md mx-auto">
+            <motion.div
+              layout
+              transition={{ duration: 0.25, ease: "easeInOut" }}
+              className="rounded-xl surface-high px-4 py-3 border border-border/20 shadow-lg"
+            >
+              {inputFocused || explorationInput.trim() ? (
+                <motion.div
+                  key="input"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.2 }}
+                  className="flex items-center gap-2"
                 >
-                  {explorationLoading ? (
-                    <ScribblingLogo size={14} />
-                  ) : (
-                    <ArrowUp size={14} className="text-primary-foreground" />
-                  )}
-                </button>
-              </motion.div>
-            ) : (
-              <motion.button
-                key="prompt"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.2 }}
-                onClick={() => setInputFocused(true)}
-                className="flex items-center gap-3 w-full text-left"
-              >
-                <div className="w-7 h-7 rounded-full orb-gradient flex items-center justify-center shrink-0">
-                  <span className="text-primary-foreground text-xs">✦</span>
-                </div>
-                <span className="text-on-surface-variant text-sm">
-                  Want to go deeper? Ask a follow-up
-                </span>
-              </motion.button>
-            )}
-          </motion.div>
+                  <input
+                    value={explorationInput}
+                    onChange={(e) => setExplorationInput(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && handleExplore(explorationInput)}
+                    onFocus={() => setInputFocused(true)}
+                    onBlur={() => setInputFocused(false)}
+                    placeholder="Ask a follow-up..."
+                    className="flex-1 bg-transparent text-on-surface placeholder:text-on-surface-variant text-sm outline-none"
+                    autoFocus
+                  />
+                  <button
+                    onClick={() => handleExplore(explorationInput)}
+                    disabled={!explorationInput.trim() || explorationLoading}
+                    className="w-7 h-7 rounded-full orb-gradient flex items-center justify-center disabled:opacity-50"
+                  >
+                    {explorationLoading ? (
+                      <ScribblingLogo size={14} />
+                    ) : (
+                      <ArrowUp size={14} className="text-primary-foreground" />
+                    )}
+                  </button>
+                </motion.div>
+              ) : (
+                <motion.button
+                  key="prompt"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.2 }}
+                  onClick={() => setInputFocused(true)}
+                  className="flex items-center gap-3 w-full text-left"
+                >
+                  <div className="w-7 h-7 rounded-full orb-gradient flex items-center justify-center shrink-0">
+                    <span className="text-primary-foreground text-xs">✦</span>
+                  </div>
+                  <span className="text-on-surface-variant text-sm">
+                    Want to go deeper? Ask a follow-up
+                  </span>
+                </motion.button>
+              )}
+            </motion.div>
+          </div>
         </div>
       )}
     </div>

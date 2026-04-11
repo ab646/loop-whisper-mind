@@ -156,21 +156,21 @@ export default function JournalDetailPage() {
         </div>
       </div>
 
-      {/* Date header like screenshot */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="shrink-0 text-center pt-4 pb-6 space-y-1.5 flex flex-col items-center"
-      >
-        <p className="text-on-surface-variant text-[10px] tracking-[0.2em] uppercase font-semibold">{dayLabel}</p>
-        <h1 className="font-display text-2xl text-on-surface">{weekday}</h1>
-        <span className="mt-1 inline-block rounded-full surface-low border border-border/20 px-3 py-0.5 text-on-surface-variant text-[10px] tracking-wider uppercase font-semibold">
-          {date.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}
-        </span>
-      </motion.div>
-
       {/* Scrollable content */}
       <div className="flex-1 min-h-0 scroll-container px-5 space-y-4" style={{ paddingBottom: 'calc(var(--bottom-nav-height, calc(72px + env(safe-area-inset-bottom))) + 96px)' }}>
+
+        {/* Date header */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center pt-4 pb-2 space-y-1.5 flex flex-col items-center"
+        >
+          <p className="text-on-surface-variant text-[10px] tracking-[0.2em] uppercase font-semibold">{dayLabel}</p>
+          <h1 className="font-display text-2xl text-on-surface">{weekday}</h1>
+          <span className="mt-1 inline-block rounded-full surface-low border border-border/20 px-3 py-0.5 text-on-surface-variant text-[10px] tracking-wider uppercase font-semibold">
+            {date.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}
+          </span>
+        </motion.div>
         
         {/* Beautified user entry */}
         <motion.div

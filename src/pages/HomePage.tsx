@@ -335,7 +335,7 @@ export default function HomePage() {
         className="absolute left-0 right-0 z-40"
         style={{ bottom: 'max(var(--keyboard-height, 0px), calc(var(--bottom-nav-height, calc(72px + env(safe-area-inset-bottom))) + 12px))' }}
       >
-        <div className="flex items-end gap-2 px-4">
+        <div className="flex items-center gap-3 px-4">
           <div className="flex-1 min-w-0">
             <ChatInput
               onSend={handleSend}
@@ -345,7 +345,7 @@ export default function HomePage() {
           </div>
           <button
             onClick={() => navigate("/recording")}
-            className="text-on-surface-variant hover:text-mint transition-colors mb-4"
+            className="p-2 text-on-surface-variant hover:text-mint transition-colors"
           >
             <Mic size={22} />
           </button>

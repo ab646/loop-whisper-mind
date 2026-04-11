@@ -112,23 +112,31 @@ export function ReflectionCard({ mainLoop, feelings, knownVsAssumed, repeatingPa
 
       {/* Collapsible: Fact vs Story — Loop's differentiator */}
       <CollapsibleSection title="Fact vs Story">
-        <div className="space-y-4">
-          <div className="space-y-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {/* Fact */}
+          <div className="rounded-xl bg-mint/5 border-l-4 border-mint/30 border border-mint/15 p-4 space-y-2">
             <span className="label-uppercase text-mint text-[10px]">Fact</span>
             <ul className="space-y-2">
               {knownVsAssumed.known.map((item, i) => (
                 <li key={`k-${i}`} className="flex items-start gap-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-mint mt-2 shrink-0" />
-                  <span className="text-on-surface text-base">{item}</span>
+                  <span className="text-on-surface text-sm">{item}</span>
                 </li>
               ))}
             </ul>
           </div>
-          <div className="space-y-2">
+
+          {/* VS divider — mobile only */}
+          <div className="flex items-center justify-center sm:hidden -my-1">
+            <span className="text-[10px] font-medium tracking-widest text-on-surface-variant/50 uppercase">vs</span>
+          </div>
+
+          {/* Story */}
+          <div className="rounded-xl bg-tertiary/5 border-l-4 border-tertiary/30 border border-tertiary/15 p-4 space-y-2">
             <span className="label-uppercase text-tertiary text-[10px]">Story</span>
-            <div className="border-l-2 border-tertiary/30 pl-3 space-y-2">
+            <div className="space-y-2">
               {knownVsAssumed.assumed.map((item, i) => (
-                <p key={`a-${i}`} className="text-tertiary/80 text-base italic">{item}</p>
+                <p key={`a-${i}`} className="text-tertiary/80 text-sm italic">{item}</p>
               ))}
             </div>
           </div>

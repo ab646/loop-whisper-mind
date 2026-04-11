@@ -110,9 +110,9 @@ export default function JournalPage() {
   const grouped = groupEntries(entries);
 
   return (
-    <div className="h-screen mesh-gradient-bg flex flex-col overflow-hidden relative">
+    <div className="h-full min-h-0 mesh-gradient-bg flex flex-col overflow-hidden relative">
       <div
-        className="flex-1 scroll-container px-5 space-y-10 pt-6"
+        className="flex-1 min-h-0 scroll-container px-5 space-y-10 pt-6"
         style={{ paddingBottom: 'calc(var(--bottom-nav-height, calc(72px + env(safe-area-inset-bottom))) + 32px)' }}
       >
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>

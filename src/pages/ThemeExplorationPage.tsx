@@ -176,10 +176,10 @@ export default function ThemeExplorationPage() {
   const themeName = theme ? theme.charAt(0).toUpperCase() + theme.slice(1) : "Theme";
 
   return (
-    <div className="h-screen mesh-gradient-bg flex flex-col overflow-hidden relative">
+    <div className="h-full min-h-0 mesh-gradient-bg flex flex-col overflow-hidden relative">
       <AppHeader title={themeName} showBack />
 
-      <div className="flex-1 scroll-container px-5 space-y-6" style={{ paddingBottom: 'calc(var(--bottom-nav-height, calc(72px + env(safe-area-inset-bottom))) + 96px)' }}>
+      <div className="flex-1 min-h-0 scroll-container px-5 space-y-6" style={{ paddingBottom: 'calc(var(--bottom-nav-height, calc(72px + env(safe-area-inset-bottom))) + 32px)' }}>
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-3">
           <h1 className="font-display text-2xl text-on-surface leading-tight">
             Why does this keep coming up?

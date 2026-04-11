@@ -270,7 +270,7 @@ export default function HomePage() {
 
   if (crisisData) {
     return (
-      <div className="h-[100dvh] mesh-gradient-bg flex flex-col items-center justify-center px-5" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
+      <div className="h-[100dvh] mesh-gradient-bg flex flex-col items-center justify-center px-5" style={{ paddingBottom: 'var(--bottom-nav-height, calc(72px + env(safe-area-inset-bottom)))' }}>
         <div className="w-full max-w-md space-y-6">
           <CrisisCard message={crisisData.message} resources={crisisData.resources} />
           <motion.button

@@ -160,7 +160,7 @@ export default function JournalDetailPage() {
   };
 
   if (loading) return <FullScreenLoader mode="reflection" />;
-  if (!entry) return <div className="h-[100dvh] mesh-gradient-bg flex items-center justify-center"><p className="text-on-surface-variant">Entry not found</p></div>;
+  if (!entry) return <div className="h-full min-h-0 mesh-gradient-bg flex items-center justify-center" style={{ paddingBottom: 'var(--bottom-nav-height, calc(72px + env(safe-area-inset-bottom)))' }}><p className="text-on-surface-variant">Entry not found</p></div>;
 
   const date = new Date(entry.createdAt);
   const dayLabel = date.toLocaleDateString("en-US", { day: "numeric", month: "long" }).toUpperCase();
@@ -169,7 +169,7 @@ export default function JournalDetailPage() {
   const paragraphs = beautifyText(entry.content);
 
   return (
-    <div className="h-screen mesh-gradient-bg flex flex-col overflow-hidden relative">
+    <div className="h-full min-h-0 mesh-gradient-bg flex flex-col overflow-hidden relative">
       {/* Header */}
       <div className="shrink-0 flex items-center justify-between px-4 pb-2 sticky top-0 z-30 mesh-gradient-bg" style={{ paddingTop: "max(env(safe-area-inset-top), 16px)" }}>
         <button onClick={() => navigate("/journal")} className="text-on-surface-variant hover:text-mint transition-colors w-8">

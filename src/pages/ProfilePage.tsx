@@ -1,5 +1,5 @@
-import { motion } from "framer-motion";
-import { KeyRound, Download, Trash2, LogOut, Bell, ExternalLink, LifeBuoy } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { KeyRound, Download, Trash2, LogOut, Bell, ExternalLink, LifeBuoy, Settings } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -10,6 +10,7 @@ import DeleteAccountDialog from "@/components/DeleteAccountDialog";
 import { scheduleAdaptiveNotification } from "@/lib/adaptive-notifications";
 import { Capacitor } from "@capacitor/core";
 import { LocalNotifications } from "@capacitor/local-notifications";
+import { NativeSettings, IOSSettings } from "capacitor-native-settings";
 
 export default function ProfilePage() {
   const navigate = useNavigate();
@@ -23,6 +24,7 @@ export default function ProfilePage() {
   const [deleting, setDeleting] = useState(false);
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [notificationsLoading, setNotificationsLoading] = useState(false);
+  const [permissionDenied, setPermissionDenied] = useState(false);
   const isNative = Capacitor.isNativePlatform();
 
   useEffect(() => {
@@ -31,6 +33,24 @@ export default function ProfilePage() {
     }
   }, [profile]);
 
+  // Check current permission status on mount (native only)
+  useEffect(() => {
+    if (!isNative) return;
+    LocalNotifications.checkPermissions().then((result) => {
+      if (result.display === "denied") {
+        setPermissionDenied(true);
+      }
+    }).catch(() => {});
+  }, [isNative]);
+
+  const openAppSettings = async () => {
+    try {
+      await NativeSettings.openIOS({ option: IOSSettings.App });
+    } catch {
+      toast.error("Couldn't open settings");
+    }
+  };
+
   const handleToggleNotifications = async (enabled: boolean) => {
     if (!user) return;
     setNotificationsLoading(true);
@@ -38,10 +58,11 @@ export default function ProfilePage() {
     if (enabled && isNative) {
       const permResult = await LocalNotifications.requestPermissions();
       if (permResult.display !== "granted") {
-        toast.error("Please enable notifications in your device settings");
+        setPermissionDenied(true);
         setNotificationsLoading(false);
         return;
       }
+      setPermissionDenied(false);
     }
 
     const { error } = await supabase
@@ -198,6 +219,38 @@ export default function ProfilePage() {
               disabled={notificationsLoading}
             />
           </motion.div>
+
+          {/* Permission denied banner */}
+          <AnimatePresence>
+            {permissionDenied && isNative && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                className="rounded-2xl surface-low border border-destructive/20 p-5 space-y-3"
+              >
+                <div className="flex items-start gap-3">
+                  <Bell size={18} className="text-destructive shrink-0 mt-0.5" />
+                  <div className="space-y-1">
+                    <p className="text-on-surface text-sm font-semibold">
+                      Notifications are blocked
+                    </p>
+                    <p className="text-on-surface-variant text-xs leading-relaxed">
+                      You previously denied notification access. To receive daily reminders, re-enable them in your device settings.
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={openAppSettings}
+                  className="w-full flex items-center justify-center gap-2 rounded-xl surface-high border border-border/20 py-3 text-mint text-sm font-semibold"
+                >
+                  <Settings size={16} />
+                  Open Settings
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
           {/* Change Password */}
           <motion.button
             initial={{ opacity: 0, y: 10 }}

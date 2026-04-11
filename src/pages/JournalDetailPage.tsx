@@ -280,6 +280,10 @@ export default function JournalDetailPage() {
                       <p className="text-on-surface text-sm leading-relaxed">{msg.content}</p>
                     </div>
                   </div>
+                ) : msg.role === "guard" ? (
+                  <div className="rounded-2xl p-4 space-y-2 border-l-4 border-secondary/30 surface-container">
+                    <p className="text-on-surface-variant text-sm leading-relaxed font-body italic">{msg.content}</p>
+                  </div>
                 ) : (
                   <div className="rounded-2xl p-4 space-y-2 border-l-4 border-mint/30 surface-container">
                     <span className="label-uppercase text-mint">Reflection</span>

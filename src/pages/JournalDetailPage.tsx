@@ -61,6 +61,7 @@ export default function JournalDetailPage() {
   // Exploration wizard state
   const [explorationMessages, setExplorationMessages] = useState<{ role: "user" | "ai"; content: string }[]>([]);
   const [explorationInput, setExplorationInput] = useState("");
+  const [inputFocused, setInputFocused] = useState(false);
   const [explorationLoading, setExplorationLoading] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
 

@@ -133,7 +133,7 @@ export function ReflectionCard({ mainLoop, feelings, knownVsAssumed, repeatingPa
 
           {/* Story */}
           <div className="rounded-xl bg-tertiary/5 border-l-4 border-tertiary/30 border border-tertiary/15 p-4 space-y-2">
-            <span className="label-uppercase text-tertiary text-[10px]">Story</span>
+            <span className="label-uppercase text-[#B8A9E8] text-[10px]">Story</span>
             <div className="space-y-2">
               {knownVsAssumed.assumed.map((item, i) => (
                 <p key={`a-${i}`} className="text-tertiary/80 text-sm italic">{item}</p>

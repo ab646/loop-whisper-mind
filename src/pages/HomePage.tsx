@@ -201,13 +201,56 @@ export default function HomePage() {
 
   const handleSend = async (text: string) => {
     const entryId = await createEntry({ content: text });
-    if (entryId) navigate(`/chat/${entryId}`);
+    if (entryId) navigate(`/journal/${entryId}`);
   };
 
+  const [imageProcessing, setImageProcessing] = useState(false);
+
   const handleImageSelected = async (imageDataUrl: string) => {
-    // For images, navigate to a new chat page that handles image validation
-    // We pass the image via router state since it's a one-time handoff
-    navigate(`/chat/image`, { state: { prefillImage: imageDataUrl } });
+    setImageProcessing(true);
+    try {
+      const base64 = imageDataUrl.split(",")[1];
+      const mimeMatch = imageDataUrl.match(/data:(.*?);/);
+      const mime = mimeMatch?.[1] || "image/jpeg";
+      const ext = mime.split("/")[1] || "jpg";
+      const byteString = atob(base64);
+      const ab = new ArrayBuffer(byteString.length);
+      const ia = new Uint8Array(ab);
+      for (let i = 0; i < byteString.length; i++) ia[i] = byteString.charCodeAt(i);
+      const blob = new Blob([ab], { type: mime });
+
+      const filePath = `${session?.user?.id}/${crypto.randomUUID()}.${ext}`;
+      const { error: uploadError } = await supabase.storage
+        .from("chat-images")
+        .upload(filePath, blob, { contentType: mime });
+      if (uploadError) throw uploadError;
+
+      const { data: urlData } = supabase.storage
+        .from("chat-images")
+        .getPublicUrl(filePath);
+
+      const { data: validation, error: valError } = await supabase.functions.invoke("validate-image", {
+        body: { imageUrl: urlData.publicUrl },
+      });
+
+      supabase.storage.from("chat-images").remove([filePath]).catch(() => {});
+
+      if (valError) throw valError;
+      if (!validation?.valid) {
+        toast.error(validation?.reason || "Loop can't work with this image. Try a screenshot with words.");
+        setImageProcessing(false);
+        return;
+      }
+
+      const transcribedText = validation.transcription || "[Image content]";
+      const entryId = await createEntry({ content: transcribedText, entryType: "image" });
+      setImageProcessing(false);
+      if (entryId) navigate(`/journal/${entryId}`);
+    } catch (e) {
+      console.error("Image processing error:", e);
+      toast.error("Failed to process image");
+      setImageProcessing(false);
+    }
   };
 
   if (creatingLoop) {

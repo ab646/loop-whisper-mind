@@ -1,16 +1,11 @@
-import { motion, AnimatePresence } from "framer-motion";
-import { KeyRound, Download, Trash2, LogOut, Bell, ExternalLink, LifeBuoy, Settings } from "lucide-react";
+import { motion } from "framer-motion";
+import { KeyRound, Download, Trash2, LogOut, ExternalLink, LifeBuoy } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { useState, useEffect } from "react";
-import { Switch } from "@/components/ui/switch";
+import { useState } from "react";
 import DeleteAccountDialog from "@/components/DeleteAccountDialog";
-import { scheduleAdaptiveNotification } from "@/lib/adaptive-notifications";
-import { Capacitor } from "@capacitor/core";
-import { LocalNotifications } from "@capacitor/local-notifications";
-import { NativeSettings, IOSSettings } from "capacitor-native-settings";
 
 export default function ProfilePage() {
   const navigate = useNavigate();
@@ -22,81 +17,7 @@ export default function ProfilePage() {
   const [exporting, setExporting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
-  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
-  const [notificationsLoading, setNotificationsLoading] = useState(false);
-  const [permissionDenied, setPermissionDenied] = useState(false);
-  const isNative = Capacitor.isNativePlatform();
 
-  useEffect(() => {
-    if (profile) {
-      setNotificationsEnabled((profile as any).notifications_enabled ?? false);
-    }
-  }, [profile]);
-
-  // Check current permission status on mount (native only)
-  useEffect(() => {
-    if (!isNative) return;
-    LocalNotifications.checkPermissions().then((result) => {
-      if (result.display === "denied") {
-        setPermissionDenied(true);
-      }
-    }).catch(() => {});
-  }, [isNative]);
-
-  const openAppSettings = async () => {
-    try {
-      await NativeSettings.openIOS({ option: IOSSettings.App });
-    } catch {
-      toast.error("Couldn't open settings");
-    }
-  };
-
-  const handleToggleNotifications = async (enabled: boolean) => {
-    if (!user) return;
-    setNotificationsLoading(true);
-
-    if (enabled && isNative) {
-      const permResult = await LocalNotifications.requestPermissions();
-      if (permResult.display !== "granted") {
-        setPermissionDenied(true);
-        setNotificationsLoading(false);
-        return;
-      }
-      setPermissionDenied(false);
-    }
-
-    const { error } = await supabase
-      .from("profiles")
-      .update({ notifications_enabled: enabled } as any)
-      .eq("user_id", user.id);
-
-    if (error) {
-      toast.error("Failed to update notification preference");
-      setNotificationsLoading(false);
-      return;
-    }
-
-    setNotificationsEnabled(enabled);
-
-    if (enabled && isNative) {
-      const time = await scheduleAdaptiveNotification();
-      if (time) {
-        const timeStr = `${String(time.hour).padStart(2, "0")}:${String(time.minute).padStart(2, "0")}`;
-        toast.success(`Daily reminder set for ${timeStr}`);
-      } else {
-        toast.success("Notifications enabled");
-      }
-    } else if (!enabled && isNative) {
-      await LocalNotifications.cancel({ notifications: [{ id: 1001 }] }).catch(() => {});
-      toast.success("Notifications disabled");
-    } else if (enabled && !isNative) {
-      toast.success("Notifications will activate on the mobile app");
-    } else {
-      toast.success("Notifications disabled");
-    }
-
-    setNotificationsLoading(false);
-  };
   const handleChangePassword = async () => {
     if (newPassword.length < 6) {
       toast.error("Password must be at least 6 characters");
@@ -118,7 +39,6 @@ export default function ProfilePage() {
     }
   };
 
-  // Fix #15: Include reflections in data export
   const handleExportData = async () => {
     if (!user) return;
     setExporting(true);
@@ -162,7 +82,6 @@ export default function ProfilePage() {
     toast.success("Data exported");
   };
 
-  // Fix #14: Delete account via edge function (removes auth user too)
   const handleDeleteAccount = async (reason: string, details: string) => {
     if (!user) return;
     setDeleting(true);
@@ -207,55 +126,6 @@ export default function ProfilePage() {
 
         {/* Actions */}
         <div className="space-y-3">
-          {/* Notifications */}
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.03 }}
-            className="w-full rounded-2xl surface-low p-5 flex items-center justify-between"
-          >
-            <div className="flex items-center gap-3">
-              <Bell size={18} className="text-on-surface-variant" />
-              <span className="text-on-surface text-sm font-semibold">Daily Reminders</span>
-            </div>
-            <Switch
-              checked={notificationsEnabled}
-              onCheckedChange={handleToggleNotifications}
-              disabled={notificationsLoading}
-            />
-          </motion.div>
-
-          {/* Permission denied banner */}
-          <AnimatePresence>
-            {permissionDenied && isNative && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                exit={{ opacity: 0, height: 0 }}
-                className="rounded-2xl surface-low border border-destructive/20 p-5 space-y-3"
-              >
-                <div className="flex items-start gap-3">
-                  <Bell size={18} className="text-destructive shrink-0 mt-0.5" />
-                  <div className="space-y-1">
-                    <p className="text-on-surface text-sm font-semibold">
-                      Notifications are blocked
-                    </p>
-                    <p className="text-on-surface-variant text-xs leading-relaxed">
-                      You previously denied notification access. To receive daily reminders, re-enable them in your device settings.
-                    </p>
-                  </div>
-                </div>
-                <button
-                  onClick={openAppSettings}
-                  className="w-full flex items-center justify-center gap-2 rounded-xl surface-high border border-border/20 py-3 text-mint text-sm font-semibold"
-                >
-                  <Settings size={16} />
-                  Open Settings
-                </button>
-              </motion.div>
-            )}
-          </AnimatePresence>
-
           {/* Change Password */}
           <motion.button
             initial={{ opacity: 0, y: 10 }}

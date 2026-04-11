@@ -21,7 +21,56 @@ export default function ProfilePage() {
   const [exporting, setExporting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [notificationsEnabled, setNotificationsEnabled] = useState(false);
+  const [notificationsLoading, setNotificationsLoading] = useState(false);
+  const isNative = Capacitor.isNativePlatform();
 
+  useEffect(() => {
+    if (profile) {
+      setNotificationsEnabled((profile as any).notifications_enabled ?? false);
+    }
+  }, [profile]);
+
+  const handleToggleNotifications = async (enabled: boolean) => {
+    if (!user) return;
+    setNotificationsLoading(true);
+
+    if (enabled && isNative) {
+      const permResult = await LocalNotifications.requestPermissions();
+      if (permResult.display !== "granted") {
+        toast.error("Please enable notifications in your device settings");
+        setNotificationsLoading(false);
+        return;
+      }
+    }
+
+    const { error } = await supabase
+      .from("profiles")
+      .update({ notifications_enabled: enabled } as any)
+      .eq("user_id", user.id);
+
+    if (error) {
+      toast.error("Failed to update notification preference");
+      setNotificationsLoading(false);
+      return;
+    }
+
+    setNotificationsEnabled(enabled);
+
+    if (enabled && isNative) {
+      await scheduleAdaptiveNotification();
+      toast.success("Notifications enabled");
+    } else if (!enabled && isNative) {
+      await LocalNotifications.cancel({ notifications: [{ id: 1001 }] }).catch(() => {});
+      toast.success("Notifications disabled");
+    } else if (enabled && !isNative) {
+      toast.success("Notifications will activate on the mobile app");
+    } else {
+      toast.success("Notifications disabled");
+    }
+
+    setNotificationsLoading(false);
+  };
   const handleChangePassword = async () => {
     if (newPassword.length < 6) {
       toast.error("Password must be at least 6 characters");

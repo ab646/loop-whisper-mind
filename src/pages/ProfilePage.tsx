@@ -5,12 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useState, useEffect } from "react";
-import { Switch } from "@/components/ui/switch";
 import DeleteAccountDialog from "@/components/DeleteAccountDialog";
-import { scheduleAdaptiveNotification } from "@/lib/adaptive-notifications";
-import { Capacitor } from "@capacitor/core";
-import { LocalNotifications } from "@capacitor/local-notifications";
-import { NativeSettings, IOSSettings } from "capacitor-native-settings";
 
 export default function ProfilePage() {
   const navigate = useNavigate();

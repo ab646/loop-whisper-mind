@@ -156,21 +156,21 @@ export default function JournalDetailPage() {
         </div>
       </div>
 
+      {/* Date header like screenshot */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="shrink-0 text-center pt-4 pb-6 space-y-1.5 flex flex-col items-center"
+      >
+        <p className="text-on-surface-variant text-[10px] tracking-[0.2em] uppercase font-semibold">{dayLabel}</p>
+        <h1 className="font-display text-2xl text-on-surface">{weekday}</h1>
+        <span className="mt-1 inline-block rounded-full surface-low border border-border/20 px-3 py-0.5 text-on-surface-variant text-[10px] tracking-wider uppercase font-semibold">
+          {date.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}
+        </span>
+      </motion.div>
+
       {/* Scrollable content */}
       <div className="flex-1 min-h-0 scroll-container px-5 space-y-4" style={{ paddingBottom: 'calc(var(--bottom-nav-height, calc(72px + env(safe-area-inset-bottom))) + 96px)' }}>
-
-        {/* Date header */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center pt-4 pb-2 space-y-1.5 flex flex-col items-center"
-        >
-          <p className="text-on-surface-variant text-[10px] tracking-[0.2em] uppercase font-semibold">{dayLabel}</p>
-          <h1 className="font-display text-2xl text-on-surface">{weekday}</h1>
-          <span className="mt-1 inline-block rounded-full surface-low border border-border/20 px-3 py-0.5 text-on-surface-variant text-[10px] tracking-wider uppercase font-semibold">
-            {date.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}
-          </span>
-        </motion.div>
         
         {/* Beautified user entry */}
         <motion.div
@@ -264,57 +264,43 @@ export default function JournalDetailPage() {
           className="absolute inset-x-0 z-[60] w-full max-w-md mx-auto px-4"
           style={{ bottom: 'max(var(--keyboard-height, 0px), calc(var(--bottom-nav-height, calc(72px + env(safe-area-inset-bottom))) + 12px))' }}
         >
-          <motion.div
-            layout
-            transition={{ duration: 0.25, ease: "easeInOut" }}
-            className="rounded-xl surface-high px-4 py-3 border border-border/20 shadow-lg"
-          >
-            {inputFocused || explorationInput.trim() ? (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.2 }}
-                className="flex items-center gap-2"
+          {inputFocused || explorationInput.trim() ? (
+            <div className="flex items-center gap-2 rounded-xl surface-high px-4 py-3 border border-border/20 shadow-lg">
+              <input
+                value={explorationInput}
+                onChange={(e) => setExplorationInput(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleExplore(explorationInput)}
+                onFocus={() => setInputFocused(true)}
+                onBlur={() => setInputFocused(false)}
+                placeholder="Ask a follow-up..."
+                className="flex-1 bg-transparent text-on-surface placeholder:text-on-surface-variant text-sm outline-none"
+                autoFocus
+              />
+              <button
+                onClick={() => handleExplore(explorationInput)}
+                disabled={!explorationInput.trim() || explorationLoading}
+                className="w-7 h-7 rounded-full orb-gradient flex items-center justify-center disabled:opacity-50"
               >
-                <input
-                  value={explorationInput}
-                  onChange={(e) => setExplorationInput(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && handleExplore(explorationInput)}
-                  onFocus={() => setInputFocused(true)}
-                  onBlur={() => setInputFocused(false)}
-                  placeholder="Ask a follow-up..."
-                  className="flex-1 bg-transparent text-on-surface placeholder:text-on-surface-variant text-sm outline-none"
-                  autoFocus
-                />
-                <button
-                  onClick={() => handleExplore(explorationInput)}
-                  disabled={!explorationInput.trim() || explorationLoading}
-                  className="w-7 h-7 rounded-full orb-gradient flex items-center justify-center disabled:opacity-50"
-                >
-                  {explorationLoading ? (
-                    <ScribblingLogo size={14} />
-                  ) : (
-                    <ArrowUp size={14} className="text-primary-foreground" />
-                  )}
-                </button>
-              </motion.div>
-            ) : (
-              <motion.button
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.2 }}
-                onClick={() => setInputFocused(true)}
-                className="flex items-center gap-3 w-full text-left"
-              >
-                <div className="w-7 h-7 rounded-full orb-gradient flex items-center justify-center shrink-0">
-                  <span className="text-primary-foreground text-xs">✦</span>
-                </div>
-                <span className="text-on-surface-variant text-sm">
-                  Want to go deeper? Ask a follow-up, or add more context.
-                </span>
-              </motion.button>
-            )}
-          </motion.div>
+                {explorationLoading ? (
+                  <ScribblingLogo size={14} />
+                ) : (
+                  <ArrowUp size={14} className="text-primary-foreground" />
+                )}
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={() => setInputFocused(true)}
+              className="flex items-center gap-3 rounded-xl surface-high px-4 py-3 border border-border/20 shadow-lg w-full text-left"
+            >
+              <div className="w-7 h-7 rounded-full orb-gradient flex items-center justify-center shrink-0">
+                <span className="text-primary-foreground text-xs">✦</span>
+              </div>
+              <span className="text-on-surface-variant text-sm">
+                Want to go deeper? Ask a follow-up
+              </span>
+            </button>
+          )}
         </div>
       )}
     </div>

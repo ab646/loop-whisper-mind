@@ -64,7 +64,7 @@ export default function FeedbackPanel({ open, onClose }: Props) {
             dragElastic={0.2}
             onDragEnd={handleDragEnd}
             className="fixed inset-x-0 bottom-0 z-[61] flex flex-col max-w-md mx-auto"
-            style={{ height: "85dvh", maxHeight: "85dvh" }}
+            style={{ height: "92dvh", maxHeight: "92dvh" }}
           >
             <div className="rounded-t-2xl surface-low flex flex-col h-full overflow-hidden">
               {/* Drag handle */}

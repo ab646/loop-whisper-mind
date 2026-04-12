@@ -9,6 +9,29 @@ async function hashId(id: string): Promise<string> {
   return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, "0")).join("").slice(0, 16);
 }
 
+/**
+ * Detect internal/test traffic so it can be filtered out of dashboards.
+ * Returns an environment label or null for real users.
+ *
+ * Matches:
+ *  - Lovable previews  (*.lovableproject.com, *.lovable.app)
+ *  - Xcode / Capacitor  (capacitor://localhost)
+ *  - localhost dev server
+ *  - Known internal email addresses
+ */
+function detectInternalEnvironment(): string | null {
+  const host = window.location.hostname ?? "";
+  const protocol = window.location.protocol ?? "";
+
+  if (host.endsWith(".lovableproject.com") || host.endsWith(".lovable.app")) return "lovable_preview";
+  if (protocol === "capacitor:" || host === "localhost" || host === "127.0.0.1") return "local_dev";
+
+  return null;
+}
+
+/** Email addresses that should always be flagged as internal */
+const INTERNAL_EMAILS = ["hello@adrienbarbusse.com"];
+
 export const analytics = {
   init() {
     const posthogKey = import.meta.env.VITE_POSTHOG_KEY;
@@ -22,6 +45,12 @@ export const analytics = {
     });
     sessionStartTime = Date.now();
 
+    // Tag internal/test traffic on every session so PostHog can filter it
+    const internalEnv = detectInternalEnvironment();
+    if (internalEnv) {
+      posthog.register({ is_internal: true, internal_environment: internalEnv });
+    }
+
     // Track app_backgrounded on visibility change / unload
     document.addEventListener("visibilitychange", () => {
       if (document.visibilityState === "hidden") {
@@ -31,8 +60,12 @@ export const analytics = {
     });
   },
 
-  identify(userId: string) {
+  identify(userId: string, email?: string) {
     posthog.identify(userId);
+    // Flag known internal users by email so they can be filtered out
+    if (email && INTERNAL_EMAILS.includes(email.toLowerCase())) {
+      posthog.people.set({ is_internal: true, internal_reason: "team_email" });
+    }
   },
 
   reset() {

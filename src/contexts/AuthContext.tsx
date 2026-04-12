@@ -71,7 +71,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         setSession(session);
         if (session?.user) {
-          analytics.identify(session.user.id);
+          analytics.identify(session.user.id, session.user.email);
           // Use setTimeout to avoid Supabase deadlock
           setTimeout(() => fetchProfile(session.user.id), 0);
 

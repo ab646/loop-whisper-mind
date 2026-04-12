@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { KeyRound, Download, Trash2, LogOut, ExternalLink, LifeBuoy } from "lucide-react";
+import { KeyRound, Download, Trash2, LogOut, ExternalLink, LifeBuoy, Mail } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -9,7 +9,7 @@ import DeleteAccountDialog from "@/components/DeleteAccountDialog";
 
 export default function ProfilePage() {
   const navigate = useNavigate();
-  const { user, profile, signOut } = useAuth();
+  const { user, profile, signOut, refreshProfile } = useAuth();
   const [showPasswordForm, setShowPasswordForm] = useState(false);
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -17,6 +17,7 @@ export default function ProfilePage() {
   const [exporting, setExporting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [togglingConsent, setTogglingConsent] = useState(false);
 
   const handleChangePassword = async () => {
     if (newPassword.length < 6) {
@@ -97,6 +98,22 @@ export default function ProfilePage() {
       toast.error("Failed to delete account. Please try again.");
     }
     setDeleting(false);
+  };
+
+  const handleToggleMarketingConsent = async () => {
+    if (!user || togglingConsent) return;
+    setTogglingConsent(true);
+    const newValue = !profile?.marketing_consent;
+    const { error } = await supabase
+      .from("profiles")
+      .update({ marketing_consent: newValue })
+      .eq("user_id", user.id);
+    if (error) {
+      toast.error("Failed to update preference");
+    } else {
+      await refreshProfile();
+    }
+    setTogglingConsent(false);
   };
 
   const handleSignOut = async () => {
@@ -188,6 +205,35 @@ export default function ProfilePage() {
             </div>
             <span className="text-on-surface-variant">›</span>
           </motion.button>
+
+          {/* Marketing Emails */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.12 }}
+            className="w-full rounded-2xl surface-low p-5 flex items-center justify-between"
+          >
+            <div className="flex items-center gap-3">
+              <Mail size={18} className="text-on-surface-variant" />
+              <div>
+                <span className="text-on-surface text-sm font-semibold">Tips & Updates</span>
+                <p className="text-on-surface-variant text-xs mt-0.5">Occasional emails about thought patterns</p>
+              </div>
+            </div>
+            <button
+              onClick={handleToggleMarketingConsent}
+              disabled={togglingConsent}
+              className={`relative w-11 h-6 rounded-full transition-colors ${
+                profile?.marketing_consent ? "bg-mint" : "bg-surface-high"
+              }`}
+            >
+              <span
+                className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform ${
+                  profile?.marketing_consent ? "translate-x-5" : "translate-x-0"
+                }`}
+              />
+            </button>
+          </motion.div>
 
           {/* Support */}
           <motion.a

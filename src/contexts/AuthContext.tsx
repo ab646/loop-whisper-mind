@@ -11,6 +11,7 @@ interface Profile {
   voice_first_mode: boolean;
   urgency_filter: boolean;
   onboarding_complete: boolean;
+  marketing_consent: boolean;
 }
 
 interface AuthContextType {
@@ -42,7 +43,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const fetchProfile = async (userId: string) => {
     const { data } = await supabase
       .from("profiles")
-      .select("display_name, avatar_url, mantra, voice_first_mode, urgency_filter, onboarding_complete")
+      .select("display_name, avatar_url, mantra, voice_first_mode, urgency_filter, onboarding_complete, marketing_consent")
       .eq("user_id", userId)
       .single();
     setProfile(data);

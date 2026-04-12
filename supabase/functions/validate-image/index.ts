@@ -2,6 +2,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { corsResponse, jsonResponse, errorResponse, checkRequestSize } from "../_shared/cors.ts";
 import { authenticateRequest, AuthError } from "../_shared/auth.ts";
 import { chatCompletionJSON, AIError } from "../_shared/ai.ts";
+import { checkAndIncrementDailyLimit } from "../_shared/dailyLimits.ts";
 
 /**
  * Validates whether an uploaded image contains content suitable for
@@ -30,7 +31,13 @@ serve(async (req) => {
   if (sizeError) return sizeError;
 
   try {
-    await authenticateRequest(req);
+    const { userId, adminClient } = await authenticateRequest(req);
+
+    // Daily abuse limit: 10 image uploads/day (cost protection)
+    const dailyLimit = await checkAndIncrementDailyLimit(adminClient, userId, "image_uploads_count");
+    if (dailyLimit) {
+      return errorResponse(req, dailyLimit.message, 429);
+    }
 
     const { imageUrl } = await req.json();
     if (!imageUrl) {

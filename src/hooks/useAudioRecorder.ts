@@ -6,6 +6,20 @@ import {
   RecordingStatus,
 } from "@capgo/capacitor-audio-recorder";
 
+/** Maximum recording duration in seconds (15 minutes) */
+export const MAX_RECORDING_SECONDS = 15 * 60;
+
+/** Warn user when this many seconds remain */
+export const RECORDING_WARN_SECONDS = 60;
+
+/** Show amber timer when this many seconds remain */
+export const RECORDING_AMBER_SECONDS = 120;
+
+interface UseAudioRecorderOptions {
+  /** Called when recording auto-stops at the max duration */
+  onMaxDurationReached?: () => void;
+}
+
 interface UseAudioRecorderReturn {
   isRecording: boolean;
   isPaused: boolean;
@@ -20,7 +34,7 @@ interface UseAudioRecorderReturn {
 
 const NATIVE_AUDIO_MIME_TYPE = "audio/mp4";
 
-export function useAudioRecorder(): UseAudioRecorderReturn {
+export function useAudioRecorder(options?: UseAudioRecorderOptions): UseAudioRecorderReturn {
   const [isRecording, setIsRecording] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [duration, setDuration] = useState(0);
@@ -222,6 +236,16 @@ export function useAudioRecorder(): UseAudioRecorderReturn {
     setIsPaused(false);
     setDuration(0);
   }, [clearTimer]);
+
+  // Auto-stop recording at max duration (15 min)
+  const onMaxDurationRef = useRef(options?.onMaxDurationReached);
+  onMaxDurationRef.current = options?.onMaxDurationReached;
+
+  useEffect(() => {
+    if (isRecording && !isPaused && duration >= MAX_RECORDING_SECONDS) {
+      onMaxDurationRef.current?.();
+    }
+  }, [duration, isRecording, isPaused]);
 
   useEffect(() => {
     return () => {

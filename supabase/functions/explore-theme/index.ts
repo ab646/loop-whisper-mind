@@ -4,6 +4,7 @@ import { authenticateRequest, AuthError } from "../_shared/auth.ts";
 import { chatCompletionJSON, AIError } from "../_shared/ai.ts";
 import { classifyInput, buildHelplineUrl, CRISIS_RESOURCES } from "../_shared/inputGuard.ts";
 import { isUserRateLimited } from "../_shared/rateLimit.ts";
+import { checkAndIncrementDailyLimit } from "../_shared/dailyLimits.ts";
 
 /**
  * Loop Theme Explorer
@@ -53,6 +54,12 @@ serve(async (req) => {
 
     if (isUserRateLimited(userId, "explore-theme", 20)) {
       return errorResponse(req, "Too many requests. Try again in a minute.", 429);
+    }
+
+    // Daily abuse limit: 20 explorations/day (cost protection)
+    const dailyLimit = await checkAndIncrementDailyLimit(adminClient, userId, "explorations_count");
+    if (dailyLimit) {
+      return errorResponse(req, dailyLimit.message, 429);
     }
 
     const { theme, question, countryCode } = await req.json();

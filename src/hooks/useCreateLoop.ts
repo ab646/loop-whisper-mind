@@ -7,6 +7,7 @@ import {
   classifyEntry,
   countWords,
 } from "@/lib/entryThresholds";
+import { LIMIT_MESSAGES } from "@/lib/dailyLimits";
 import { analytics } from "@/lib/analytics";
 
 interface CreateLoopOptions {
@@ -74,7 +75,19 @@ export function useCreateLoop() {
         },
       });
 
-      if (error) throw error;
+      if (error) {
+        // Check if it's a daily limit 429 — show the on-brand message, not "Failed to process"
+        const errMsg = typeof error === "object" && error !== null
+          ? (error as any)?.message || (error as any)?.context?.message || ""
+          : String(error);
+        const isLimitHit = Object.values(LIMIT_MESSAGES).some((lm) => errMsg.includes(lm));
+        if (isLimitHit) {
+          toast(errMsg, { duration: 6000 });
+          setLoading(false);
+          return null;
+        }
+        throw error;
+      }
 
       // Handle input guard responses (crisis, hostile, meta, too_thin)
       if (data?.guard) {

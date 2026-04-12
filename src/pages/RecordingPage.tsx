@@ -4,7 +4,12 @@ import { motion } from "framer-motion";
 import { MicOff, Pause, Play, RotateCcw, Square } from "lucide-react";
 
 import { FullScreenLoader } from "@/components/FullScreenLoader";
-import { useAudioRecorder } from "@/hooks/useAudioRecorder";
+import {
+  useAudioRecorder,
+  MAX_RECORDING_SECONDS,
+  RECORDING_WARN_SECONDS,
+  RECORDING_AMBER_SECONDS,
+} from "@/hooks/useAudioRecorder";
 import { useAudioAnalyser } from "@/hooks/useAudioAnalyser";
 import { useCreateLoop } from "@/hooks/useCreateLoop";
 import { supabase } from "@/integrations/supabase/client";
@@ -35,8 +40,11 @@ export default function RecordingPage() {
   const [processing, setProcessing] = useState(false);
   const [micDenied, setMicDenied] = useState(false);
   const [currentStep, setCurrentStep] = useState<ProcessingStep>("transcribing");
+  const autoStopRef = useRef<(() => void) | null>(null);
   const { isRecording, isPaused, duration, stream, start, stop, pause, resume, reset } =
-    useAudioRecorder();
+    useAudioRecorder({
+      onMaxDurationReached: () => autoStopRef.current?.(),
+    });
   const { levels, connect, disconnect } = useAudioAnalyser(WAVEFORM_BARS);
   const startedRef = useRef(false);
 
@@ -160,6 +168,30 @@ export default function RecordingPage() {
     reset();
     start().catch(() => toast.error("I can't reach your mic. Check Settings."));
   };
+
+  // Wire auto-stop ref so the recorder hook can trigger handleStop
+  useEffect(() => {
+    autoStopRef.current = () => {
+      toast("That was a long one. Your entry's saved.");
+      handleStop();
+    };
+  });
+
+  // 1-minute warning toast
+  const warnShownRef = useRef(false);
+  useEffect(() => {
+    const remaining = MAX_RECORDING_SECONDS - duration;
+    if (
+      isRecording &&
+      !isPaused &&
+      remaining <= RECORDING_WARN_SECONDS &&
+      remaining > 0 &&
+      !warnShownRef.current
+    ) {
+      warnShownRef.current = true;
+      toast("One minute left — wrap up whenever you're ready.");
+    }
+  }, [duration, isRecording, isPaused]);
 
   const handleStop = async () => {
     // ── Scenario 1: duration floor ─────────────────────────────────
@@ -414,8 +446,16 @@ export default function RecordingPage() {
 
         {/* Timer — smaller, below orb */}
         <div className="flex flex-col items-center gap-4 mb-4" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 16px)' }}>
-          <span className="text-on-surface-variant text-sm font-body font-medium tracking-widest tabular-nums">
-            {formatTime(duration)}
+          <span
+            className={`text-sm font-body font-medium tracking-widest tabular-nums transition-colors ${
+              MAX_RECORDING_SECONDS - duration <= RECORDING_AMBER_SECONDS
+                ? MAX_RECORDING_SECONDS - duration <= RECORDING_WARN_SECONDS
+                  ? "text-destructive"
+                  : "text-amber-400"
+                : "text-on-surface-variant"
+            }`}
+          >
+            {formatTime(duration)} / {formatTime(MAX_RECORDING_SECONDS)}
           </span>
 
           <motion.div

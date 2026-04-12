@@ -4,6 +4,7 @@ import { authenticateRequest, AuthError } from "../_shared/auth.ts";
 import { chatCompletionJSON, beautifyEntry, AIError } from "../_shared/ai.ts";
 import { classifyInput, buildHelplineUrl, CRISIS_RESOURCES } from "../_shared/inputGuard.ts";
 import { isUserRateLimited } from "../_shared/rateLimit.ts";
+import { checkAndIncrementDailyLimit } from "../_shared/dailyLimits.ts";
 
 /**
  * Loop Reflection Engine
@@ -200,6 +201,12 @@ serve(async (req) => {
     // SEC-26: Per-user rate limiting (30 reflections per minute)
     if (isUserRateLimited(userId, "reflect", 30)) {
       return errorResponse(req, "You're reflecting too fast. Take a breath and try again in a minute.", 429);
+    }
+
+    // Daily abuse limit: 20 entries/day (cost protection)
+    const dailyLimit = await checkAndIncrementDailyLimit(adminClient, userId, "entries_count");
+    if (dailyLimit) {
+      return errorResponse(req, dailyLimit.message, 429);
     }
 
     const { content, entryType, previousMessages, imageUrl, countryCode } = await req.json();

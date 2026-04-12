@@ -116,7 +116,7 @@ export default function FeedbackPanel({ open, onClose }: Props) {
                         onClick={() => setSheetOpen(true)}
                         className="rounded-full bg-primary text-primary-foreground px-6 py-2.5 text-sm font-semibold"
                       >
-                        Suggest a feature anyway
+                        Suggest an idea anyway
                       </button>
                     </div>
                   </div>
@@ -137,7 +137,7 @@ export default function FeedbackPanel({ open, onClose }: Props) {
                     className="w-full rounded-xl bg-primary text-primary-foreground py-3 text-sm font-semibold flex items-center justify-center gap-2"
                   >
                     <Plus size={18} />
-                    Suggest a feature
+                    Suggest an idea
                   </button>
                 </div>
               )}

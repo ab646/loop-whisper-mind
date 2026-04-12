@@ -16,7 +16,7 @@ export default function FeedbackEmptyState({ onSuggest }: Props) {
         onClick={onSuggest}
         className="rounded-full bg-primary text-primary-foreground px-6 py-2.5 text-sm font-semibold"
       >
-        Suggest a feature
+        Suggest an idea
       </button>
     </div>
   );

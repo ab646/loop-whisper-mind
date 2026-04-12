@@ -21,7 +21,7 @@ export default function FeedbackCard({ post, index }: Props) {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.03 }}
-      className="rounded-2xl surface-low p-4 flex gap-3 border border-border"
+      className="rounded-2xl surface-low p-4 flex gap-4 border border-border"
     >
       <FeedbackVoteButton
         votes={votes}
@@ -34,14 +34,15 @@ export default function FeedbackCard({ post, index }: Props) {
           {post.title}
         </h3>
         {post.description && (
-          <p className="text-on-surface-variant text-xs mt-1 line-clamp-2">
+          <p className="text-on-surface-variant text-xs mt-1.5 line-clamp-2">
             {post.description}
           </p>
         )}
-        <div className="flex items-center justify-between mt-2">
-          <span className="text-on-surface-variant text-xs">{post.authorName}</span>
-          <FeedbackStatusBadge status={post.status} label={post.statusLabel} />
-        </div>
+        {post.status && post.statusLabel && (
+          <div className="flex items-center justify-end mt-2.5">
+            <FeedbackStatusBadge status={post.status} label={post.statusLabel} />
+          </div>
+        )}
       </div>
     </motion.div>
   );

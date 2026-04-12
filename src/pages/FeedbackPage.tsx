@@ -81,14 +81,14 @@ export default function FeedbackPage() {
                 onClick={() => setSheetOpen(true)}
                 className="rounded-full bg-primary text-primary-foreground px-6 py-2.5 text-sm font-semibold"
               >
-                Suggest a feature anyway
+                Suggest an idea anyway
               </button>
             </div>
           </div>
         ) : posts.length === 0 ? (
           <FeedbackEmptyState onSuggest={() => setSheetOpen(true)} />
         ) : (
-          <div className="space-y-3">
+          <div className="space-y-3.5">
             {posts.map((post, i) => (
               <FeedbackCard key={post.id} post={post} index={i} />
             ))}
@@ -107,7 +107,7 @@ export default function FeedbackPage() {
             className="w-full rounded-xl bg-primary text-primary-foreground py-3 text-sm font-semibold flex items-center justify-center gap-2 shadow-lg"
           >
             <Plus size={18} />
-            Suggest a feature
+            Suggest an idea
           </button>
         </div>
       )}

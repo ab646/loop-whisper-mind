@@ -4,11 +4,10 @@ export interface FeedbackPost {
   id: string;
   title: string;
   description: string;
-  status: string;
+  status: "planned" | "in_progress" | "shipped" | null;
   statusLabel: string;
   votes: number;
   hasVoted: boolean;
-  authorName: string;
   category: string;
   shippedLink?: string;
   createdAt: string;

@@ -44,7 +44,7 @@ export default function FeedbackSubmitSheet({ open, onClose, onSubmitted }: Prop
             style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 32px)" }}
           >
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-on-surface font-semibold text-lg">Suggest a feature</h2>
+              <h2 className="text-on-surface font-semibold text-lg">Suggest an idea</h2>
               <button onClick={onClose} className="text-on-surface-variant p-1">
                 <X size={20} />
               </button>

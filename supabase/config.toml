@@ -1,19 +1,19 @@
 project_id = "kcyifzayxgsogdkxmykm"
 
 [functions.reflect]
-verify_jwt = true
+verify_jwt = false
 
 [functions.insights]
-verify_jwt = true
+verify_jwt = false
 
 [functions.explore-theme]
-verify_jwt = true
+verify_jwt = false
 
 [functions.loops]
 verify_jwt = true
 
 [functions.resend]
-verify_jwt = true
+verify_jwt = false
 
 [functions.send-email]
 verify_jwt = false

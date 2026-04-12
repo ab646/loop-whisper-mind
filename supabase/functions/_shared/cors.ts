@@ -8,12 +8,16 @@ const ALLOWED_ORIGINS = [
   "capacitor://localhost",
   "https://app.loopmind.care",
   "https://loop-whisper-mind.lovable.app",
+  "https://loopmind.lovable.app",
   ...(Deno.env.get("CUSTOM_ORIGIN") ? [Deno.env.get("CUSTOM_ORIGIN")!] : []),
 ];
 
 function isAllowedOrigin(origin: string): boolean {
   if (!origin) return false;
-  return ALLOWED_ORIGINS.includes(origin);
+  if (ALLOWED_ORIGINS.includes(origin)) return true;
+  // Allow Lovable preview origins
+  if (origin.endsWith(".lovableproject.com") || origin.endsWith(".lovable.app")) return true;
+  return false;
 }
 
 export function getCorsHeaders(req: Request): Record<string, string> {

@@ -50,7 +50,7 @@ export default function FeedbackPanel({ open, onClose }: Props) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/50 z-40"
+            className="fixed inset-0 bg-black/50 z-[60]"
           />
 
           {/* Panel */}
@@ -63,7 +63,7 @@ export default function FeedbackPanel({ open, onClose }: Props) {
             dragConstraints={{ top: 0 }}
             dragElastic={0.2}
             onDragEnd={handleDragEnd}
-            className="fixed inset-x-0 bottom-0 z-50 flex flex-col max-w-md mx-auto"
+            className="fixed inset-x-0 bottom-0 z-[61] flex flex-col max-w-md mx-auto"
             style={{ height: "85dvh", maxHeight: "85dvh" }}
           >
             <div className="rounded-t-2xl surface-low flex flex-col h-full overflow-hidden">

@@ -29,8 +29,9 @@ function detectInternalEnvironment(): string | null {
   return null;
 }
 
-/** Email addresses that should always be flagged as internal */
+/** Email addresses and domains that should always be flagged as internal */
 const INTERNAL_EMAILS = ["hello@adrienbarbusse.com"];
+const INTERNAL_DOMAINS = ["adrienbarbusse.com", "loopmind.care"];
 
 export const analytics = {
   init() {
@@ -62,9 +63,13 @@ export const analytics = {
 
   identify(userId: string, email?: string) {
     posthog.identify(userId);
-    // Flag known internal users by email so they can be filtered out
-    if (email && INTERNAL_EMAILS.includes(email.toLowerCase())) {
-      posthog.people.set({ is_internal: true, internal_reason: "team_email" });
+    // Flag known internal users by email or domain so they can be filtered out
+    if (email) {
+      const lower = email.toLowerCase();
+      const domain = lower.split("@")[1] ?? "";
+      if (INTERNAL_EMAILS.includes(lower) || INTERNAL_DOMAINS.includes(domain)) {
+        posthog.people.set({ is_internal: true, internal_reason: "team_email" });
+      }
     }
   },
 

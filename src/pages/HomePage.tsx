@@ -10,7 +10,7 @@ function getGreeting(): string {
   if (hour < 17) return "Good afternoon";
   return "Good evening";
 }
-import { ScribblingLogo } from "@/components/LoopLogo";
+import { ScribblingLogo, StaticLogo } from "@/components/LoopLogo";
 import { AppHeader } from "@/components/AppHeader";
 import { VoiceOrb } from "@/components/VoiceOrb";
 import { FullScreenLoader } from "@/components/FullScreenLoader";
@@ -304,12 +304,15 @@ export default function HomePage() {
           <motion.div
             animate={{ opacity: navigatingOut ? 0 : 1, y: navigatingOut ? -10 : 0 }}
             transition={{ duration: 0.3 }}
-            className="absolute top-[16%] text-center w-full space-y-1"
+            className="absolute top-[16%] text-center w-full flex flex-col items-center gap-3"
           >
+            <StaticLogo size={48} />
+            <div className="space-y-1">
             <p className="text-on-surface-variant text-sm tracking-wide">{getGreeting()}</p>
             <h1 className="font-display text-3xl font-normal text-on-surface">
               What's looping right now?
             </h1>
+            </div>
           </motion.div>
           <div className="flex flex-col items-center gap-5">
             <VoiceOrb size="lg" onClick={handleNavigateToRecording} layoutId="voice-orb" />

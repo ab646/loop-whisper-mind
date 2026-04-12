@@ -176,9 +176,11 @@ export async function chatCompletion(
     if (response.status === 402) {
       throw new AIError("AI credits exhausted.", 402);
     }
+    // Log full error server-side for debugging, but never expose to client
     const text = await response.text().catch(() => "");
+    console.error(`AI provider error (${response.status}):`, text.substring(0, 300));
     throw new AIError(
-      `AI provider error (${response.status}): ${text.substring(0, 200)}`,
+      "Something went wrong generating your reflection. Please try again.",
       response.status
     );
   }

@@ -27,11 +27,16 @@ export async function signInWithOAuth(
   // URL because it's already in the Supabase redirect allowlist.
   const redirectTo = "https://loop-whisper-mind.lovable.app/callback";
 
+  // SEC-24: Generate a random nonce to validate the OAuth callback
+  const nonce = crypto.randomUUID();
+  sessionStorage.setItem("loop.oauth_nonce", nonce);
+
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider,
     options: {
       redirectTo,
       skipBrowserRedirect: true, // We'll handle the browser ourselves
+      queryParams: { state: nonce },
     },
   });
 

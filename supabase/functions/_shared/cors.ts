@@ -18,9 +18,7 @@ function isAllowedOrigin(origin: string): boolean {
 
 export function getCorsHeaders(req: Request): Record<string, string> {
   const origin = req.headers.get("Origin") || "";
-  const allowedOrigin = isAllowedOrigin(origin)
-    ? origin
-    : "https://loop-whisper-mind.lovable.app";
+  const allowedOrigin = isAllowedOrigin(origin) ? origin : "";
   return {
     "Access-Control-Allow-Origin": allowedOrigin,
     "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
@@ -51,4 +49,19 @@ export function errorResponse(
   status = 500
 ): Response {
   return jsonResponse(req, { error: message }, status);
+}
+
+/**
+ * SEC-20: Reject requests that exceed a size limit.
+ * Returns an error Response if too large, or null if OK.
+ */
+export function checkRequestSize(
+  req: Request,
+  maxBytes: number = 5 * 1024 * 1024 // 5 MB default
+): Response | null {
+  const contentLength = parseInt(req.headers.get("content-length") || "0", 10);
+  if (contentLength > maxBytes) {
+    return errorResponse(req, "Request too large", 413);
+  }
+  return null;
 }

@@ -1,5 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { corsResponse, jsonResponse, errorResponse } from "../_shared/cors.ts";
+import { corsResponse, jsonResponse, errorResponse, checkRequestSize } from "../_shared/cors.ts";
 import { authenticateRequest, AuthError } from "../_shared/auth.ts";
 import { chatCompletionJSON, AIError } from "../_shared/ai.ts";
 
@@ -26,12 +26,35 @@ const VALIDATION_FALLBACK: ValidationResult = {
 serve(async (req) => {
   if (req.method === "OPTIONS") return corsResponse(req);
 
+  const sizeError = checkRequestSize(req);
+  if (sizeError) return sizeError;
+
   try {
     await authenticateRequest(req);
 
     const { imageUrl } = await req.json();
     if (!imageUrl) {
       return errorResponse(req, "Image URL required", 400);
+    }
+
+    // SEC-22: Validate URL to prevent SSRF attacks
+    try {
+      const parsed = new URL(imageUrl);
+      if (parsed.protocol !== "https:") {
+        return errorResponse(req, "Only HTTPS image URLs are accepted", 400);
+      }
+      const hostname = parsed.hostname.toLowerCase();
+      if (
+        hostname === "localhost" ||
+        hostname === "::1" ||
+        /^(127\.|10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.)/.test(hostname) ||
+        hostname.endsWith(".local") ||
+        hostname.endsWith(".internal")
+      ) {
+        return errorResponse(req, "Invalid image source", 400);
+      }
+    } catch {
+      return errorResponse(req, "Invalid image URL", 400);
     }
 
     const result = await chatCompletionJSON<ValidationResult>(

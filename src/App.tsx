@@ -149,6 +149,17 @@ const App = () => {
           const hashParams = new URLSearchParams(
             url.includes("#") ? url.split("#")[1] : url.split("?")[1]
           );
+
+          // SEC-24: Validate OAuth nonce to prevent deep link hijacking
+          const expectedNonce = sessionStorage.getItem("loop.oauth_nonce");
+          const receivedState = hashParams.get("state");
+          if (expectedNonce && receivedState !== expectedNonce) {
+            console.error("OAuth state mismatch — possible deep link hijacking");
+            sessionStorage.removeItem("loop.oauth_nonce");
+            return;
+          }
+          sessionStorage.removeItem("loop.oauth_nonce");
+
           const accessToken = hashParams.get("access_token");
           const refreshToken = hashParams.get("refresh_token");
 

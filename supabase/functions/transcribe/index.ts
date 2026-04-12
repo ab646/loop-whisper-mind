@@ -1,9 +1,13 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { corsResponse, getCorsHeaders, errorResponse } from "../_shared/cors.ts";
+import { corsResponse, getCorsHeaders, errorResponse, checkRequestSize } from "../_shared/cors.ts";
 import { authenticateRequest, AuthError } from "../_shared/auth.ts";
 
 serve(async (req) => {
   if (req.method === "OPTIONS") return corsResponse(req);
+
+  // SEC-20: Reject audio uploads over 10 MB
+  const sizeError = checkRequestSize(req, 10 * 1024 * 1024);
+  if (sizeError) return sizeError;
 
   try {
     const { userId } = await authenticateRequest(req);

@@ -78,7 +78,7 @@ export const analytics = {
 
   transcriptionHallucinationRejected(rawText: string, audioFormat: string) {
     this.track("transcription_hallucination_rejected", {
-      raw_text: rawText,
+      text_length: rawText.length,
       audio_format: audioFormat,
     });
   },

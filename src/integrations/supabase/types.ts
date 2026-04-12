@@ -125,6 +125,33 @@ export type Database = {
         }
         Relationships: []
       }
+      usage_counters: {
+        Row: {
+          chat_messages_count: number
+          date: string
+          entries_count: number
+          explorations_count: number
+          image_uploads_count: number
+          user_id: string
+        }
+        Insert: {
+          chat_messages_count?: number
+          date?: string
+          entries_count?: number
+          explorations_count?: number
+          image_uploads_count?: number
+          user_id: string
+        }
+        Update: {
+          chat_messages_count?: number
+          date?: string
+          entries_count?: number
+          explorations_count?: number
+          image_uploads_count?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

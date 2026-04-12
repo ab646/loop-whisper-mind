@@ -306,7 +306,7 @@ export default function HomePage() {
             transition={{ duration: 0.3 }}
             className="absolute top-[16%] text-center w-full flex flex-col items-center gap-3"
           >
-            <StaticLogo size={48} />
+            
             <div className="space-y-1">
             <p className="text-on-surface-variant text-sm tracking-wide">{getGreeting()}</p>
             <h1 className="font-display text-3xl font-normal text-on-surface">

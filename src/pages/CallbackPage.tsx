@@ -48,6 +48,12 @@ export default function CallbackPage() {
       const accessToken = params.get("access_token");
       const refreshToken = params.get("refresh_token");
 
+      // Clear tokens from URL immediately to prevent leakage via
+      // browser history, referrer headers, or server logs.
+      if (window.location.hash) {
+        window.history.replaceState(null, "", window.location.pathname);
+      }
+
       if (!accessToken || !refreshToken) {
         // No tokens — something went wrong, send back to login
         navigate("/login", { replace: true });
@@ -79,7 +85,7 @@ export default function CallbackPage() {
         });
 
         if (error) {
-          console.error("Failed to set session from callback:", error);
+          console.error("Failed to set session from callback");
           setWebFallbackFailed(true);
           return;
         }

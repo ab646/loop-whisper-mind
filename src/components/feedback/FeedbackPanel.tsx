@@ -131,7 +131,7 @@ export default function FeedbackPanel({ open, onClose }: Props) {
 
               {/* Sticky CTA */}
               {!loading && !error && posts.length > 0 && (
-                <div className="px-5 py-3 border-t border-border">
+                <div className="px-6 py-4 border-t border-border">
                   <button
                     onClick={() => setSheetOpen(true)}
                     className="w-full rounded-xl bg-primary text-primary-foreground py-3 text-sm font-semibold flex items-center justify-center gap-2"

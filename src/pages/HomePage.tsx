@@ -212,9 +212,8 @@ export default function HomePage() {
 
   const handleSend = async (text: string) => {
     const result = await createEntry({ content: text });
-    if (result?.guard?.class === "crisis" && result.guard.resources) {
-      setCrisisData({ message: result.guard.message, resources: result.guard.resources });
-    } else if (result?.entryId) {
+    // Crisis routing is now handled centrally inside useCreateLoop
+    if (result?.entryId) {
       navigate(`/journal/${result.entryId}`);
     }
   };

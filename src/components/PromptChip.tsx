@@ -10,7 +10,7 @@ export function PromptChip({ label, onClick }: PromptChipProps) {
     <motion.button
       whileTap={{ scale: 0.95 }}
       onClick={onClick}
-      className="tag-pill tag-pill-interactive min-h-[44px] py-2.5"
+      className="tag-pill tag-pill-interactive min-h-[44px] py-2.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-mint"
     >
       {label}
     </motion.button>

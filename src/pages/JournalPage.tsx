@@ -5,6 +5,7 @@ import { ChevronRight } from "lucide-react";
 import { ScribblingLogo } from "@/components/LoopLogo";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
 
 interface JournalEntry {
   id: string;
@@ -54,6 +55,8 @@ export default function JournalPage() {
   const { session } = useAuth();
   const [entries, setEntries] = useState<JournalEntry[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const sentinelRef = useRef<HTMLDivElement>(null);
@@ -74,13 +77,16 @@ export default function JournalPage() {
         if (data) {
           setEntries(data.map(mapEntry));
           setHasMore(data.length === 20);
+          setError(null);
         }
       } catch (e) {
         console.error("Failed to load journal:", e);
+        setError("Couldn't load your journal.");
+        toast.error("Couldn't load your journal. Tap to retry.");
       }
       setLoading(false);
     })();
-  }, [session]);
+  }, [session, retryCount]);
 
   const loadMore = useCallback(async () => {
     if (!session || loadingMore || !hasMore) return;
@@ -129,6 +135,20 @@ export default function JournalPage() {
           <div className="flex justify-center py-12">
             <ScribblingLogo size={24} />
           </div>
+        ) : error ? (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="rounded-2xl surface-low p-6 text-center space-y-3"
+          >
+            <p className="text-on-surface-variant text-sm">{error}</p>
+            <button
+              onClick={() => setRetryCount((c) => c + 1)}
+              className="rounded-xl bg-mint/10 text-mint px-6 py-3 text-sm font-semibold"
+            >
+              Try again
+            </button>
+          </motion.div>
         ) : entries.length === 0 ? (
           <motion.div
             initial={{ opacity: 0 }}

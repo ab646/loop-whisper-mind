@@ -101,7 +101,7 @@ export function ThemeCard({ name, mentions, icon, delay = 0, colorIndex = 0 }: T
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay, duration: 0.4 }}
       onClick={() => { analytics.echoTapped(name); navigate(`/theme/${encodeURIComponent(name.toLowerCase())}`); }}
-      className="rounded-2xl surface-low p-5 flex flex-col gap-3 items-start text-left border border-border/10 hover:border-border/30 transition-colors min-h-[130px]"
+      className="rounded-2xl surface-low p-5 flex flex-col gap-3 items-start text-left border border-border/10 hover:border-border/30 transition-colors min-h-[130px] focus:outline-none focus-visible:ring-2 focus-visible:ring-mint"
     >
       <Icon size={28} className={accent.icon} />
       <div className="mt-auto min-w-0 w-full">

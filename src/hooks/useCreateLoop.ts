@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import {
@@ -21,11 +22,11 @@ export interface GuardResponse {
 
 export interface CreateLoopResult {
   entryId?: string;
-  guard?: GuardResponse;
 }
 
 export function useCreateLoop() {
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const createEntry = async ({ content, entryType = "text" }: CreateLoopOptions): Promise<CreateLoopResult | null> => {
     const trimmed = content.trim();
@@ -79,7 +80,11 @@ export function useCreateLoop() {
       if (data?.guard) {
         if (data.guard.class === "crisis") {
           setLoading(false);
-          return { guard: data.guard };
+          // Centralized crisis routing — callers don't need to remember
+          navigate("/", {
+            state: { crisis: { message: data.guard.message, resources: data.guard.resources } },
+          });
+          return null;
         }
         // For hostile, meta_or_scope, too_thin — show the soft message
         toast(data.guard.message || "Try sharing a bit more about what's on your mind.", {

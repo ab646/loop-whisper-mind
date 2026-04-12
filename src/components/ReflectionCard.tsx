@@ -37,7 +37,8 @@ function CollapsibleSection({ title, children, defaultOpen = false }: { title: s
     <div className="border-t border-border/20 pt-3">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center justify-between w-full py-1 group"
+        aria-expanded={isOpen}
+        className="flex items-center justify-between w-full py-1 group focus:outline-none focus-visible:ring-2 focus-visible:ring-mint rounded"
       >
         <span className="label-uppercase group-hover:text-mint transition-colors">{title}</span>
         <motion.div
@@ -87,19 +88,17 @@ export function ReflectionCard({ mainLoop, feelings, knownVsAssumed, repeatingPa
         </p>
       </div>
 
-      {/* Theme exploration answer */}
+      {/* Main Loop — always shown for context */}
+      <div className="space-y-1.5">
+        <span className="label-uppercase">Main Loop</span>
+        <p className="text-on-surface text-base leading-relaxed font-body">{mainLoop}</p>
+      </div>
+
+      {/* Theme exploration answer — additional depth when available */}
       {themeAnswer && (
         <div className="space-y-1.5">
           <span className="label-uppercase text-mint">Reflection</span>
           <p className="text-on-surface text-base leading-relaxed font-body">{themeAnswer}</p>
-        </div>
-      )}
-
-      {/* Main Loop as context label */}
-      {!themeAnswer && (
-        <div className="space-y-1.5">
-          <span className="label-uppercase">Main Loop</span>
-          <p className="text-on-surface text-base leading-relaxed font-body">{mainLoop}</p>
         </div>
       )}
 

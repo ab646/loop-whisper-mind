@@ -3,6 +3,7 @@ import { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { analytics } from "@/lib/analytics";
 import { loops } from "@/lib/loops";
+import { toast } from "sonner";
 
 interface Profile {
   display_name: string | null;
@@ -41,12 +42,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const syncedToLoops = useRef(false);
 
   const fetchProfile = async (userId: string) => {
-    const { data } = await supabase
-      .from("profiles")
-      .select("display_name, avatar_url, mantra, voice_first_mode, urgency_filter, onboarding_complete, marketing_consent")
-      .eq("user_id", userId)
-      .single();
-    setProfile(data);
+    try {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("display_name, avatar_url, mantra, voice_first_mode, urgency_filter, onboarding_complete, marketing_consent")
+        .eq("user_id", userId)
+        .single();
+      if (error) throw error;
+      setProfile(data);
+    } catch (e) {
+      console.error("Failed to load profile:", e);
+      toast.error("Couldn't load your profile. Pull down to retry.");
+    }
   };
 
   const refreshProfile = async () => {

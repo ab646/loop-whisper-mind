@@ -58,7 +58,7 @@ export function BottomNav() {
             <button
               key={tab.path}
               onClick={() => navigate(tab.path)}
-              className="relative flex flex-col items-center gap-1 py-3 px-6 min-w-[72px]"
+              className="relative flex flex-col items-center gap-1 py-3 px-6 min-w-[72px] focus:outline-none focus-visible:ring-2 focus-visible:ring-mint rounded-2xl"
             >
               {isActive && (
                 <motion.div

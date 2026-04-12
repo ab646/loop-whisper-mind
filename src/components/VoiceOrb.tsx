@@ -31,7 +31,7 @@ export function VoiceOrb({ size = "lg", onClick, label, layoutId }: VoiceOrbProp
         whileHover={prefersReduced ? undefined : { scale: 1.04 }}
         onClick={onClick}
         aria-label={label || "Record voice message"}
-        className={`${sizes[size]} rounded-full orb-gradient orb-shadow flex items-center justify-center relative`}
+        className={`${sizes[size]} rounded-full orb-gradient orb-shadow flex items-center justify-center relative focus:outline-none focus-visible:ring-2 focus-visible:ring-mint focus-visible:ring-offset-2 focus-visible:ring-offset-background`}
         transition={{ layout: { duration: 0.5, ease: [0.4, 0, 0.2, 1] } }}
       >
         <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/30 to-transparent" />

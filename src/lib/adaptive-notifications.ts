@@ -67,12 +67,16 @@ function circularVariance(minutesArray: number[]): number {
 // ── Fetch recent entry times ─────────────────────────────────
 
 async function getRecentEntryMinutes(): Promise<number[]> {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session?.user?.id) return [];
+
   const cutoff = new Date();
   cutoff.setDate(cutoff.getDate() - LOOKBACK_DAYS);
 
   const { data, error } = await supabase
     .from("entries")
     .select("created_at")
+    .eq("user_id", session.user.id)
     .gte("created_at", cutoff.toISOString())
     .order("created_at", { ascending: false });
 

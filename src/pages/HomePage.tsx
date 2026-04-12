@@ -240,12 +240,14 @@ export default function HomePage() {
         .upload(filePath, blob, { contentType: mime });
       if (uploadError) throw uploadError;
 
-      const { data: urlData } = supabase.storage
+      const { data: urlData } = await supabase.storage
         .from("chat-images")
-        .getPublicUrl(filePath);
+        .createSignedUrl(filePath, 300); // 5 min expiry — enough for AI to fetch
+
+      if (!urlData?.signedUrl) throw new Error("Failed to generate image URL");
 
       const { data: validation, error: valError } = await supabase.functions.invoke("validate-image", {
-        body: { imageUrl: urlData.publicUrl },
+        body: { imageUrl: urlData.signedUrl },
       });
 
       supabase.storage.from("chat-images").remove([filePath]).catch(() => {});

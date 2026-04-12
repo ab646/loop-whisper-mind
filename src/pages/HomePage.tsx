@@ -312,6 +312,7 @@ export default function HomePage() {
             <h1 className="font-display text-3xl font-normal text-on-surface">
               What's looping right now?
             </h1>
+            </div>
           </motion.div>
           <div className="flex flex-col items-center gap-5">
             <VoiceOrb size="lg" onClick={handleNavigateToRecording} layoutId="voice-orb" />

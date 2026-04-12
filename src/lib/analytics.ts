@@ -164,6 +164,27 @@ export const analytics = {
     this.track("entry_saved", { entry_id: await hashId(entryId) });
   },
 
+  // ── Page Views ──
+
+  homeViewed(entryCount?: number) {
+    this.track("home_viewed", { entry_count: entryCount });
+  },
+
+  journalViewed(entryCount?: number) {
+    this.track("journal_viewed", { entry_count: entryCount });
+  },
+
+  async entryDetailViewed(entryId: string, entryType?: string) {
+    this.track("entry_detail_viewed", {
+      entry_id: await hashId(entryId),
+      entry_type: entryType,
+    });
+  },
+
+  profileViewed() {
+    this.track("profile_viewed");
+  },
+
   // ── Feature Engagement ──
 
   insightsViewed(entryCount?: number) {

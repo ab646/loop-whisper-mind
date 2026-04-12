@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { analytics } from "@/lib/analytics";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowLeft, MoreVertical, Trash2, ArrowUp } from "lucide-react";
@@ -116,6 +117,7 @@ export default function JournalDetailPage() {
           userId: data.user_id,
           voiceDuration: data.voice_duration,
         });
+        analytics.entryDetailViewed(data.id, data.entry_type);
       }
       setLoading(false);
     })();

@@ -21,6 +21,7 @@ import { useCreateLoop } from "@/hooks/useCreateLoop";
 import { toast } from "sonner";
 import { CrisisCard, CrisisResources } from "@/components/CrisisCard";
 import { useLocation } from "react-router-dom";
+import { analytics } from "@/lib/analytics";
 
 interface EntryPreview {
   id: string;
@@ -137,6 +138,7 @@ export default function HomePage() {
           );
           setHasMore(data.length === 20);
           setError(null);
+          analytics.homeViewed(data.length);
         }
       } catch (e) {
         console.error("Failed to load entries:", e);

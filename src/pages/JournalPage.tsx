@@ -6,6 +6,7 @@ import { ScribblingLogo } from "@/components/LoopLogo";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+import { analytics } from "@/lib/analytics";
 
 interface JournalEntry {
   id: string;
@@ -78,6 +79,7 @@ export default function JournalPage() {
           setEntries(data.map(mapEntry));
           setHasMore(data.length === 20);
           setError(null);
+          analytics.journalViewed(data.length);
         }
       } catch (e) {
         console.error("Failed to load journal:", e);

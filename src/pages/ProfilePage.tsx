@@ -1,4 +1,6 @@
+import { useEffect } from "react";
 import { motion } from "framer-motion";
+import { analytics } from "@/lib/analytics";
 import { KeyRound, Download, Trash2, LogOut, ExternalLink, LifeBuoy, Mail, Eye, EyeOff } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
@@ -10,6 +12,8 @@ import DeleteAccountDialog from "@/components/DeleteAccountDialog";
 export default function ProfilePage() {
   const navigate = useNavigate();
   const { user, profile, signOut, refreshProfile } = useAuth();
+
+  useEffect(() => { analytics.profileViewed(); }, []);
   const [showPasswordForm, setShowPasswordForm] = useState(false);
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");

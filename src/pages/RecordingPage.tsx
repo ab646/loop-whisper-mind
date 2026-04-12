@@ -10,6 +10,7 @@ import { useCreateLoop } from "@/hooks/useCreateLoop";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Capacitor } from "@capacitor/core";
+const isNativePlatform = Capacitor.isNativePlatform();
 import { NativeSettings, IOSSettings } from "capacitor-native-settings";
 import { analytics } from "@/lib/analytics";
 import { recalculateAfterEntry } from "@/lib/adaptive-notifications";
@@ -281,8 +282,9 @@ export default function RecordingPage() {
     );
   }
 
-  // Compute average audio level for ring intensity
-  const avgLevel = levels.reduce((a, b) => a + b, 0) / (levels.length || 1);
+  // Compute average audio level for ring intensity (web only; native has no stream)
+  const avgLevel = isNativePlatform ? 0 : levels.reduce((a, b) => a + b, 0) / (levels.length || 1);
+  const useNativeFallback = isNativePlatform && isRecording && !isPaused;
 
   return (
     <div className="flex flex-col h-[100dvh] mesh-gradient-bg relative overflow-hidden" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
@@ -305,7 +307,7 @@ export default function RecordingPage() {
         {/* Orb with radiating pulse rings — centered like homepage */}
         <div className="relative flex items-center justify-center mb-auto" style={{ width: 360, height: 360 }}>
           {/* Reactive rings — scale directly with voice level */}
-          {isRecording && !isPaused && (
+          {isRecording && !isPaused && !useNativeFallback && (
             <>
               {/* Inner ring — tightest, most reactive */}
               <motion.div
@@ -346,13 +348,10 @@ export default function RecordingPage() {
                 transition={{ duration: 0.15, ease: "linear" }}
                 initial={false}
               />
-              {/* Ambient glow — reacts instantly */}
+              {/* Ambient glow */}
               <motion.div
                 className="absolute rounded-full"
-                style={{
-                  width: 200,
-                  height: 200,
-                }}
+                style={{ width: 200, height: 200 }}
                 animate={{
                   scale: 1 + avgLevel * 1.2,
                   opacity: 0.3 + avgLevel * 0.5,
@@ -361,6 +360,41 @@ export default function RecordingPage() {
                 transition={{ duration: 0.08, ease: "linear" }}
                 initial={false}
               />
+            </>
+          )}
+
+          {/* Native fallback: CSS-animated pulse rings (no audio stream available) */}
+          {useNativeFallback && (
+            <>
+              <motion.div
+                className="absolute rounded-full border-2"
+                style={{ width: 176, height: 176, borderColor: "hsl(var(--primary) / 0.4)" }}
+                animate={{ scale: [1, 1.6, 1], opacity: [0.4, 0, 0.4] }}
+                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+              />
+              <motion.div
+                className="absolute rounded-full border"
+                style={{ width: 176, height: 176, borderColor: "hsl(var(--primary) / 0.3)" }}
+                animate={{ scale: [1.1, 2.0, 1.1], opacity: [0.3, 0, 0.3] }}
+                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut", delay: 0.4 }}
+              />
+              <motion.div
+                className="absolute rounded-full border"
+                style={{ width: 176, height: 176, borderColor: "hsl(var(--primary) / 0.2)" }}
+                animate={{ scale: [1.2, 2.4, 1.2], opacity: [0.2, 0, 0.2] }}
+                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut", delay: 0.8 }}
+              />
+              <motion.div
+                className="absolute rounded-full"
+                style={{ width: 200, height: 200 }}
+                animate={{
+                  scale: [1, 1.15, 1],
+                  opacity: [0.3, 0.5, 0.3],
+                }}
+                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+              >
+                <div className="w-full h-full rounded-full" style={{ background: "radial-gradient(circle, hsl(var(--primary) / 0.15) 0%, transparent 70%)" }} />
+              </motion.div>
             </>
           )}
 

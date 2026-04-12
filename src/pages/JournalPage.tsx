@@ -26,6 +26,9 @@ function getDateGroup(dateStr: string): string {
   const entryDate = new Date(d.getFullYear(), d.getMonth(), d.getDate());
   const diffDays = Math.round((today.getTime() - entryDate.getTime()) / 86400000);
 
+  const monthDay = d.toLocaleDateString("en-US", { day: "numeric", month: "long" });
+  if (diffDays === 0) return `Today, ${monthDay}`;
+  if (diffDays === 1) return `Yesterday, ${monthDay}`;
   return d.toLocaleDateString("en-US", { weekday: "long", day: "numeric", month: "long" });
 }
 

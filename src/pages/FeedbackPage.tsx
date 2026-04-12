@@ -66,16 +66,24 @@ export default function FeedbackPage() {
         {loading ? (
           <LoadingSkeleton />
         ) : error ? (
-          <div className="text-center py-12">
+          <div className="text-center py-12 space-y-3">
             <p className="text-on-surface-variant text-sm">
               Couldn't load ideas right now.
             </p>
             <button
               onClick={refetch}
-              className="text-primary text-sm font-medium mt-2 underline"
+              className="text-primary text-sm font-medium underline"
             >
               Try again
             </button>
+            <div className="pt-2">
+              <button
+                onClick={() => setSheetOpen(true)}
+                className="rounded-full bg-primary text-primary-foreground px-6 py-2.5 text-sm font-semibold"
+              >
+                Suggest a feature anyway
+              </button>
+            </div>
           </div>
         ) : posts.length === 0 ? (
           <FeedbackEmptyState onSuggest={() => setSheetOpen(true)} />

@@ -2,6 +2,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { corsResponse, jsonResponse, errorResponse } from "../_shared/cors.ts";
 import { authenticateRequest, AuthError } from "../_shared/auth.ts";
 import { chatCompletionJSON, AIError } from "../_shared/ai.ts";
+import { isUserRateLimited } from "../_shared/rateLimit.ts";
 
 /**
  * Loop Insights Engine
@@ -51,6 +52,10 @@ serve(async (req) => {
 
   try {
     const { userId, adminClient } = await authenticateRequest(req);
+
+    if (isUserRateLimited(userId, "insights", 10)) {
+      return errorResponse(req, "Too many requests. Try again in a minute.", 429);
+    }
 
     // Fetch entries with a wider window for trend detection
     const { data: entries } = await adminClient

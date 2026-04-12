@@ -3,6 +3,7 @@ import { corsResponse, jsonResponse, errorResponse } from "../_shared/cors.ts";
 import { authenticateRequest, AuthError } from "../_shared/auth.ts";
 import { chatCompletionJSON, AIError } from "../_shared/ai.ts";
 import { classifyInput, buildHelplineUrl, CRISIS_RESOURCES } from "../_shared/inputGuard.ts";
+import { isUserRateLimited } from "../_shared/rateLimit.ts";
 
 /**
  * Loop Theme Explorer
@@ -49,6 +50,10 @@ serve(async (req) => {
 
   try {
     const { userId, adminClient } = await authenticateRequest(req);
+
+    if (isUserRateLimited(userId, "explore-theme", 20)) {
+      return errorResponse(req, "Too many requests. Try again in a minute.", 429);
+    }
 
     const { theme, question, countryCode } = await req.json();
     if (!theme) return errorResponse(req, "Theme required", 400);

@@ -59,6 +59,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (_event, session) => {
+        // SEC-31: Audit log auth events
+        analytics.track(`auth_${_event}`, { user_id: session?.user?.id ?? "anonymous" });
+
         setSession(session);
         if (session?.user) {
           analytics.identify(session.user.id);

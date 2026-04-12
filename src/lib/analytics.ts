@@ -2,6 +2,13 @@ import posthog from "posthog-js";
 
 let sessionStartTime = Date.now();
 
+// SEC-33: Hash entry IDs before sending to analytics to avoid leaking Supabase UUIDs
+async function hashId(id: string): Promise<string> {
+  const data = new TextEncoder().encode(id);
+  const hash = await crypto.subtle.digest("SHA-256", data);
+  return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, "0")).join("").slice(0, 16);
+}
+
 export const analytics = {
   init() {
     const posthogKey = import.meta.env.VITE_POSTHOG_KEY;
@@ -99,11 +106,11 @@ export const analytics = {
     });
   },
 
-  reflectionReceived(opts: { responseTimeMs: number; entryNumber?: number; entryId?: string; entryType?: string }) {
+  async reflectionReceived(opts: { responseTimeMs: number; entryNumber?: number; entryId?: string; entryType?: string }) {
     this.track("reflection_received", {
       response_time_ms: opts.responseTimeMs,
       entry_number: opts.entryNumber,
-      entry_id: opts.entryId,
+      entry_id: opts.entryId ? await hashId(opts.entryId) : undefined,
       entry_type: opts.entryType,
     });
   },
@@ -115,8 +122,8 @@ export const analytics = {
     });
   },
 
-  entrySaved(entryId: string) {
-    this.track("entry_saved", { entry_id: entryId });
+  async entrySaved(entryId: string) {
+    this.track("entry_saved", { entry_id: await hashId(entryId) });
   },
 
   // ── Feature Engagement ──

@@ -10,7 +10,8 @@ const config: CapacitorConfig = {
   },
   server: {
     // Allow loading from Supabase and other external APIs
-    allowNavigation: ['*.supabase.co', 'loop-whisper-mind.lovable.app'],
+    // SEC-29: Narrow to specific Supabase subdomain (was *.supabase.co)
+    allowNavigation: ['kcyifzayxgsogdkxmykm.supabase.co', 'loop-whisper-mind.lovable.app'],
   },
 };
 

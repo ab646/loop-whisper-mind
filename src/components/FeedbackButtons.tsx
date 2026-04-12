@@ -54,7 +54,8 @@ export function FeedbackButtons({ contentType, contentId, contentPreview }: Feed
             user_id: session.user.id,
             content_type: contentType,
             content_id: contentId,
-            content_preview: contentPreview?.substring(0, 200),
+            // SEC-27: Don't store sensitive journal content in feedback table
+            content_preview: null,
             rating: newRating,
           },
           { onConflict: "user_id,content_type,content_id" }

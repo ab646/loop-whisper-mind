@@ -3,6 +3,7 @@ import { corsResponse, jsonResponse, errorResponse, checkRequestSize } from "../
 import { authenticateRequest, AuthError } from "../_shared/auth.ts";
 import { chatCompletionJSON, beautifyEntry, AIError } from "../_shared/ai.ts";
 import { classifyInput, buildHelplineUrl, CRISIS_RESOURCES } from "../_shared/inputGuard.ts";
+import { isUserRateLimited } from "../_shared/rateLimit.ts";
 
 /**
  * Loop Reflection Engine
@@ -195,6 +196,11 @@ serve(async (req) => {
 
   try {
     const { userId, adminClient } = await authenticateRequest(req);
+
+    // SEC-26: Per-user rate limiting (30 reflections per minute)
+    if (isUserRateLimited(userId, "reflect", 30)) {
+      return errorResponse(req, "You're reflecting too fast. Take a breath and try again in a minute.", 429);
+    }
 
     const { content, entryType, previousMessages, imageUrl, countryCode } = await req.json();
     if (!content?.trim() && !imageUrl) {

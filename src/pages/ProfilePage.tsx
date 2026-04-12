@@ -289,6 +289,24 @@ export default function ProfilePage() {
             <ExternalLink size={16} className="text-on-surface-variant" />
           </motion.a>
 
+          {/* Feature Requests */}
+          <motion.button
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.17 }}
+            onClick={() => navigate("/feedback")}
+            className="w-full rounded-2xl surface-low p-5 flex items-center justify-between"
+          >
+            <div className="flex items-center gap-3">
+              <Lightbulb size={18} className="text-on-surface-variant" />
+              <div className="text-left">
+                <span className="text-on-surface text-sm font-semibold block">Feature Requests</span>
+                <span className="text-on-surface-variant text-xs">Vote on what we build next</span>
+              </div>
+            </div>
+            <span className="text-on-surface-variant">›</span>
+          </motion.button>
+
           {/* Sign Out */}
           <motion.button
             initial={{ opacity: 0, y: 10 }}

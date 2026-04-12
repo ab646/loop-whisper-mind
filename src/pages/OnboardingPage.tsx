@@ -6,7 +6,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { useCreateLoop } from "@/hooks/useCreateLoop";
 import { analytics } from "@/lib/analytics";
-import { loops } from "@/lib/loops";
+import { resend } from "@/lib/resend";
 import { ExplainScreen1 } from "@/components/onboarding/ExplainScreen1";
 import { ExplainScreen2 } from "@/components/onboarding/ExplainScreen2";
 import { ExplainScreen3 } from "@/components/onboarding/ExplainScreen3";
@@ -99,12 +99,34 @@ export default function OnboardingPage() {
       return;
     }
 
-    // Send welcome email via Loops (fire-and-forget)
+    // Add to Resend audience + send welcome email (fire-and-forget)
     if (user.email) {
-      loops.sendTransactional({
+      resend.createContact({
         email: user.email,
-        transactionalId: "LOOPS_TX_WELCOME", // Replace with real ID from Loops dashboard
-        dataVariables: { first_name: displayName },
+        firstName: displayName,
+      }).catch(() => { /* best-effort */ });
+
+      resend.sendEmail({
+        to: user.email,
+        subject: "Welcome to Loop Mind 🌿",
+        html: `<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#090b0b;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#090b0b;padding:40px 20px;">
+    <tr><td align="center">
+      <table width="100%" cellpadding="0" cellspacing="0" style="max-width:480px;background:#202626;border-radius:16px;padding:40px;">
+        <tr><td>
+          <p style="margin:0 0 8px;font-size:22px;font-weight:700;color:#f1f3f3;">Welcome, ${displayName} 🌿</p>
+          <p style="margin:0 0 20px;font-size:15px;color:#8a9a9a;line-height:1.6;">You just took the first step toward breaking the loop. Loop Mind is your space to untangle what's stuck on repeat.</p>
+          <p style="margin:0 0 28px;font-size:15px;color:#8a9a9a;line-height:1.6;">Write when it feels heavy. We'll help you see the patterns.</p>
+          <a href="https://app.loopmind.care" style="display:inline-block;background:linear-gradient(135deg,#bfd8d8,#8ab8b8);color:#090b0b;text-decoration:none;font-weight:700;font-size:15px;padding:14px 32px;border-radius:12px;">Open Loop Mind</a>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`,
       }).catch((err) => console.warn("Welcome email skipped:", err));
     }
 

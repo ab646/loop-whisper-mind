@@ -10,4 +10,13 @@ verify_jwt = true
 verify_jwt = true
 
 [functions.loops]
+verify_jwt = true
+
+[functions.resend]
+verify_jwt = true
+
+[functions.send-email]
+verify_jwt = false
+
+[functions.reengagement-nudge]
 verify_jwt = false

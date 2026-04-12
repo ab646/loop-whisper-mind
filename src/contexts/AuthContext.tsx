@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useState, useRef, ReactNode } fro
 import { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { analytics } from "@/lib/analytics";
-import { loops } from "@/lib/loops";
+import { resend } from "@/lib/resend";
 import { toast } from "sonner";
 
 interface Profile {
@@ -39,7 +39,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
-  const syncedToLoops = useRef(false);
+  const syncedToResend = useRef(false);
 
   const fetchProfile = async (userId: string) => {
     try {
@@ -75,18 +75,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           // Use setTimeout to avoid Supabase deadlock
           setTimeout(() => fetchProfile(session.user.id), 0);
 
-          // Sync to Loops for transactional emails (welcome, password reset)
-          if (!syncedToLoops.current) {
-            syncedToLoops.current = true;
-            loops.createContact({
+          // Sync to Resend on first auth (signup or login)
+          if (!syncedToResend.current) {
+            syncedToResend.current = true;
+            resend.createContact({
               email: session.user.email!,
               firstName: session.user.user_metadata?.full_name?.split(" ")[0],
               lastName: session.user.user_metadata?.full_name?.split(" ").slice(1).join(" "),
-            }).catch(() => { /* Loops sync is best-effort */ });
+            }).catch(() => { /* Resend sync is best-effort */ });
           }
         } else {
           setProfile(null);
-          syncedToLoops.current = false;
+          syncedToResend.current = false;
         }
         setLoading(false);
       }

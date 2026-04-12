@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { motion } from "framer-motion";
 import { analytics } from "@/lib/analytics";
+import { resend } from "@/lib/resend";
 import { KeyRound, Download, Trash2, LogOut, ExternalLink, LifeBuoy, Mail, Eye, EyeOff, Lightbulb } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
@@ -120,14 +121,9 @@ export default function ProfilePage() {
       toast.error("Failed to update preference");
     } else {
       await refreshProfile();
-      // Sync to Loops
-      supabase.functions.invoke("loops", {
-        body: {
-          action: "updateContact",
-          email: user.email,
-          properties: { marketingConsent: newValue },
-        },
-      }).catch(() => { /* best-effort sync */ });
+      // Sync to Resend (best-effort)
+      resend.updateContact(user.email!, !newValue)
+        .catch(() => { /* best-effort sync */ });
     }
     setTogglingConsent(false);
   };

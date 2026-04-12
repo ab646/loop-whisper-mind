@@ -38,9 +38,9 @@ export default function FeedbackCard({ post, index }: Props) {
             {post.description}
           </p>
         )}
-        {post.status && post.statusLabel && (
+        {post.statusLabel && (
           <div className="flex items-center justify-end mt-2.5">
-            <FeedbackStatusBadge status={post.status} label={post.statusLabel} />
+            <FeedbackStatusBadge label={post.statusLabel} color={post.statusColor} />
           </div>
         )}
       </div>

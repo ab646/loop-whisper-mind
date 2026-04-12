@@ -4,8 +4,9 @@ export interface FeedbackPost {
   id: string;
   title: string;
   description: string;
-  status: "planned" | "in_progress" | "shipped" | null;
+  status: string | null;
   statusLabel: string;
+  statusColor: string | null;  // Notion select color: gray, brown, orange, yellow, green, blue, purple, pink, red
   votes: number;
   hasVoted: boolean;
   category: string;

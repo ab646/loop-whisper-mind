@@ -112,6 +112,14 @@ export default function ProfilePage() {
       toast.error("Failed to update preference");
     } else {
       await refreshProfile();
+      // Sync to Loops
+      supabase.functions.invoke("loops", {
+        body: {
+          action: "updateContact",
+          email: user.email,
+          properties: { marketingConsent: newValue },
+        },
+      }).catch(() => { /* best-effort sync */ });
     }
     setTogglingConsent(false);
   };

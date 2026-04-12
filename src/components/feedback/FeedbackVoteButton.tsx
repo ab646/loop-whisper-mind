@@ -17,7 +17,7 @@ export default function FeedbackVoteButton({ votes, hasVoted, onToggle, isLoadin
         onToggle();
       }}
       disabled={isLoading}
-      className={`flex flex-col items-center justify-center rounded-xl min-w-[52px] py-2 px-2 transition-colors ${
+      className={`flex flex-col items-center justify-center rounded-full w-14 h-14 shrink-0 transition-colors ${
         hasVoted
           ? "bg-primary text-primary-foreground"
           : "bg-muted text-muted-foreground"

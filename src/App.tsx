@@ -28,7 +28,6 @@ import CallbackPage from "./pages/CallbackPage";
 import JournalPage from "./pages/JournalPage";
 import JournalDetailPage from "./pages/JournalDetailPage";
 import NotFound from "./pages/NotFound";
-import FeedbackPage from "./pages/FeedbackPage";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 // ScrollToTop removed — was resetting scroll position on every navigation,
 // causing users to lose their place when going back from detail pages.
@@ -98,7 +97,6 @@ function AppRoutes() {
           <Route path="/insights" element={<ProtectedRoute><InsightsPage /></ProtectedRoute>} />
           <Route path="/theme/:id" element={<ProtectedRoute><ThemeExplorationPage /></ProtectedRoute>} />
           <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
-          <Route path="/feedback" element={<ProtectedRoute><FeedbackPage /></ProtectedRoute>} />
 
           <Route path="*" element={<NotFound />} />
         </Routes>

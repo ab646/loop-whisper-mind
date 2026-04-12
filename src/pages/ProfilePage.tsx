@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useState } from "react";
 import DeleteAccountDialog from "@/components/DeleteAccountDialog";
+import FeedbackPanel from "@/components/feedback/FeedbackPanel";
 
 export default function ProfilePage() {
   const navigate = useNavigate();
@@ -24,6 +25,7 @@ export default function ProfilePage() {
   const [togglingConsent, setTogglingConsent] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPw, setShowConfirmPw] = useState(false);
+  const [showFeedback, setShowFeedback] = useState(false);
 
   const handleChangePassword = async () => {
     if (newPassword.length < 6) {
@@ -294,7 +296,7 @@ export default function ProfilePage() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.17 }}
-            onClick={() => navigate("/feedback")}
+            onClick={() => setShowFeedback(true)}
             className="w-full rounded-2xl surface-low p-5 flex items-center justify-between"
           >
             <div className="flex items-center gap-3">
@@ -357,6 +359,7 @@ export default function ProfilePage() {
           </motion.button>
         </div>
       </div>
+      <FeedbackPanel open={showFeedback} onClose={() => setShowFeedback(false)} />
     </div>
   );
 }

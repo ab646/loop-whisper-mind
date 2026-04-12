@@ -9,9 +9,6 @@ verify_jwt = false
 [functions.explore-theme]
 verify_jwt = false
 
-[functions.loops]
-verify_jwt = true
-
 [functions.resend]
 verify_jwt = false
 

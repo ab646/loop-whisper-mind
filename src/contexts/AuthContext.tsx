@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState, useRef, ReactNode } fro
 import { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { analytics } from "@/lib/analytics";
+import { loops } from "@/lib/loops";
 
 interface Profile {
   display_name: string | null;
@@ -36,6 +37,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
+  const syncedToLoops = useRef(false);
+
   const fetchProfile = async (userId: string) => {
     const { data } = await supabase
       .from("profiles")
@@ -60,8 +63,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           analytics.identify(session.user.id);
           // Use setTimeout to avoid Supabase deadlock
           setTimeout(() => fetchProfile(session.user.id), 0);
+
+          // Sync to Loops for transactional emails (welcome, password reset)
+          if (!syncedToLoops.current) {
+            syncedToLoops.current = true;
+            loops.createContact({
+              email: session.user.email!,
+              firstName: session.user.user_metadata?.full_name?.split(" ")[0],
+              lastName: session.user.user_metadata?.full_name?.split(" ").slice(1).join(" "),
+            }).catch(() => { /* Loops sync is best-effort */ });
+          }
         } else {
           setProfile(null);
+          syncedToLoops.current = false;
         }
         setLoading(false);
       }

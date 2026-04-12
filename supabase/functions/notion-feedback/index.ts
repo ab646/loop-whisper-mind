@@ -42,13 +42,7 @@ serve(async (req) => {
         const response = await fetch(`${NOTION_API}/databases/${DB_ID}/query`, {
           method: "POST",
           headers: notionHeaders,
-          body: JSON.stringify({
-            sorts,
-            filter: {
-              property: "Status",
-              select: { does_not_equal: "Closed" },
-            },
-          }),
+          body: JSON.stringify({ sorts }),
         });
 
         if (!response.ok) {
@@ -83,7 +77,6 @@ serve(async (req) => {
             properties: {
               Title: { title: [{ text: { content: title.trim() } }] },
               Description: { rich_text: [{ text: { content: (description || "").trim() } }] },
-              Status: { select: { name: "Open" } },
               Votes: { number: 1 },
               Voters: { rich_text: [{ text: { content: userId } }] },
               "Author Name": { rich_text: [{ text: { content: userName } }] },
@@ -174,33 +167,25 @@ function mapNotionPage(page: any, userId: string) {
   const props = page.properties || {};
   const title = props.Title?.title?.[0]?.text?.content || "";
   const description = props.Description?.rich_text?.[0]?.text?.content || "";
-  const status = props.Status?.select?.name || "Open";
+  const statusSelect = props.Status?.select;
+  const status = statusSelect?.name || null;
+  const statusColor = statusSelect?.color || null;
   const votes = props.Votes?.number || 0;
   const votersStr = props.Voters?.rich_text?.[0]?.text?.content || "";
   const voters = votersStr ? votersStr.split(",").map((v: string) => v.trim()).filter(Boolean) : [];
-  const authorName = props["Author Name"]?.rich_text?.[0]?.text?.content || "Anonymous";
   const category = props.Category?.select?.name || "Feature";
   const shippedLink = props["Shipped Link"]?.url || undefined;
   const createdAt = props.Created?.date?.start || page.created_time || "";
-
-  const STATUS_LABELS: Record<string, string> = {
-    Open: "Open",
-    "Under Review": "Reviewing",
-    Planned: "Planned",
-    "In Progress": "Building",
-    Shipped: "Shipped",
-    Closed: "Closed",
-  };
 
   return {
     id: page.id,
     title,
     description,
-    status: status.toLowerCase().replace(/ /g, "_"),
-    statusLabel: STATUS_LABELS[status] || status,
+    status: status ? status.toLowerCase().replace(/ /g, "_") : null,
+    statusLabel: status,
+    statusColor,
     votes,
     hasVoted: voters.includes(userId),
-    authorName,
     category,
     shippedLink,
     createdAt,

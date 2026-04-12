@@ -6,6 +6,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { useCreateLoop } from "@/hooks/useCreateLoop";
 import { analytics } from "@/lib/analytics";
+import { loops } from "@/lib/loops";
 import { ExplainScreen1 } from "@/components/onboarding/ExplainScreen1";
 import { ExplainScreen2 } from "@/components/onboarding/ExplainScreen2";
 import { ExplainScreen3 } from "@/components/onboarding/ExplainScreen3";
@@ -96,6 +97,15 @@ export default function OnboardingPage() {
       toast.error("Failed to save preferences");
       setLoading(false);
       return;
+    }
+
+    // Send welcome email via Loops (fire-and-forget)
+    if (user.email) {
+      loops.sendTransactional({
+        email: user.email,
+        transactionalId: "LOOPS_TX_WELCOME", // Replace with real ID from Loops dashboard
+        dataVariables: { first_name: displayName },
+      }).catch((err) => console.warn("Welcome email skipped:", err));
     }
 
     // Resolve initial text

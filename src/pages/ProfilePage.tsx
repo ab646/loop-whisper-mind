@@ -359,6 +359,7 @@ export default function ProfilePage() {
           </motion.button>
         </div>
       </div>
+      <FeedbackPanel open={showFeedback} onClose={() => setShowFeedback(false)} />
     </div>
   );
 }

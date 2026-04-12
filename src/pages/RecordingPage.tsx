@@ -282,8 +282,9 @@ export default function RecordingPage() {
     );
   }
 
-  // Compute average audio level for ring intensity
-  const avgLevel = levels.reduce((a, b) => a + b, 0) / (levels.length || 1);
+  // Compute average audio level for ring intensity (web only; native has no stream)
+  const avgLevel = isNativePlatform ? 0 : levels.reduce((a, b) => a + b, 0) / (levels.length || 1);
+  const useNativeFallback = isNativePlatform && isRecording && !isPaused;
 
   return (
     <div className="flex flex-col h-[100dvh] mesh-gradient-bg relative overflow-hidden" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>

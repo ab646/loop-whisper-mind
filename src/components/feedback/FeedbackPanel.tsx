@@ -68,17 +68,17 @@ export default function FeedbackPanel({ open, onClose }: Props) {
           >
             <div className="rounded-t-2xl surface-low flex flex-col h-full overflow-hidden">
               {/* Drag handle */}
-              <div className="flex justify-center pt-2 pb-1 cursor-grab active:cursor-grabbing">
+              <div className="flex justify-center pt-3 pb-2 cursor-grab active:cursor-grabbing">
                 <div className="w-9 h-1 rounded-full bg-muted-foreground/30" />
               </div>
 
               {/* Header */}
-              <div className="px-5 pb-4 flex items-start justify-between">
+              <div className="px-6 pb-5 pt-2 flex items-start justify-between">
                 <div>
                   <h1 className="font-display text-xl text-on-surface font-semibold">
                     What should Loop do next?
                   </h1>
-                  <p className="text-on-surface-variant text-sm mt-0.5">
+                  <p className="text-on-surface-variant text-sm mt-1">
                     Vote on ideas or share your own
                   </p>
                 </div>
@@ -92,12 +92,12 @@ export default function FeedbackPanel({ open, onClose }: Props) {
               </div>
 
               {/* Sort */}
-              <div className="px-5 pb-3">
+              <div className="px-6 pb-4">
                 <FeedbackSortToggle sortMode={sortMode} onChange={setSortMode} />
               </div>
 
               {/* Content — scrollable */}
-              <div className="flex-1 min-h-0 overflow-y-auto px-5 pb-4 space-y-3 overscroll-contain">
+              <div className="flex-1 min-h-0 overflow-y-auto px-6 pb-6 space-y-4 overscroll-contain">
                 {loading ? (
                   <LoadingSkeleton />
                 ) : error ? (
@@ -131,7 +131,7 @@ export default function FeedbackPanel({ open, onClose }: Props) {
 
               {/* Sticky CTA */}
               {!loading && !error && posts.length > 0 && (
-                <div className="px-5 py-3 border-t border-border">
+                <div className="px-6 py-4 border-t border-border">
                   <button
                     onClick={() => setSheetOpen(true)}
                     className="w-full rounded-xl bg-primary text-primary-foreground py-3 text-sm font-semibold flex items-center justify-center gap-2"

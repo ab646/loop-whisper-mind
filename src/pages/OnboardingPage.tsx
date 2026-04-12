@@ -99,6 +99,15 @@ export default function OnboardingPage() {
       return;
     }
 
+    // Send welcome email via Loops (fire-and-forget)
+    if (user.email) {
+      loops.sendTransactional({
+        email: user.email,
+        transactionalId: "LOOPS_TX_WELCOME", // Replace with real ID from Loops dashboard
+        dataVariables: { first_name: displayName },
+      }).catch((err) => console.warn("Welcome email skipped:", err));
+    }
+
     // Resolve initial text
     let initialText = "";
     if (selectedSeed !== null && selectedSeed < SEED_OPTIONS.length) {

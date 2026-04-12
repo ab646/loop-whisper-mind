@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { KeyRound, Download, Trash2, LogOut, ExternalLink, LifeBuoy, Mail } from "lucide-react";
+import { KeyRound, Download, Trash2, LogOut, ExternalLink, LifeBuoy, Mail, Eye, EyeOff } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -18,6 +18,8 @@ export default function ProfilePage() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [togglingConsent, setTogglingConsent] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPw, setShowConfirmPw] = useState(false);
 
   const handleChangePassword = async () => {
     if (newPassword.length < 6) {
@@ -172,20 +174,40 @@ export default function ProfilePage() {
               animate={{ opacity: 1, height: "auto" }}
               className="rounded-2xl surface-low p-5 space-y-3"
             >
-              <input
-                type="password"
-                placeholder="New password"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                className="w-full rounded-xl bg-background border border-border px-4 py-3 text-sm text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:ring-2 focus:ring-primary"
-              />
-              <input
-                type="password"
-                placeholder="Confirm password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                className="w-full rounded-xl bg-background border border-border px-4 py-3 text-sm text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:ring-2 focus:ring-primary"
-              />
+              <div className="relative">
+                <input
+                  type={showNewPassword ? "text" : "password"}
+                  placeholder="New password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  className="w-full rounded-xl bg-background border border-border px-4 py-3 pr-12 text-sm text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:ring-2 focus:ring-primary"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowNewPassword(!showNewPassword)}
+                  aria-label={showNewPassword ? "Hide new password" : "Show new password"}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-on-surface transition-colors p-1"
+                >
+                  {showNewPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
+              <div className="relative">
+                <input
+                  type={showConfirmPw ? "text" : "password"}
+                  placeholder="Confirm password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className="w-full rounded-xl bg-background border border-border px-4 py-3 pr-12 text-sm text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:ring-2 focus:ring-primary"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPw(!showConfirmPw)}
+                  aria-label={showConfirmPw ? "Hide confirm password" : "Show confirm password"}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-on-surface transition-colors p-1"
+                >
+                  {showConfirmPw ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
               <button
                 onClick={handleChangePassword}
                 disabled={updating}
@@ -293,9 +315,9 @@ export default function ProfilePage() {
           transition={{ delay: 0.25 }}
           className="flex items-center justify-center gap-4 text-xs text-on-surface-variant pt-2"
         >
-          <a href="https://loopmind.care/privacy" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-on-surface transition-colors">Privacy Policy</a>
+          <a href="https://loopmind.care/privacy" target="_blank" rel="noopener noreferrer" aria-label="Privacy Policy (opens in new window)" className="underline underline-offset-2 hover:text-on-surface transition-colors">Privacy Policy</a>
           <span>·</span>
-          <a href="https://loopmind.care/terms" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-on-surface transition-colors">Terms</a>
+          <a href="https://loopmind.care/terms" target="_blank" rel="noopener noreferrer" aria-label="Terms (opens in new window)" className="underline underline-offset-2 hover:text-on-surface transition-colors">Terms</a>
         </motion.div>
 
         {/* Delete Account */}

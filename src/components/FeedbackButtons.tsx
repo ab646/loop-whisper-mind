@@ -3,6 +3,7 @@ import { ThumbsUp, ThumbsDown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { analytics } from "@/lib/analytics";
+import { toast } from "sonner";
 
 interface FeedbackButtonsProps {
   contentType: string;
@@ -64,6 +65,10 @@ export function FeedbackButtons({ contentType, contentId, contentPreview }: Feed
 
     setRating(newRating);
     setSaving(false);
+
+    if (newRating !== null) {
+      toast("Thanks for the feedback", { duration: 1500 });
+    }
 
     analytics.track(newRating === 1 ? "feedback_thumbs_up" : newRating === -1 ? "feedback_thumbs_down" : "feedback_removed", {
       content_type: contentType,

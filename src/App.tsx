@@ -29,7 +29,8 @@ import JournalPage from "./pages/JournalPage";
 import JournalDetailPage from "./pages/JournalDetailPage";
 import NotFound from "./pages/NotFound";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
-import ScrollToTop from "@/components/ScrollToTop";
+// ScrollToTop removed — was resetting scroll position on every navigation,
+// causing users to lose their place when going back from detail pages.
 import { ReturnToLoopAppBanner } from "@/components/ReturnToLoopAppBanner";
 
 const queryClient = new QueryClient();
@@ -80,7 +81,7 @@ function AppRoutes() {
           {/* Public */}
           <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
           <Route path="/signup" element={<Navigate to="/login" replace />} />
-          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/forgot-password" element={<PublicRoute><ForgotPasswordPage /></PublicRoute>} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route path="/callback" element={<CallbackPage />} />
 
@@ -186,7 +187,6 @@ const App = () => {
         <TooltipProvider>
           <Sonner />
           <BrowserRouter>
-            <ScrollToTop />
             <AuthProvider>
               <ReturnToLoopAppBanner />
               <AppRoutes />

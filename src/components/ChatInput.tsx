@@ -1,6 +1,7 @@
 import { ArrowUp, Image } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useState, useRef, useEffect, useCallback } from "react";
+import { toast } from "sonner";
 
 interface ChatInputProps {
   onSend: (text: string, imageUrl?: string) => void;
@@ -50,10 +51,12 @@ export function ChatInput({ onSend, onImageSelected, onVoice, placeholder = "Typ
     if (!file) return;
 
     if (!file.type.startsWith("image/")) {
+      toast.error("Only images are supported.");
       return;
     }
 
     if (file.size > 10 * 1024 * 1024) {
+      toast.error("Image is too large. Max size is 10 MB.");
       return;
     }
 

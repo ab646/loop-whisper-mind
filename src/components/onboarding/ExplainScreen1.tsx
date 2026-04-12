@@ -144,10 +144,10 @@ export function ExplainScreen1() {
               transition={{ duration: 0.3 }}
               className="w-full flex justify-end"
             >
-              <div className="rounded-2xl surface-high px-4 py-3 max-w-[85%]">
+              <div className="rounded-2xl surface-high px-4 py-3 max-w-[85%]" aria-live="polite" aria-atomic="true">
                 <p className="text-on-surface text-[15px] leading-relaxed">
                   {displayText}
-                  <span className="inline-block w-[2px] h-4 bg-mint ml-0.5 animate-pulse align-text-bottom" />
+                  <span className="inline-block w-[2px] h-4 bg-mint ml-0.5 animate-pulse align-text-bottom" aria-hidden="true" />
                 </p>
               </div>
             </motion.div>

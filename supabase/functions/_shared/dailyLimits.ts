@@ -62,7 +62,7 @@ export async function checkAndIncrementDailyLimit(
     .eq("date", today)
     .maybeSingle();
 
-  const currentCount: number = row?.[action] ?? 0;
+  const currentCount: number = (row as Record<string, number> | null)?.[action] ?? 0;
 
   if (currentCount >= limit) {
     return { message: LIMIT_MESSAGES[action], limit };
@@ -99,9 +99,10 @@ export async function getDailyUsage(
     .maybeSingle();
 
   const result = {} as Record<UsageAction, { used: number; limit: number }>;
+  const rowData = row as Record<string, number> | null;
   for (const [action, limit] of Object.entries(DAILY_LIMITS)) {
     result[action as UsageAction] = {
-      used: row?.[action] ?? 0,
+      used: rowData?.[action] ?? 0,
       limit,
     };
   }

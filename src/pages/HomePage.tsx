@@ -293,6 +293,20 @@ export default function HomePage() {
     return <FullScreenLoader mode="reflection" />;
   }
 
+  if (error && !loading) {
+    return (
+      <div className="flex h-full min-h-0 flex-col mesh-gradient-bg items-center justify-center px-8 gap-4">
+        <p className="text-on-surface-variant text-sm text-center">{error}</p>
+        <button
+          onClick={() => setRetryCount((c) => c + 1)}
+          className="rounded-xl bg-mint/10 text-mint px-6 py-3 text-sm font-semibold"
+        >
+          Try again
+        </button>
+      </div>
+    );
+  }
+
   const groupedEntries = groupEntries(entries);
   const firstGroup = groupedEntries[0]?.[0];
 

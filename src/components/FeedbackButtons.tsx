@@ -78,26 +78,26 @@ export function FeedbackButtons({ contentType, contentId, contentPreview }: Feed
       <button
         onClick={() => handleRate(1)}
         disabled={saving}
-        className={`p-1.5 rounded-lg transition-colors ${
+        className={`p-2.5 rounded-lg transition-colors ${
           rating === 1
             ? "text-mint bg-mint/10"
             : "text-on-surface-variant hover:text-on-surface hover:bg-surface-high"
         } disabled:opacity-50`}
         aria-label="Thumbs up"
       >
-        <ThumbsUp size={14} />
+        <ThumbsUp size={16} />
       </button>
       <button
         onClick={() => handleRate(-1)}
         disabled={saving}
-        className={`p-1.5 rounded-lg transition-colors ${
+        className={`p-2.5 rounded-lg transition-colors ${
           rating === -1
             ? "text-destructive bg-destructive/10"
             : "text-on-surface-variant hover:text-on-surface hover:bg-surface-high"
         } disabled:opacity-50`}
         aria-label="Thumbs down"
       >
-        <ThumbsDown size={14} />
+        <ThumbsDown size={16} />
       </button>
     </div>
   );

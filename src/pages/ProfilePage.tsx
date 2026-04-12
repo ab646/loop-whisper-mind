@@ -231,6 +231,9 @@ export default function ProfilePage() {
             <button
               onClick={handleToggleMarketingConsent}
               disabled={togglingConsent}
+              role="switch"
+              aria-checked={!!profile?.marketing_consent}
+              aria-label="Toggle marketing emails"
               className={`relative w-11 h-6 rounded-full transition-colors ${
                 profile?.marketing_consent ? "bg-mint" : "bg-surface-high"
               }`}

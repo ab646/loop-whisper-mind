@@ -30,6 +30,7 @@ export function VoiceOrb({ size = "lg", onClick, label, layoutId }: VoiceOrbProp
         whileTap={prefersReduced ? undefined : { scale: 0.92 }}
         whileHover={prefersReduced ? undefined : { scale: 1.04 }}
         onClick={onClick}
+        aria-label={label || "Record voice message"}
         className={`${sizes[size]} rounded-full orb-gradient orb-shadow flex items-center justify-center relative`}
         transition={{ layout: { duration: 0.5, ease: [0.4, 0, 0.2, 1] } }}
       >

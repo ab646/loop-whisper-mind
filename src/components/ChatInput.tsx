@@ -83,6 +83,7 @@ export function ChatInput({ onSend, onImageSelected, onVoice, placeholder = "Typ
         <button
           onClick={() => fileInputRef.current?.click()}
           disabled={disabled || imageUploading}
+          aria-label="Attach image"
           className="text-on-surface-variant hover:text-mint transition-colors disabled:opacity-50"
         >
           <Image size={20} />
@@ -113,7 +114,8 @@ export function ChatInput({ onSend, onImageSelected, onVoice, placeholder = "Typ
             transition={{ duration: 0.15 }}
             onClick={handleSend}
             disabled={disabled}
-            className="w-9 h-9 rounded-full bg-mint flex items-center justify-center shrink-0 disabled:opacity-50"
+            aria-label="Send message"
+            className="w-11 h-11 rounded-full bg-mint flex items-center justify-center shrink-0 disabled:opacity-50"
           >
             <ArrowUp size={18} className="text-primary-foreground" />
           </motion.button>

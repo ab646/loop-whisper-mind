@@ -55,6 +55,10 @@ interface FullScreenLoaderProps {
   label?: string;
   /** Optional progress percentage (0-100) */
   progress?: number;
+  /** Called when user taps cancel after timeout */
+  onCancel?: () => void;
+  /** Seconds before showing "taking longer" message (default 30) */
+  timeoutSeconds?: number;
 }
 
 function shuffle<T>(arr: T[]): T[] {
@@ -72,12 +76,13 @@ const PHRASE_MAP: Record<LoaderMode, string[]> = {
   transcription: TRANSCRIPTION_PHRASES,
 };
 
-export function FullScreenLoader({ mode, label, progress }: FullScreenLoaderProps) {
+export function FullScreenLoader({ mode, label, progress, onCancel, timeoutSeconds = 30 }: FullScreenLoaderProps) {
   const prefersReduced = useReducedMotion();
   const phrases = PHRASE_MAP[mode];
   const [shuffled] = useState(() => shuffle(phrases));
   const [index, setIndex] = useState(0);
   const [fading, setFading] = useState(false);
+  const [timedOut, setTimedOut] = useState(false);
 
   useEffect(() => {
     if (prefersReduced || label) return;
@@ -90,6 +95,11 @@ export function FullScreenLoader({ mode, label, progress }: FullScreenLoaderProp
     }, 2800);
     return () => clearInterval(interval);
   }, [shuffled.length, prefersReduced, label]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setTimedOut(true), timeoutSeconds * 1000);
+    return () => clearTimeout(timer);
+  }, [timeoutSeconds]);
 
   const LogoComponent = mode === "analysis" ? ThinkingLogo : ScribblingLogo;
   const displayText = label || `${shuffled[index]}...`;
@@ -112,6 +122,20 @@ export function FullScreenLoader({ mode, label, progress }: FullScreenLoaderProp
           </span>
         )}
       </div>
+
+      {timedOut && (
+        <div className="flex flex-col items-center gap-3 mt-4">
+          <p className="text-on-surface-variant text-xs text-center">Taking longer than usual...</p>
+          {onCancel && (
+            <button
+              onClick={onCancel}
+              className="text-mint text-sm font-semibold py-2 px-4"
+            >
+              Cancel
+            </button>
+          )}
+        </div>
+      )}
     </div>
   );
 }

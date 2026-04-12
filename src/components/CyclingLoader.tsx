@@ -55,6 +55,8 @@ interface CyclingLoaderProps {
   size?: number;
   className?: string;
   layout?: "inline" | "block";
+  /** Seconds before showing "taking longer" hint (default 30) */
+  timeoutSeconds?: number;
 }
 
 function shuffle<T>(arr: T[]): T[] {
@@ -71,12 +73,14 @@ export function CyclingLoader({
   size = 18,
   className = "",
   layout = "block",
+  timeoutSeconds = 30,
 }: CyclingLoaderProps) {
   const phrases = mode === "reflection" ? REFLECTION_PHRASES : ANALYSIS_PHRASES;
   const prefersReduced = useReducedMotion();
   const [shuffled] = useState(() => shuffle(phrases));
   const [index, setIndex] = useState(0);
   const [fading, setFading] = useState(false);
+  const [timedOut, setTimedOut] = useState(false);
 
   useEffect(() => {
     if (prefersReduced) return; // Show static phrase
@@ -91,6 +95,11 @@ export function CyclingLoader({
     return () => clearInterval(interval);
   }, [shuffled.length, prefersReduced]);
 
+  useEffect(() => {
+    const timer = setTimeout(() => setTimedOut(true), timeoutSeconds * 1000);
+    return () => clearTimeout(timer);
+  }, [timeoutSeconds]);
+
   const LogoComponent = mode === "reflection" ? ScribblingLogo : ThinkingLogo;
 
   if (layout === "inline") {
@@ -102,7 +111,7 @@ export function CyclingLoader({
             fading ? "opacity-0" : "opacity-100"
           }`}
         >
-          {shuffled[index]}...
+          {timedOut ? "Taking longer than usual..." : `${shuffled[index]}...`}
         </span>
       </div>
     );
@@ -116,7 +125,7 @@ export function CyclingLoader({
           fading ? "opacity-0" : "opacity-100"
         }`}
       >
-        {shuffled[index]}...
+        {timedOut ? "Taking longer than usual..." : `${shuffled[index]}...`}
       </span>
     </div>
   );

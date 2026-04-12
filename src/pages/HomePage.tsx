@@ -10,7 +10,7 @@ function getGreeting(): string {
   if (hour < 17) return "Good afternoon";
   return "Good evening";
 }
-import { ScribblingLogo } from "@/components/LoopLogo";
+import { ScribblingLogo, StaticLogo } from "@/components/LoopLogo";
 import { AppHeader } from "@/components/AppHeader";
 import { VoiceOrb } from "@/components/VoiceOrb";
 import { FullScreenLoader } from "@/components/FullScreenLoader";

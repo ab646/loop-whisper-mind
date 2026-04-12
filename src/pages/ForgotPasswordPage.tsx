@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { StaticLogo } from "@/components/LoopLogo";
 import { supabase } from "@/integrations/supabase/client";
+import { checkRateLimit } from "@/lib/rate-limit";
 import { toast } from "sonner";
 
 export default function ForgotPasswordPage() {
@@ -12,6 +13,11 @@ export default function ForgotPasswordPage() {
 
   const handleReset = async (e: React.FormEvent) => {
     e.preventDefault();
+    const { allowed, retryAfterSec } = checkRateLimit("auth:reset");
+    if (!allowed) {
+      toast.error(`Too many attempts. Please wait ${retryAfterSec}s and try again.`);
+      return;
+    }
     setLoading(true);
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${window.location.origin}/reset-password`,

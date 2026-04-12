@@ -13,12 +13,14 @@ interface ValidationResult {
   valid: boolean;
   reason: string;
   transcription: string | null;
+  pii_detected: boolean;
 }
 
 const VALIDATION_FALLBACK: ValidationResult = {
   valid: false,
   reason: "I couldn't read this one. Try a screenshot of what's looping — a text, a note, something with words.",
   transcription: null,
+  pii_detected: false,
 };
 
 serve(async (req) => {
@@ -58,11 +60,18 @@ Return ONLY valid JSON:
 {
   "valid": true/false,
   "reason": "Brief explanation of why this was accepted or rejected",
-  "transcription": "If valid, provide a faithful transcription of all visible text and a brief description of any visual context (e.g. 'Screenshot of a text conversation where...'). If rejected, null."
+  "transcription": "If valid, provide a faithful transcription of all visible text (PII redacted) and a brief description of any visual context (e.g. 'Screenshot of a text conversation where...'). If rejected, null.",
+  "pii_detected": true/false
 }
 
+PRIVACY — PII handling:
+- If the image contains sensitive personal information (phone numbers, email addresses, full names of other people, physical addresses, financial details, government IDs), REDACT them in the transcription by replacing with [redacted]
+- Keep the user's own first name if visible, but redact last names and other people's full names
+- Set "pii_detected" to true in your response if any PII was found and redacted
+- This protects the user's contacts and keeps stored reflections safe
+
 For the transcription:
-- Extract ALL visible text faithfully
+- Extract ALL visible text faithfully (with PII redacted as above)
 - Add brief context about what the image shows (e.g. 'A text message conversation between...')
 - If it's handwritten, do your best to transcribe accurately
 - If it's a photo (not text), describe what's happening emotionally in the scene

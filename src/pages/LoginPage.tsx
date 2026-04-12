@@ -5,6 +5,7 @@ import { Eye, EyeOff, Check, X } from "lucide-react";
 import { StaticLogo } from "@/components/LoopLogo";
 import { supabase } from "@/integrations/supabase/client";
 import { signInWithOAuth } from "@/lib/native-auth";
+import { checkRateLimit } from "@/lib/rate-limit";
 import { toast } from "sonner";
 
 function PasswordRule({ met, label }: { met: boolean; label: string }) {
@@ -82,6 +83,13 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    const action = mode === "signup" ? "auth:signup" : "auth:signin";
+    const { allowed, retryAfterSec } = checkRateLimit(action);
+    if (!allowed) {
+      toast.error(`Too many attempts. Please wait ${retryAfterSec}s and try again.`);
+      return;
+    }
+
     if (mode === "signup") {
       if (password !== confirmPassword) {
         toast.error("Passwords don't match");
@@ -153,6 +161,11 @@ export default function LoginPage() {
             Didn't get it?{" "}
             <button
               onClick={async () => {
+                const { allowed, retryAfterSec } = checkRateLimit("auth:resend");
+                if (!allowed) {
+                  toast.error(`Please wait ${retryAfterSec}s before resending.`);
+                  return;
+                }
                 await supabase.auth.resend({ type: "signup", email });
                 toast.success("Confirmation email resent");
               }}

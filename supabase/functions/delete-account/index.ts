@@ -8,10 +8,27 @@ serve(async (req) => {
   try {
     const { userId, adminClient } = await authenticateRequest(req);
 
-    // Delete user data
-    await adminClient.from("feedback").delete().eq("user_id", userId);
-    await adminClient.from("entries").delete().eq("user_id", userId);
-    await adminClient.from("profiles").delete().eq("user_id", userId);
+    // Cascading deletion with verification for each table
+    const tables = ["feedback", "entries", "profiles"] as const;
+    for (const table of tables) {
+      const { error: delError } = await adminClient
+        .from(table)
+        .delete()
+        .eq("user_id", userId);
+      if (delError) {
+        console.error(`delete-account: failed to delete from ${table}`);
+        throw new Error(`Failed to delete ${table} data`);
+      }
+      // Verify deletion succeeded — no rows should remain
+      const { count } = await adminClient
+        .from(table)
+        .select("*", { count: "exact", head: true })
+        .eq("user_id", userId);
+      if (count && count > 0) {
+        console.error(`delete-account: ${count} rows remain in ${table} after deletion`);
+        throw new Error(`Incomplete deletion in ${table}`);
+      }
+    }
 
     // Delete the auth user (requires service role)
     const { error } = await adminClient.auth.admin.deleteUser(userId);
@@ -20,7 +37,7 @@ serve(async (req) => {
     return jsonResponse(req, { success: true });
   } catch (e) {
     if (e instanceof AuthError) return errorResponse(req, e.message, e.status);
-    console.error("delete-account error:", e);
-    return errorResponse(req, e instanceof Error ? e.message : "Deletion failed");
+    console.error("delete-account error");
+    return errorResponse(req, "Account deletion failed. Please contact support.");
   }
 });

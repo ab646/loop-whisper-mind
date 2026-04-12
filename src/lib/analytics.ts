@@ -4,7 +4,9 @@ let sessionStartTime = Date.now();
 
 export const analytics = {
   init() {
-    posthog.init("phc_qzZZ4oV8NHDJP9x7hivXgjJqwryvRWFAnYn6SzF3HBmP", {
+    const posthogKey = import.meta.env.VITE_POSTHOG_KEY;
+    if (!posthogKey) return; // Skip analytics if key not configured
+    posthog.init(posthogKey, {
       api_host: "https://eu.i.posthog.com",
       autocapture: false,
       capture_pageview: true,

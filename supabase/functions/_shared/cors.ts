@@ -7,21 +7,13 @@ const ALLOWED_ORIGINS = [
   "http://localhost:8080",
   "capacitor://localhost",
   "https://app.loopmind.care",
+  "https://loop-whisper-mind.lovable.app",
   ...(Deno.env.get("CUSTOM_ORIGIN") ? [Deno.env.get("CUSTOM_ORIGIN")!] : []),
 ];
 
-const ALLOWED_HOST_SUFFIXES = [".lovable.app", ".lovableproject.com"];
-
 function isAllowedOrigin(origin: string): boolean {
   if (!origin) return false;
-  if (ALLOWED_ORIGINS.includes(origin)) return true;
-
-  try {
-    const { hostname, protocol } = new URL(origin);
-    return protocol === "https:" && ALLOWED_HOST_SUFFIXES.some((suffix) => hostname.endsWith(suffix));
-  } catch {
-    return false;
-  }
+  return ALLOWED_ORIGINS.includes(origin);
 }
 
 export function getCorsHeaders(req: Request): Record<string, string> {

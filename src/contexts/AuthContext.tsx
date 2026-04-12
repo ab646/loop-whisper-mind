@@ -94,6 +94,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signOut = async () => {
     analytics.reset();
+    sessionStorage.removeItem("loop.justCompletedOAuth");
     await supabase.auth.signOut();
     setSession(null);
     setProfile(null);

@@ -87,6 +87,7 @@ export type Database = {
           display_name: string | null
           id: string
           mantra: string | null
+          marketing_consent: boolean
           notifications_enabled: boolean
           onboarding_complete: boolean
           updated_at: string
@@ -100,6 +101,7 @@ export type Database = {
           display_name?: string | null
           id?: string
           mantra?: string | null
+          marketing_consent?: boolean
           notifications_enabled?: boolean
           onboarding_complete?: boolean
           updated_at?: string
@@ -113,6 +115,7 @@ export type Database = {
           display_name?: string | null
           id?: string
           mantra?: string | null
+          marketing_consent?: boolean
           notifications_enabled?: boolean
           onboarding_complete?: boolean
           updated_at?: string

@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { motion } from "framer-motion";
 import { analytics } from "@/lib/analytics";
-import { KeyRound, Download, Trash2, LogOut, ExternalLink, LifeBuoy, Mail, Eye, EyeOff } from "lucide-react";
+import { KeyRound, Download, Trash2, LogOut, ExternalLink, LifeBuoy, Mail, Eye, EyeOff, Lightbulb } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
